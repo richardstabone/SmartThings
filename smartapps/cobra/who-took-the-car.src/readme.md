@@ -14,4 +14,8 @@ Who took the car
 
 
 
-App description: "Sets a virtual switch when a car leaves, and tries to work out who took it",
+App description: Sets a virtual switch when a car leaves, and tries to work out who took it
+
+You will need the following DTH to go with this:
+
+	custom-car-indicator-generic.groovy
