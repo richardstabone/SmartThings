@@ -37,7 +37,7 @@
  *
  *  Changes:
  *
- * 	V1.3.0 - Custom Icons
+ *  V1.3.0 - Custom Icons
  *  V1.2.0 - Added configurable delay between message events
  *  V1.1.0 - Added ability to customise alert message
  *  V1.0.1 - Debug
