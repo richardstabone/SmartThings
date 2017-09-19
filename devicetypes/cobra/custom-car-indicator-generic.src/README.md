@@ -1,4 +1,3 @@
-# SmartThings
 
 Custom Car Indicator
 

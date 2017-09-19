@@ -6,7 +6,8 @@
  *	Parts of 'LOGDEBUG()' code from an app by: BRIAN LOWRANCE
  *
  *  Design Usage:
- *  This was designed to.... 
+ *  This was designed to control a heater - turning on/off with  varying temperatures.
+ *  It has an optional 'override' switch and configurable restrictions on when it can run",
  *
  *
  *  Copyright 2017 Andrew Parker
