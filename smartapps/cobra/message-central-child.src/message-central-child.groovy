@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.2.2 - New Icons
  *  V1.2.1 - Debug - Time did not have day restriction
  *  V1.2.0 - Added switchable logging
  *	V1.1.0 - Added delay between messages
@@ -115,9 +116,13 @@ subscribe(presenceSensor1, "presence", presenceTalkNow)
 // main page *************************************************************************
 def mainPage() {
     dynamicPage(name: "mainPage") {
-        section {
-         paragraph "Child Version: $state.appversion"
+      section() {
+   
         paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+                         "Child Version: $state.appversion - Brought to you by Cobra"
+    }
+        section {
+        paragraph image: "http://54.246.165.27/img/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
                   "This child app allows you use different triggers to create different messages"
@@ -496,5 +501,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.2.1"
+    state.appversion = "1.2.2"
 }
