@@ -39,7 +39,7 @@ section() {
         paragraph image: "http://54.246.165.27/img/icons/gardenlights.png",
                   title: "Garden Light Control",
                   required: false,
-                  "Controls a set of sockets for garden lights turn on at sunset and off at a certain time"
+                  "Controls a set of sockets/switches for garden lights, turn on at sunset and off at a certain time"
     }
 
 
