@@ -6,8 +6,7 @@
  *	Parts of 'LOGDEBUG()' code from an app by: BRIAN LOWRANCE
  *
  *  Design Usage:
- *  This was designed to control a heater - turning on/off with  varying temperatures.
- *  It has an optional 'override' switch and configurable restrictions on when it can run",
+ *  This was designed to.... 
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -113,21 +112,22 @@ def initialize() {
 // main page *************************************************************************
 def introPage() {
     dynamicPage(name: "introPage") {
-    section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
-                         "Version: $state.appversion - Brought to you by Cobra"
-    }
     
     
-        section {
-       
+        section() {       
         paragraph image: "http://54.246.165.27/img/icons/temp.png",
                   title: "Temperature Controlled Switch",
                   required: false,
                  "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run"
+                  }
                   
-          }
+        section() {   
+        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+                         "Version: $state.appversion - Brought to you by Cobra"
+   				  }      
+    
+    
 		section("Basic App Settings") {
 	input "switch1", "capability.switch", title: "Select switch to enable/disable app (Optional)", required: false, multiple: false 
     }  
@@ -218,29 +218,6 @@ LOGDEBUG(" Not ok - one or more conditions are not met")
 LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $enableOk")
 }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Check if ok to run *** (Time, Mode, Day & Enable Switch) ************************************
