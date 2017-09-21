@@ -116,18 +116,19 @@ subscribe(presenceSensor1, "presence", presenceTalkNow)
 // main page *************************************************************************
 def mainPage() {
     dynamicPage(name: "mainPage") {
-      section() {
-   
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
-                         "Child Version: $state.appversion - Brought to you by Cobra"
-    }
+      
         section {
         paragraph image: "http://54.246.165.27/img/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
                   "This child app allows you use different triggers to create different messages"
-                  
-     
+                  }
+     section() {
+   
+        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+                         "Child Version: $state.appversion - Copyright © 2017 Cobra"
+    }             
+      section() {
         	speakerInputs()
             triggerInput()
             actionInputs()
