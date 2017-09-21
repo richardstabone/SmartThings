@@ -409,12 +409,12 @@ if(state.appgo == true && state.timeOK == true && state.dayCheck == true){
 LOGDEBUG( " Continue... Check delay...")
 
 if(state.msgNow == 'oneNow' && state.timer1 == true){
-LOGDEBUG("All OK! - Playing message 1")
+LOGDEBUG("All OK! - Playing message 1: '$state.msg1'")
 speaker.speak(state.msg1)
 startTimer1()
 }
 else if(state.msgNow == 'twoNow'  && state.msg2 != null && state.timer2 == true){
-LOGDEBUG( "All OK! - Playing message 2")
+LOGDEBUG( "All OK! - Playing message 2: '$state.msg2'")
 speaker.speak(state.msg2)
 startTimer2()
 }
