@@ -306,16 +306,14 @@ state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.talkswitch == 'on'){
-if(state.msg1 != null){
+	if(state.talkswitch == 'on'){
 state.msgNow = 'oneNow'
     }
-}
-else if (state.talkswitch == 'off'){
-if(state.msg2 != null){
+
+	else if (state.talkswitch == 'off'){
 state.msgNow = 'twoNow'
 	}
-}
+
 LOGDEBUG( "$switch1 is $state.talkswitch")
 def mydelay = triggerDelay
 speaker.setLevel(volume)
@@ -331,16 +329,13 @@ state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.talkcontact == 'open'){
-if(state.msg1 != null){
+	if(state.talkcontact == 'open'){
 state.msgNow = 'oneNow'
 }
-}
-else if (state.talkcontact == 'closed'){
-if(state.msg2 != null){
+	else if (state.talkcontact == 'closed'){
 state.msgNow = 'twoNow'
 }
-}
+
 LOGDEBUG("$contactSensor is $state.talkcontact")
 def mydelay = triggerDelay
 speaker.setLevel(volume)
@@ -354,16 +349,13 @@ state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.talkwater == 'wet'){
-if(state.msg1 != null){
+	if(state.talkwater == 'wet'){
 state.msgNow = 'oneNow'
 	}
-}
-else if (state.talkwater == 'dry'){
-if(state.msg2 != null){
+	else if (state.talkwater == 'dry'){
 state.msgNow = 'twoNow'
 	}
-}
+
 LOGDEBUG( "$water1 is $state.talkwater")
 def mydelay = triggerDelay
 speaker.setLevel(volume)
@@ -377,18 +369,14 @@ def presenceTalkNow(evt){
 state.talkpresence = evt.value
 state.msg1 = message1
 state.msg2 = message2
-
-
-if(state.talkpresence == 'present'){
-if(state.msg1 != null){
+	if(state.talkpresence == 'present'){
 state.msgNow = 'oneNow'
 	}
-}
-else if (state.talkpresence == 'not present'){
-if(state.msg2 != null){
+
+	else if (state.talkpresence == 'not present'){
 state.msgNow = 'twoNow'
 	}
-}
+
 LOGDEBUG( "$presenceSensor1 is $state.talkpresence")
 def mydelay = triggerDelay
 speaker.setLevel(volume)
