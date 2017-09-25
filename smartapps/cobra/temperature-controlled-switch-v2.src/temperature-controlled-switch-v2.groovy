@@ -6,7 +6,7 @@
  *	Parts of 'LOGDEBUG()' code from an app by: BRIAN LOWRANCE
  *
  *  Design Usage:
- *  This was designed to.... 
+ *  This was designed to control an electric heater - Switching on/off around desired room temperature
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -43,10 +43,12 @@
  *  Changes:
  *
  *
- *  V2.0 - Recode, debug & added time restrictions
- *  V1.2 - Added action to turn off heating if 'allow' switch turned off
- *  V1.1 - Added days of the week
- *  V1.0 - POC
+ *
+ *	V2.1.0 - Added optional contact sensor to turn off if open
+ *  V2.0.0 - Recode, debug & added time restrictions
+ *  V1.2.0 - Added action to turn off heating if 'allow' switch turned off
+ *  V1.1.0 - Added days of the week
+ *  V1.0.0 - POC
  *
  *  Author: Cobra
  */
@@ -103,7 +105,7 @@ def initialize() {
 // Others...
 	subscribe(temperatureSensor1, "temperature", temperatureHandler)
 	schedule(ending, offNow)
-    
+    subscribe(contact1, "contact", contactHandler)
 }
 
 
@@ -116,15 +118,15 @@ def introPage() {
     
     
         section() {       
-        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
                   title: "Temperature Controlled Switch",
                   required: false,
                  "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run"
                   }
                   
         section() {   
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
-                         "Version: $state.appversion - Brought to you by Cobra"
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+                         "Version: $state.appversion  - Copyright © 2017 Cobra"
    				  }      
     
     
@@ -166,6 +168,9 @@ def inputPage(){
    	section("Control this switch/heater...") {
 		input "switch2", "capability.switch", required: true
 	}
+    section("Switch off if this contact is open (Optional)") {
+		input "contact1", "capability.contactSensor", required: false
+	}
      
  }
 }
@@ -190,6 +195,15 @@ def namePage() {
 
 // Handlers & Actions *****************************
 
+def contactHandler(){
+state.contact1now = evt.value
+
+if (state.contact1now != null && state.contact1now != 'closed'){
+LOGDEBUG("Contact open Switching off now...")
+switch2.off()
+
+}
+}
 
 def offNow(){
 LOGDEBUG("Time expired.. Switching off now...")
@@ -241,9 +255,24 @@ state.enable = evt.value
 
 
 private getAllOk() {
-	modeOk && daysOk && timeOk && enableOk
+	modeOk && daysOk && timeOk && enableOk && contactOk
 }
 
+
+private getContactOk() {
+	def result = true
+		if (state.contact1now != 'open' ) {
+	result = true
+	}
+    else if (state.contact1now == 'open' ) {
+	result = false
+    }
+    LOGDEBUG("contactOk = $result")
+	result
+    
+
+result
+}
 
 
 private getModeOk() {
@@ -335,5 +364,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.0.0"
+    state.appversion = "2.1.0"
 }
