@@ -54,9 +54,9 @@ definition(
     author: "Andrew Parker",
     description: "If a sensor detects rain, then announce any open windows & doors (Contact Sensors)",
     category: "",
-    iconUrl: "http://54.246.165.27/img/icons/rain.png",
-    iconX2Url: "http://54.246.165.27/img/icons/rain.png",
-    iconX3Url: "http://54.246.165.27/img/icons/rain.png",
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
     )
 
 
@@ -65,14 +65,14 @@ preferences {
 
 	section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   //       required: false,
                   "Version: 1.3.0 - Brought to you by Cobra"
     }
 
 	section() {
     
-        paragraph image: "http://54.246.165.27/img/icons/rain.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
                   title: "It's Raining - Check Open Windows",
                   required: false,
                   "This app uses a rain sensor to alert if any windows or doors are open"

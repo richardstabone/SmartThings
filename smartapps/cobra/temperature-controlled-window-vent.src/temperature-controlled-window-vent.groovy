@@ -269,6 +269,7 @@ def switchHandler(evt) {
     } 
     else {
     LOGDEBUG(" $water1 is dry now")
+    runIn(msgdelay, messageGo)
     }
     }
 	}				 

@@ -24,9 +24,9 @@ definition(
     author: "Andrew Parker",
     description: "Sets a switch on for a specified time then off for a specified time then on again... ",
     category: "My Apps",
-    iconUrl: "http://54.246.165.27/img/icons/power.png",
-    iconX2Url: "http://54.246.165.27/img/icons/power.png",
-    iconX3Url: "http://54.246.165.27/img/icons/power.png",
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
 )
 preferences {
 
