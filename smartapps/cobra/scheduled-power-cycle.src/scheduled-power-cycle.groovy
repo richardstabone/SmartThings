@@ -33,20 +33,20 @@ definition(
     author: "Andrew Parker",
     description: "Schedule a switch to turn off then automatically turn it back on after a set number of seconds you specify.",
     category: "Convenience",
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Meta/light_outlet.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Meta/light_outlet@2x.png"
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png"
 )
 
 preferences {
 
 	section() {
-    paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+    paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra.png",
                   //       required: false,
                   "Version: 1.3.0 - Brought to you by Cobra"
     }
     section() {
     
-        paragraph image: "http://54.246.165.27/img/icons/power.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
                   title: "Scheduled Power Cycle",
                   required: false,
                   "Schedule a switch to turn off then automatically turn it back on after a set number of seconds you specify."

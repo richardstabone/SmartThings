@@ -59,9 +59,9 @@ definition(
     author: "Andrew Parker",
     description: "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
     category: "",
-    iconUrl: "http://54.246.165.27/img/icons/temp.png",
-	iconX2Url: "http://54.246.165.27/img/icons/temp.png",
-    iconX3Url: "http://54.246.165.27/img/icons/temp.png",
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
+	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
     )
 
 
@@ -101,8 +101,8 @@ def initialize() {
     subscribe(switch1, "switch", switchEnableNow) // Default - Enable/Disable switch
 // **********************************************************************************
 // Others...
-   subscribe(temperatureSensor1, "temperature", temperatureHandler)
- 
+	subscribe(temperatureSensor1, "temperature", temperatureHandler)
+	schedule(ending, offNow)
     
 }
 
@@ -116,7 +116,7 @@ def introPage() {
     
     
         section() {       
-        paragraph image: "http://54.246.165.27/img/icons/temp.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Temperature Controlled Switch",
                   required: false,
                  "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run"
@@ -190,6 +190,12 @@ def namePage() {
 
 // Handlers & Actions *****************************
 
+
+def offNow(){
+LOGDEBUG("Time expired.. Switching off now...")
+switch2.off()
+}
+
 def temperatureHandler(evt) {
 	if(allOk){
     
@@ -214,8 +220,9 @@ LOGDEBUG("All ok so can continue...")
 
 }
 	else if(!allOk){
-LOGDEBUG(" Not ok - one or more conditions are not met")
+LOGDEBUG(" Not ok - one or more conditions are not met - Turning $switch2 OFF")
 LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $enableOk")
+switch2.off()
 }
 }
 

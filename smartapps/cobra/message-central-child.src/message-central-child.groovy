@@ -57,9 +57,9 @@ definition(
    
     
     parent: "Cobra:Message Central",
-    iconUrl: "http://54.246.165.27/img/icons/cobra3.png",
-    iconX2Url: "http://54.246.165.27/img/icons/cobra3.png",
-    iconX3Url: "http://54.246.165.27/img/icons/cobra3.png")
+    iconUrl: "http://54.246.165.27/img/icons/voice.png",
+    iconX2Url: "http://54.246.165.27/img/icons/voice.png",
+    iconX3Url: "http://54.246.165.27/img/icons/voice.png")
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "namePage"

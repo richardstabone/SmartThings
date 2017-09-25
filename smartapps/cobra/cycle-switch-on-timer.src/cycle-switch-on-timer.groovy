@@ -32,13 +32,13 @@ preferences {
 
 section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra.png",
                   //       required: false,
                   "Version: 1.3.0 - Brought to you by Cobra"
     }
     section() {
     
-        paragraph image: "http://54.246.165.27/img/icons/power.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/power.png",
                   title: "Cycle Switch On Timer",
                   required: false,
                   "Sets a switch on for a specified time then off for a specified time then on again... "
