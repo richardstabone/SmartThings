@@ -201,10 +201,10 @@ def contactHandler(evt){
 if (state.contact1Now == 'open'){
 	LOGDEBUG("Contact is $state.contact1Now - Switching off now...")
 switch2.off()
-	LOGDEBUG("$switch2 is OFF")
+	LOGDEBUG("$switch2 is OFF - Heating Disabled")
 	}
  else{
-LOGDEBUG("Contact is $state.contact1Now")
+LOGDEBUG("Contact is $state.contact1Now - Heating Allowed")
 
  }
 }
