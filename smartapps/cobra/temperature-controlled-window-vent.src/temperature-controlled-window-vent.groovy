@@ -168,6 +168,7 @@ def overridesPage() {
         input "message1", "text", title: "Message to play when wet",  required: false
 		input "message2", "text", title: "Message to play when dry",  required: false
    	 	input "msgSwitchDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+         input "delay2", "number", title: "Number of minutes between messages", description: "Minutes", defaultValue: '0', required: true
 		input "fromTime", "time", title: "Allow messages from", required: true
     	input "toTime", "time", title: "Allow messages until", required: true
     	input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
@@ -242,9 +243,9 @@ def switchHandler(evt) {
    state.currS2 = evt.value  // Note: Optional if water sensor is used to control action
    LOGDEBUG("$water1 = $evt.value")
    
-   if (state.currS2 != "dry" && state.currS3 != "off") {
+   if (state.currS2 != "dry" && state.currS3 == "on") {
     def myLevel = 0
-     LOGDEBUG("$water1: $evt.value, Setting $relay1 to configured level: $myLevel and turning on playing message")
+     LOGDEBUG("$water1: $evt.value, Setting $relay1 to configured level: $myLevel and playing message")
     relay1.setLevel(myLevel) 
     
     // Do I play message?
@@ -267,7 +268,7 @@ def switchHandler(evt) {
 		runIn(msgdelay, messageGo)
 			}
     } 
-    else {
+    else  if (state.currS2 == "dry") {
     LOGDEBUG(" $water1 is dry now")
     runIn(msgdelay, messageGo)
     }
@@ -322,15 +323,17 @@ checkTime()
 	state.msg1 = message1
 	state.msg2 = message2
     
-	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off'){
- LOGDEBUG("Speaking now as the sensor shows wet and the time and day are correct")
+	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 == 'on' && state.timer == 'yes'){
+ LOGDEBUG("Speaking now as the sensor shows wet, the window is open  and the time and day are correct")
  speaker.setLevel(volume)
-   speaker.speak(state.msg1)   
+   speaker.speak(state.msg1) 
+   
     }
-else if(state.dayCheck == true && state.timeOK == true && state.currS2 == "dry" && state.msg2 != null && state.voiceSwitch != 'off'){
+else if(state.dayCheck == true && state.timeOK == true && state.currS2 == "dry" && state.msg2 != null && state.voiceSwitch != 'off' && state.timer == 'yes'){
  LOGDEBUG(" Speaking now as the sensor shows dry and the time and day are correct")
  speaker.setLevel(volume)
-   speaker.speak(state.msg2)   
+   speaker.speak(state.msg2)  
+   startTimer()
 	}
  }
  
@@ -378,7 +381,33 @@ LOGDEBUG(" Not today!")
  state.dayCheck = false
  }
  }
- 
+
+
+// Delay between messages...
+
+def startTimer(){
+state.timer = 'no'
+state.timeDelay = 60 * delay2
+LOGDEBUG(" Waiting for $state.timeDelay seconds before resetting timer to allow further messages")
+runIn(state.timeDelay, resetTimer)
+}
+
+def resetTimer() {
+state.timer = 'yes'
+LOGDEBUG(" Timer reset - Messages allowed")
+
+}
+
+
+
+
+
+
+
+
+
+
+
  
 def LOGDEBUG(txt){
     try {
