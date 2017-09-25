@@ -40,7 +40,7 @@
  * 
  *
  *
- *
+ *  V1.0.1 - Icons on GitHub
  *  V1.0.0 - POC
  *
  */
@@ -52,9 +52,9 @@ definition(
     author: "Andrew Parker",
     description: "Controls a set of sockets for garden lights turn on at sunset and off at a certain time",
     category: "",
-    iconUrl: "http://54.246.165.27/img/icons/gardenlights.png",
-    iconX2Url: "http://54.246.165.27/img/icons/gardenlights.png",
-    iconX3Url: "http://54.246.165.27/img/icons/gardenlights.png")
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/gardenlights.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/gardenlights.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/gardenlights.png")
  
 
 preferences {
@@ -62,14 +62,14 @@ preferences {
 
 section() {
     
-        paragraph image: "http://54.246.165.27/img/icons/gardenlights.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/gardenlights.png",
                   title: "Garden Light Control",
                   required: false,
                   "Controls a set of sockets/switches for garden lights, turn on at sunset and off at a certain time"
     }
 section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
      
                   "Version: 1.0.1 Copyright © 2017 Cobra"
     }

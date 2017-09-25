@@ -44,7 +44,7 @@
  *
  *
  *
- *	V2.1.0 - Added optional contact sensor to turn off if open
+ *	V2.1.0 - Added optional contact sensor to turn off heating if open
  *  V2.0.0 - Recode, debug & added time restrictions
  *  V1.2.0 - Added action to turn off heating if 'allow' switch turned off
  *  V1.1.0 - Added days of the week
@@ -121,7 +121,7 @@ def introPage() {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
                   title: "Temperature Controlled Switch",
                   required: false,
-                 "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run"
+                 "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch, contact sensor and configurable restrictions on when it can run"
                   }
                   
         section() {   
@@ -195,14 +195,18 @@ def namePage() {
 
 // Handlers & Actions *****************************
 
-def contactHandler(){
-state.contact1now = evt.value
+def contactHandler(evt){
+	state.contact1Now = evt.value
 
-if (state.contact1now != null && state.contact1now != 'closed'){
-LOGDEBUG("Contact open Switching off now...")
+if (state.contact1Now == 'open'){
+	LOGDEBUG("Contact is $state.contact1Now - Switching off now...")
 switch2.off()
+	LOGDEBUG("$switch2 is OFF")
+	}
+ else{
+LOGDEBUG("Contact is $state.contact1Now")
 
-}
+ }
 }
 
 def offNow(){
@@ -237,6 +241,7 @@ LOGDEBUG("All ok so can continue...")
 LOGDEBUG(" Not ok - one or more conditions are not met - Turning $switch2 OFF")
 LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $enableOk")
 switch2.off()
+LOGDEBUG("$switch2 is OFF")
 }
 }
 
@@ -259,12 +264,12 @@ private getAllOk() {
 }
 
 
-private getContactOk() {
+private getcontactOk() {
 	def result = true
-		if (state.contact1now != 'open' ) {
+		if (state.contact1Now != 'open' ) {
 	result = true
 	}
-    else if (state.contact1now == 'open' ) {
+    else if (state.contact1Now == 'open' ) {
 	result = false
     }
     LOGDEBUG("contactOk = $result")

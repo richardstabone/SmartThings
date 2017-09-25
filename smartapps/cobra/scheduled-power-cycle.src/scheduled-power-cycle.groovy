@@ -40,9 +40,9 @@ definition(
 preferences {
 
 	section() {
-    paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra.png",
+    paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   //       required: false,
-                  "Version: 1.3.0 - Brought to you by Cobra"
+                  "Version: 1.3.0  - Copyright © 2017 Cobra"
     }
     section() {
     
