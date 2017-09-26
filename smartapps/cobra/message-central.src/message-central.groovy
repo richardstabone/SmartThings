@@ -52,9 +52,9 @@
     author: "Andrew Parker",
     description: "Parent App for Message Automation.",
    category: "Fun & Social",
-    iconUrl: "http://54.246.165.27/img/icons/voice.png",
-    iconX2Url: "http://54.246.165.27/img/icons/voice.png",
-    iconX3Url: "http://54.246.165.27/img/icons/voice.png")
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png")
 
 preferences {
     
@@ -62,13 +62,13 @@ preferences {
     
     section() {
     
-        paragraph image: "http://54.246.165.27/img/icons/voice.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
                   title: "Multiple Message Control",
                   required: false,
                   "This parent app is a container for all message child apps"
     }
     section() {
-           paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+           paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                          "Parent Version: 1.0.2 -  Copyright © 2017 Cobra"
     }
         section {

@@ -57,9 +57,9 @@ definition(
    
     
     parent: "Cobra:Message Central",
-    iconUrl: "http://54.246.165.27/img/icons/voice.png",
-    iconX2Url: "http://54.246.165.27/img/icons/voice.png",
-    iconX3Url: "http://54.246.165.27/img/icons/voice.png")
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png")
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "namePage"
@@ -118,14 +118,14 @@ def mainPage() {
     dynamicPage(name: "mainPage") {
       
         section {
-        paragraph image: "http://54.246.165.27/img/icons/voice.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
                   "This child app allows you use different triggers to create different messages"
                   }
      section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                          "Child Version: $state.appversion - Copyright © 2017 Cobra"
     }             
       section() {
@@ -157,7 +157,6 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message", required: false, multiple: false 
-	
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: true, multiple: true
 	input "volume", "number", title: "Speaker volume", description: "0-100%", defaultValue: "100",  required: true
 	
