@@ -57,9 +57,9 @@ definition(
    
     
     parent: "Cobra:Message Central",
-    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
-    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
-    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png")
+    iconUrl: "http://54.246.165.27/img/icons/voice.png",
+    iconX2Url: "http://54.246.165.27/img/icons/voice.png",
+    iconX3Url: "http://54.246.165.27/img/icons/voice.png")
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "namePage"
@@ -118,14 +118,14 @@ def mainPage() {
     dynamicPage(name: "mainPage") {
       
         section {
-        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+        paragraph image: "http://54.246.165.27/img/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
                   "This child app allows you use different triggers to create different messages"
                   }
      section() {
    
-        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
                          "Child Version: $state.appversion - Copyright © 2017 Cobra"
     }             
       section() {
@@ -158,7 +158,10 @@ def namePage() {
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message", required: false, multiple: false 
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: true, multiple: true
-	input "volume", "number", title: "Speaker volume", description: "0-100%", defaultValue: "100",  required: true
+	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+	input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
 	
 
 
@@ -283,7 +286,7 @@ checkDay()
 if(state.appgo == true && state.dayCheck == true){
 LOGDEBUG("Time trigger -  Activating now! ")
 def msg = messageTime
-speaker.setLevel(volume)
+checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume%"  )
 speaker.speak(msg)
 }
@@ -315,7 +318,7 @@ state.msgNow = 'twoNow'
 
 LOGDEBUG( "$switch1 is $state.talkswitch")
 def mydelay = triggerDelay
-speaker.setLevel(volume)
+checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
@@ -337,7 +340,7 @@ state.msgNow = 'twoNow'
 
 LOGDEBUG("$contactSensor is $state.talkcontact")
 def mydelay = triggerDelay
-speaker.setLevel(volume)
+checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
@@ -357,7 +360,7 @@ state.msgNow = 'twoNow'
 
 LOGDEBUG( "$water1 is $state.talkwater")
 def mydelay = triggerDelay
-speaker.setLevel(volume)
+checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
@@ -378,7 +381,7 @@ state.msgNow = 'twoNow'
 
 LOGDEBUG( "$presenceSensor1 is $state.talkpresence")
 def mydelay = triggerDelay
-speaker.setLevel(volume)
+checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
@@ -391,7 +394,8 @@ runIn(mydelay, talkSwitch)
 def talkSwitch(){
 checkTime()
 checkDay()
-LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2")
+checkVolume()
+LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 if(state.appgo == true && state.timeOK == true && state.dayCheck == true){
 
 LOGDEBUG( " Continue... Check delay...")
@@ -425,6 +429,37 @@ LOGDEBUG( "Message 2 is empty so nothing to say")
 
 
 }
+
+def checkVolume(){
+def timecheck = fromTime2
+if (timecheck != null){
+def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZone)
+    if (between2) {
+    
+    state.volume = volume2
+   speaker.setLevel(state.volume)
+    
+   LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
+    
+}
+else if (!between2) {
+state.volume = volume1
+LOGDEBUG("Quiet Time = No - Setting Normal time volume")
+
+speaker.setLevel(state.volume)
+ 
+	}
+}
+else if (timecheck == null){
+
+state.volume = volume1
+speaker.setLevel(state.volume)
+
+	}
+}
+
+
+
 
 
 // Check time allowed to run...
