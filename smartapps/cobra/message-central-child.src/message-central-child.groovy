@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.3.0 - Added 'quiet' time to allow different volume levels at certain times
  *  V1.2.2 - New Icons
  *  V1.2.1 - Debug - Time did not have day restriction
  *  V1.2.0 - Added switchable logging
@@ -52,7 +53,7 @@ definition(
     namespace: "Cobra",
     author: "Andrew Parker",
     description: "Child App for Message Automation",
-    category: "My Apps",
+     category: "Fun & Social",
 
    
     
@@ -394,7 +395,7 @@ runIn(mydelay, talkSwitch)
 def talkSwitch(){
 checkTime()
 checkDay()
-checkVolume()
+
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 if(state.appgo == true && state.timeOK == true && state.dayCheck == true){
 
@@ -524,5 +525,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.2.2"
+    state.appversion = "1.3.0"
 }
