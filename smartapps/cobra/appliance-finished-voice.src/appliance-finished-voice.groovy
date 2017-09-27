@@ -1,8 +1,8 @@
 /**
- *  ****************  Power Speak  ****************
+ *  ****************  Appliance Finished - Voice  ****************
  *
  *  Design Usage:
- *  This was designed to be used with a power monitor to decide if a light is on or off then speak a message
+ *  This was designed to let me know when the laundry was finished by detecting the power used by a smart socket or other power sensor
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -33,13 +33,13 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 26/09/2017
+ *  Last Update: 27/09/2017
  *
  *  Changes:
  *
  * 
  *
- *
+ *  V1.2.0 - Changed reaction from turning on a switch to speaking a message directly.
  *  V1.1.0 - added switchable logging
  *  V1.0.0 - POC
  *
@@ -48,10 +48,10 @@
 
 
 definition(
-    name: "Power Speak",
+    name: "Appliance Finished - Voice",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "Turn on a switch and speaks a message if power drawn goes above a defined level",
+    description: "Speak a message if energy goes below a defined level and stays that way for a set number of minutes",
     category: "Green Living",
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
@@ -62,22 +62,23 @@ preferences {
 
 	section {
     
-    paragraph "V1.1.0"
+    paragraph "V1.2.0"
      paragraph image:  "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-       	title: "Power Speak",
+       	title: "Appliance Finished - Voice",
         required: false, 
-    	"Turn on a switch and speak a message if power drawn goes above a defined level"
+    	"Speak a message if power drawn goes below a defined level and stays that way for a set number of minutes"
     
     
     
-     
-		input(name: "meter", type: "capability.powerMeter", title: "When This Power Meter...", required: true, multiple: false, description: null)
-        input(name: "aboveThreshold", type: "number", title: "Reports above...", required: true)
-		input(name: "switch1", type: "capability.switch", title: "Turn on this 'Indicator Switch' - Optional", required: false, multiple: false, description: null)
+     	input(name: "enableswitch1", type: "capability.switch", title: "Enable/Disable app with this switch (Optional)", required: false, multiple: false)
+		input(name: "meter", type: "capability.powerMeter", title: "When This Power Meter...", required: true, multiple: false)
+        input(name: "belowThreshold", type: "number", title: "Reports Below...", required: true, description: "this number of watts")
+        input(name: "delay1", type: "number", title: "And stays that way for...", required: true, description: "this number of minutes")
         input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: true, multiple: true, submitOnChange:true
 		input "volume1", "number", title: "Speaker volume", description: "0-100%", defaultValue: 100, required: true
 		input "message1", "text", title: "Message to speak", required: true
         input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+       
 }   
  section("Logging"){
             input "debugmode", "bool", title: "Enable logging", required: true, defaultValue: false
@@ -98,56 +99,65 @@ def updated() {
 
 def initialize() {
 setAppVersion()
-state.timer1 = true
 log.debug "Initialised with settings: ${settings}"
 	subscribe(meter, "power", meterHandler)
-   subscribe(switch1, "switch", switch1Handler)
-  
+	subscribe(enableswitch1, "switch", enableswitch1Handler)
+	state.enablecurrS1 = 'on'
+    state.timer1 = true
    }
  
 
-
-
-def switch1Handler(evt){
-state.currS1 = evt.value
-LOGDEBUG("$switch1 is $state.currS1")
+def enableswitch1Handler(evt){
+state.enablecurrS1 = evt.value
+LOGDEBUG("$enableswitch1 is $state.enablecurrS1")
 }
+
+
 
 
 def meterHandler(evt) {
     state.meterValue = evt.value as double
-    def currTime = new Date()
-    LOGINFO("$meter shows $state.meterValue Watts")
-   
-   
-   	checkNow()  
-
+    
+	LOGINFO("$meter shows $state.meterValue Watts")
+    if(state.enablecurrS1 != 'off'){
+	checkNow()  
+	}
+    else if(state.enablecurrS1 == 'off'){
+    LOGDEBUG("App disabled by $enableswitch1 being off")
+}
 }
 
 def checkNow(){
-state.speakerVolume = volume1 as int
-state.msg1 = message1
+
 LOGDEBUG( "checkNow -  Power is: $state.meterValue")
-    state.aboveValue = aboveThreshold as int
-    if (state.meterValue > state.aboveValue) {
-    LOGDEBUG( "Message is: '$state.msg1' ")
-    speakNow()
-       }
-      else  if (state.meterValue < state.aboveValue) {
-       
-       if(switch1 != null){
-       LOGINFO("Switching off $switch1")
-       switch1.off()
-      }
+    state.belowValue = belowThreshold as int
+    if (state.meterValue < state.belowValue) {
+   def mydelay = 60 * delay1 as int
+   LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
+       runIn(mydelay, checkAgain)     
       }
   }
 
  
+
+def checkAgain() {
+   
+     if (state.meterValue < state.belowValue) {
+      LOGDEBUG( "Checking again now... Power is: $state.meterValue")
+    
+      speakNow()
+        
+			}
+     else  if (state.meterValue > state.belowValue) {
+     LOGINFO( "checkAgain -  Power is: $state.meterValue so cannot run yet...")
+	}	
+}		
+
+
 def speakNow(){
- if(switch1 != null){
-	LOGINFO("Switching on $switch1")
-     switch1.on()
-    }
+LOGINFO("speakNow...")
+state.speakerVolume = volume1 as int
+state.msg1 = message1
     if ( state.timer1 == true){
 	speaker1.setLevel(state.speakerVolume)
 	LOGINFO("Speaking now...")
@@ -160,16 +170,14 @@ def speakNow(){
 def startTimer1(){
 state.timer1 = false
 state.timeDelay = 60 * msgDelay
-LOGDEBUG("Waiting for $state.timeDelay seconds before resetting timer1 to allow further messages")
+LOGDEBUG("Waiting for $msgDelay minutes before resetting timer1 to allow further messages")
 runIn(state.timeDelay, resetTimer1)
 }
 
 def resetTimer1() {
 state.timer1 = true
-LOGDEBUG( "Timer 1 reset - Messages allowed")
+LOGDEBUG( "Timer reset - Messages allowed")
 }
-
-
 
 
 def LOGDEBUG(txt){
@@ -183,11 +191,11 @@ def LOGINFO(txt){
     try {
     	if (settings.debugmode) { log.info("${app.label.replace(" ","_").toUpperCase()}  (Version ${state.appversion}) - ${txt}") }
     } catch(ex) {
-    	log.error("LOGTINFO unable to output requested data!")
+    	log.error("LOGINFO unable to output requested data!")
     }
 }
 
 
 def setAppVersion(){
-    state.appversion = "1.1.0"
+    state.appversion = "1.2.0"
 }

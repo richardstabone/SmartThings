@@ -1,8 +1,8 @@
 /**
- *  ****************  Power Speak  ****************
+ *  ****************  Appliance Finished - Switch  ****************
  *
  *  Design Usage:
- *  This was designed to be used with a power monitor to decide if a light is on or off then speak a message
+ *  This was designed to let me know when the laundry was finished by detecting the power used by a smart socket
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -33,7 +33,7 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 26/09/2017
+ *  Last Update: 07/09/2017
  *
  *  Changes:
  *
@@ -48,10 +48,10 @@
 
 
 definition(
-    name: "Power Speak",
+    name: "Appliance Finished - Switch",
     namespace: "Cobra",
-    author: "Andrew Parker",
-    description: "Turn on a switch and speaks a message if power drawn goes above a defined level",
+    author: "SmartThings",
+    description: "Turn on a switch if energy goes below a defined level and stays that way for a set number of minutes (To get 'Big Talker' to announce when an appliance has finished)",
     category: "Green Living",
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
@@ -62,22 +62,20 @@ preferences {
 
 	section {
     
-    paragraph "V1.1.0"
+    paragraph "V1.2.0"
      paragraph image:  "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-       	title: "Power Speak",
+       	title: "Appliance Finished",
         required: false, 
-    	"Turn on a switch and speak a message if power drawn goes above a defined level"
+    	"Turn on a switch if power drawn goes below a defined level and stays that way for a set number of minutes"
     
     
     
-     
+     	input(name: "enableswitch1", type: "capability.switch", title: "Enable/Disable app with this switch", required: false, multiple: false, description: null)
 		input(name: "meter", type: "capability.powerMeter", title: "When This Power Meter...", required: true, multiple: false, description: null)
-        input(name: "aboveThreshold", type: "number", title: "Reports above...", required: true)
-		input(name: "switch1", type: "capability.switch", title: "Turn on this 'Indicator Switch' - Optional", required: false, multiple: false, description: null)
-        input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: true, multiple: true, submitOnChange:true
-		input "volume1", "number", title: "Speaker volume", description: "0-100%", defaultValue: 100, required: true
-		input "message1", "text", title: "Message to speak", required: true
-        input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+        input(name: "belowThreshold", type: "number", title: "Reports Below...", required: true, description: "in either watts or kw.")
+        input(name: "delay1", type: "number", title: "And stays that way for...", required: true, description: "this number of minutes")
+        input(name: "switch1", type: "capability.switch", title: "Turn this switch on", required: true, multiple: true, description: null)
+       
 }   
  section("Logging"){
             input "debugmode", "bool", title: "Enable logging", required: true, defaultValue: false
@@ -98,15 +96,18 @@ def updated() {
 
 def initialize() {
 setAppVersion()
-state.timer1 = true
 log.debug "Initialised with settings: ${settings}"
 	subscribe(meter, "power", meterHandler)
    subscribe(switch1, "switch", switch1Handler)
-  
+   subscribe(enableswitch1, "switch", enableswitch1Handler)
+   state.enablecurrS1 == 'on'
    }
  
 
-
+def enableswitch1Handler(evt){
+state.enablecurrS1 = evt.value
+LOGDEBUG("$enableswitch1 is $state.enablecurrS1")
+}
 
 def switch1Handler(evt){
 state.currS1 = evt.value
@@ -117,57 +118,41 @@ LOGDEBUG("$switch1 is $state.currS1")
 def meterHandler(evt) {
     state.meterValue = evt.value as double
     def currTime = new Date()
-    LOGINFO("$meter shows $state.meterValue Watts")
-   
-   
-   	checkNow()  
-
+    
+	LOGINFO("$meter shows $state.meterValue Watts - $currTime")
+    if(state.enablecurrS1 == 'on'){
+	checkNow()  
+	}
+    else if(state.enablecurrS1 == 'off'){
+    LOGDEBUG("App disabled by $enableswitch1 being off")
+}
 }
 
 def checkNow(){
-state.speakerVolume = volume1 as int
-state.msg1 = message1
+
 LOGDEBUG( "checkNow -  Power is: $state.meterValue")
-    state.aboveValue = aboveThreshold as int
-    if (state.meterValue > state.aboveValue) {
-    LOGDEBUG( "Message is: '$state.msg1' ")
-    speakNow()
-       }
-      else  if (state.meterValue < state.aboveValue) {
-       
-       if(switch1 != null){
-       LOGINFO("Switching off $switch1")
-       switch1.off()
-      }
+    state.belowValue = belowThreshold as int
+    if (state.meterValue < state.belowValue) {
+   def mydelay = 60 * delay1 as int
+   LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
+       runIn(mydelay, checkAgain)     
       }
   }
 
  
-def speakNow(){
- if(switch1 != null){
-	LOGINFO("Switching on $switch1")
-     switch1.on()
-    }
-    if ( state.timer1 == true){
-	speaker1.setLevel(state.speakerVolume)
-	LOGINFO("Speaking now...")
-	speaker1.speak(state.msg1)
-   	startTimer1()  
- } 
- 
-}
 
-def startTimer1(){
-state.timer1 = false
-state.timeDelay = 60 * msgDelay
-LOGDEBUG("Waiting for $state.timeDelay seconds before resetting timer1 to allow further messages")
-runIn(state.timeDelay, resetTimer1)
-}
+def checkAgain() {
+   
+     if (state.meterValue < state.belowValue) {
+      LOGDEBUG( "Checking again... Power is: $state.meterValue")
+      LOGINFO( " switching $switch1 on")
+		switch1.on()
+			}
+     else  if (state.meterValue > state.belowValue) {
+     LOGINFO( "checkAgain -  Power is: $state.meterValue so cannot run yet...")
+	}	
+}		
 
-def resetTimer1() {
-state.timer1 = true
-LOGDEBUG( "Timer 1 reset - Messages allowed")
-}
 
 
 
