@@ -295,7 +295,7 @@ LOGDEBUG("temperature: $evt.value, $evt")
     
 	else if (evt.doubleValue >= fullOpen) {
      def myLevel = 100
-     LOGDEBUG("Reported temperature: $evt.value, Setting $relay1 to configured level: $myLevel and turning off $heatSwitch")
+     LOGDEBUG("Reported temperature: $evt.value, Setting $relay1 to configured level: $myLevel")
     relay1.setLevel(myLevel)
     
     
@@ -303,7 +303,7 @@ LOGDEBUG("temperature: $evt.value, $evt")
     
 		else if (evt.doubleValue >= halfOpen && evt.doubleValue < fullOpen) {
     def myLevel = halfLevel as int
-    LOGDEBUG("Reported temperature: $evt.value, This is > or = $halfOpen but < $fullOpen - Setting $relay1 to configured level: $myLevel and turning off $heatSwitch")
+    LOGDEBUG("Reported temperature: $evt.value, This is > or = $halfOpen but < $fullOpen - Setting $relay1 to configured level: $myLevel ")
     relay1.setLevel(myLevel)
   
     								}    								  	  }
@@ -313,11 +313,10 @@ LOGDEBUG("temperature: $evt.value, $evt")
     
   
   
- // Message delay 
+ // Message 
 
   def messageGo (){
-//  msgSwitch.on()
-//  log.debug "Turning on message"
+
 checkDay()
 checkTime()
 	state.msg1 = message1
