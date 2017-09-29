@@ -111,6 +111,7 @@ def updated() {
 
 def initialize() {	 
 	setAppVersion()
+    logCheck()
 LOGINFO( "Initialised with settings: ${settings}")
 
 
@@ -169,7 +170,15 @@ state.msg1 = message1
  } 
  
 
-
+def logCheck(){
+state.checkLog = debugmode
+if(state.checkLog == true){
+log.info "All Logging Enabled"
+}
+else if(state.checkLog == false){
+log.info "Further Logging Disabled"
+}
+}
 
 def LOGDEBUG(txt){
     try {

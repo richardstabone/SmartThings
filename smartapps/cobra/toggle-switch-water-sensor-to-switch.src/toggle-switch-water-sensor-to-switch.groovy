@@ -38,7 +38,7 @@
  *
  *  Changes:
  *
- * 
+ *  V1.5.0 - Added switchable logging
  * 	V1.4.0 - Made it toggle for momentary switch
  *  V1.3.0 - Added optional enable/disable switch
  *  V1.2.0 - added off delay
@@ -55,12 +55,19 @@ definition(
     author: "Andrew Parker",
     description: "Used with a momentary physical switch to toggle switch via a water sensor",
     category: "",
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
-
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+    )
 
 preferences {
+	section("") {
+        paragraph " V1.5.0 "
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+                  title: "Toggle Switch - Water Sensor to Switch",
+                  required: false,
+                  "This was designed to be used with a physical switch to control a virtual switch via a water sensor"
+         }         
 
  	section("Switch to enable/disable app"){
 		input "enableswitch1",  "capability.switch", title: "Control Switch - Optional", multiple: true, required: false
@@ -72,24 +79,27 @@ preferences {
 	 section("Turn on this switch when wet/dry"){
 		input "switch1",  "capability.switch", title: "Switch to control", multiple: true, required: false
 	}
-   
+    section("Logging"){
+            input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
+        }
 	}
 
 
 def installed() {
-log.debug "Installed with settings: ${settings}"
 	initialise()
    
 }
 
 def updated() {
-log.debug "Updated with settings: ${settings}"
 	unsubscribe()
 	initialise()
    
 }
 
 def initialise() {
+log.debug "Initialised with settings: ${settings}"
+ setAppVersion()
+ logCheck()
 state.currS1 = 'off'
 	subscribe(alarm, "water", waterHandler)
 	subscribe(enableswitch1, "switch", enableswitchHandler)
@@ -111,26 +121,26 @@ switch1.off()
 def waterHandler(evt) {
 	controlType1 ()
 		state.control1 = evt.value
-        	log.debug " event = $state.control1"
+        	LOGINFO(" event = $state.control1")
 // goes wet
 if (state.enable != 'off' && state.control1 == "wet" && state.type1 == 'off' && state.currS1 == 'on') { 
 	turnOff()
-		log.info "turning off..."
+		LOGINFO( "turning off...")
 }
 else if (state.enable != 'off' && state.control1 == "wet" && state.type1 == 'off' && state.currS1 == 'off') { 
 	turnOn()
-		log.info "Turning on..."
+		LOGINFO("Turning on...")
 }
 
 // goes dry
 
 else if (state.enable != 'off' && state.control1 == "dry" && state.type1 == 'on' && state.currS1 == 'on') { 
 	turnOff()
-		log.info "turning off..."
+		LOGINFO("turning off...")
 }
 else if (state.enable != 'off' && state.control1 == "dry" && state.type1 == 'on' && state.currS1 == 'off') { 
 	turnOn()
-		log.info "Turning on..."
+		LOGINFO("Turning on...")
 }
 }
 
@@ -159,8 +169,44 @@ def turnOff(){
  def controlType1 (){
 	if (actionType1 == true){ 
     state.type1 = 'on'
-    log.debug "Switch Type: ON (Toggle when dry)" }
+    LOGDEBUG( "Switch Type: ON (Toggle when dry)" )}
     else if (actionType1 == false){ 
     state.type1 = 'off'
-      log.debug "Switch Type: OFF (Toggle when wet" }
+     LOGDEBUG( "Switch Type: OFF (Toggle when wet") }
      }
+     
+     
+     
+     // Logging & App version...
+     
+def logCheck(){
+state.checkLog = debugMode
+if(state.checkLog == true){
+log.info "All Logging Enabled"
+}
+else if(state.checkLog == false){
+log.info "Further Logging Disabled"
+}
+}     
+
+
+
+def LOGDEBUG(txt){
+    try {
+    	if (settings.debugmode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (Version ${state.appversion}) - ${txt}") }
+    } catch(ex) {
+    	log.error("LOGDEBUG unable to output requested data!")
+    }
+}
+def LOGINFO(txt){
+    try {
+    	if (settings.debugmode) { log.info("${app.label.replace(" ","_").toUpperCase()}  (Version ${state.appversion}) - ${txt}") }
+    } catch(ex) {
+    	log.error("LOGINFO unable to output requested data!")
+    }
+}
+
+
+def setAppVersion(){
+    state.appversion = "1.5.0"
+}
