@@ -113,6 +113,7 @@ def initialize() {
 	setAppVersion()
     logCheck()
 LOGINFO( "Initialised with settings: ${settings}")
+state.currS1 = 'closed'
 
 
 if(checkTime1){
