@@ -43,7 +43,7 @@
  *  Changes:
  *
  *
- *
+ *  V2.1.1 - Debug
  *	V2.1.0 - Added optional contact sensor to turn off heating if open
  *  V2.0.0 - Recode, debug & added time restrictions
  *  V1.2.0 - Added action to turn off heating if 'allow' switch turned off
@@ -238,10 +238,10 @@ LOGDEBUG("All ok so can continue...")
 
 }
 	else if(!allOk){
-LOGDEBUG(" Not ok - one or more conditions are not met - Turning $switch2 OFF")
+LOGDEBUG(" Not ok - one or more conditions are not met")
 LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $enableOk")
-switch2.off()
-LOGDEBUG("$switch2 is OFF")
+// switch2.off()
+// LOGDEBUG("$switch2 is OFF")
 }
 }
 
@@ -369,5 +369,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.1.0"
+    state.appversion = "2.1.1"
 }
