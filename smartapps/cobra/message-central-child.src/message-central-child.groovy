@@ -401,7 +401,7 @@ if(state.appgo == true && state.timeOK == true && state.dayCheck == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
-if(state.msgNow == 'oneNow' && state.timer1 == true){
+if(state.msgNow == 'oneNow' && state.timer1 == true && state.msg1 != null){
 LOGDEBUG("All OK! - Playing message 1: '$state.msg1'")
 speaker.speak(state.msg1)
 startTimer1()
