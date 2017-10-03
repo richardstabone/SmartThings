@@ -37,6 +37,8 @@
  *
  *  Changes:
  *
+ *
+ *  V1.3.1 - Code cleanup & new icon path
  *  V1.3.0 - Added 'quiet' time to allow different volume levels at certain times
  *  V1.2.2 - New Icons
  *  V1.2.1 - Debug - Time did not have day restriction
@@ -119,14 +121,14 @@ def mainPage() {
     dynamicPage(name: "mainPage") {
       
         section {
-        paragraph image: "http://54.246.165.27/img/icons/voice.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
                   "This child app allows you use different triggers to create different messages"
                   }
      section() {
    
-        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                          "Child Version: $state.appversion - Copyright © 2017 Cobra"
     }             
       section() {
@@ -160,11 +162,7 @@ def speakerInputs(){
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message", required: false, multiple: false 
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: true, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
-	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
-	input "fromTime2", "time", title: "Quiet Time Start", required: false
-    input "toTime2", "time", title: "Quiet Time End", required: false
 	
-
 
 }
 
@@ -192,6 +190,10 @@ if(state.selection == 'Switch'){
     input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+
 }    
  
 
@@ -204,6 +206,10 @@ else if(state.selection == 'Water'){
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+
 }   
 
 else if(state.selection == 'Presence'){
@@ -215,7 +221,12 @@ else if(state.selection == 'Presence'){
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-}   
+    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+
+} 
+
 else if(state.selection == 'Contact'){
 	input "contactSensor", "capability.contactSensor", title: "Select contact sensor to trigger message", required: false, multiple: false 
 	input "message1", "text", title: "Message to play when sensor opens",  required: false
@@ -225,7 +236,12 @@ else if(state.selection == 'Contact'){
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-}   
+    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+
+} 
+
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
 	input "messageTime", "text", title: "Message to play",  required: true
@@ -525,5 +541,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.3.0"
+    state.appversion = "1.3.1"
 }
