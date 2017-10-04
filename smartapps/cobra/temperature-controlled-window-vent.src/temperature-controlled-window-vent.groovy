@@ -37,7 +37,7 @@
  *
  *
  *
- *
+ *  V1.1.0 - Added 'quiet time' settings
  *  V1.0.0 - POC
  */
 
@@ -172,7 +172,13 @@ def overridesPage() {
 		input "fromTime", "time", title: "Allow messages from", required: true
     	input "toTime", "time", title: "Allow messages until", required: true
     	input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-		}  	 
+		}  	
+        
+    section("Set different volume on messages between these times?") {
+		input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    	input "fromTime2", "time", title: "Quiet Time Start", required: false
+   		input "toTime2", "time", title: "Quiet Time End", required: false
+    }
        }
 }
 }
@@ -324,13 +330,13 @@ checkTime()
     
 	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 == 'on' && state.timer != 'no'){
  LOGDEBUG("Speaking now as the sensor shows wet, the window is open  and the time and day are correct")
- speaker.setLevel(volume)
+setVolume()
    speaker.speak(state.msg1) 
    
     }
 else if(state.dayCheck == true && state.timeOK == true && state.currS2 == "dry" && state.msg2 != null && state.voiceSwitch != 'off' && state.timer != 'no'){
  LOGDEBUG(" Speaking now as the sensor shows dry and the time and day are correct")
- speaker.setLevel(volume)
+ setVolume()
    speaker.speak(state.msg2)  
    startTimer()
 	}
@@ -399,7 +405,35 @@ LOGDEBUG(" Timer reset - Messages allowed")
 
 
 
+// set volume dependent upton time
 
+def setVolume(){
+def timecheck = fromTime2
+if (timecheck != null){
+def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZone)
+    if (between2) {
+    
+    state.volume = volume2
+   speaker.setLevel(state.volume)
+    
+   LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
+    
+}
+else if (!between2) {
+state.volume = volume1
+LOGDEBUG("Quiet Time = No - Setting Normal time volume")
+
+speaker.setLevel(state.volume)
+ 
+	}
+}
+else if (timecheck == null){
+
+state.volume = volume1
+speaker.setLevel(state.volume)
+
+	}
+}
 
 
 
@@ -432,5 +466,5 @@ log.info "Further Logging Disabled"
  
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.0.0"
+    state.appversion = "1.1.0"
 }

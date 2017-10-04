@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.4.0 - added 'quiet time' and switchable logging
  *  V1.3.0 - Custom Icons
  *  V1.2.0 - Added configurable delay between message events
  *  V1.1.0 - Added ability to customise alert message
@@ -67,7 +68,7 @@ preferences {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   //       required: false,
-                  "Version: 1.3.0 - Brought to you by Cobra"
+                  "Version: 1.4.0 - Brought to you by Cobra"
     }
 
 	section() {
@@ -97,29 +98,37 @@ preferences {
         input "fromTime", "time", title: "From", required: true
         input "toTime", "time", title: "To", required: true
 } 
+	section("Set different volume on messages between these times?") {
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
+    
    
     section("'Contact Sensors' to check..."){
 		input "sensors", "capability.contactSensor", multiple: true
 }
+
+	section("Logging") {
+            input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
+  	        }
 }
 
 
 def installed() {
-	log.debug "Installed with settings: ${settings}"
-
 	initialize()
 }
 
 def updated() {
-	log.debug "Updated with settings: ${settings}"
-
 	unsubscribe()
 	initialize()
 }
 
 def initialize() {
-state.appversion = ""
-setAppVersion()
+	  log.info "Initialised with settings: ${settings}"
+      setAppVersion()
+      logCheck()
+
 	subscribe(water1, "water.wet", wetHandler1)
     subscribe(switch1, "switch", switchHandler)
 }
@@ -127,12 +136,12 @@ setAppVersion()
 
 def switchHandler(evt) {
    state.currS1 = evt.value  // Note: Optional if switch is used to control action
-   log.debug "$switch1 = $evt.value"
+  LOGDEBUG("$switch1 = $evt.value")
   					   }
 
 
 def wetHandler1 (evt){
-log.info " It's raining! - Waiting $delay1 seconds before checking to see if I can play message"
+LOGDEBUG(" It's raining! - Waiting $delay1 seconds before checking to see if I can play message")
 
 def myDelay1 = delay1
  if (state.currS1 != 'nul' && state.currS1 == "on") {
@@ -146,29 +155,28 @@ def between = timeOfDayIsBetween(fromTime, toTime, new Date(), location.timeZone
         
 else{
 
-log.info " It's raining but it's not within the correct time window to say anything"
+LOGDEBUG(" It's raining but it's not within the correct time window to say anything")
 }
 	}
 else  if (state.currS1 != 'nul' && state.currS1 == "off") {  
-log.info " It's raining but '$switch1' is set to 'Off' so I'm doing as I'm told and keeping quiet!"
+LOGDEBUG( " It's raining but '$switch1' is set to 'Off' so I'm doing as I'm told and keeping quiet!")
 }		
 }
 
 def talkNow1() {
-log.info " Timer = $state.timer"
+LOGDEBUG(" Timer = $state.timer")
 if (state.timer != 'no'){
 
 def newmsg = message1
 // def newmsg = "It's raining ,,, and the following windows or doors, are open:"  //test
 
-log.info " Checking open windows & doors now..."
-	if (volume1) {
-        		speaker1.setLevel(volume1)
-                }
-log.info "Speaker(s) in use: $speaker1"        
+LOGDEBUG(" Checking open windows & doors now...")
+	setVolume()
+    
+LOGDEBUG("Speaker(s) in use: $speaker1")     
 def open = sensors.findAll { it?.latestValue("contact") == 'open' }
 		if (open) { 
-        log.trace "Open windows or doors: ${open.join(',,, ')}"
+LOGDEBUG("Open windows or doors: ${open.join(',,, ')}")
                 state.fullMsg1 = "$newmsg  ${open.join(',,, ')}"
             }
 
@@ -178,15 +186,15 @@ def open = sensors.findAll { it?.latestValue("contact") == 'open' }
     
 // log.debug "Message allow: set to $state.timer as I have just played a message"
 state.timeDelay = 60 * delay2
-log.info "Waiting for $state.timeDelay seconds before resetting timer to allow further messages"
+LOGDEBUG("Waiting for $state.timeDelay seconds before resetting timer to allow further messages")
 runIn(state.timeDelay, resetTimer)
 
 }
 
 	else if (state.timer == 'no'){
 	state.timeDelay = 60 * delay2
-log.info "Can't speak message yet - too close to last message"
-log.info "Waiting for $state.timeDelay seconds before resetting timer"
+LOGDEBUG( "Can't speak message yet - too close to last message")
+LOGDEBUG( "Waiting for $state.timeDelay seconds before resetting timer")
 	runIn(state.timeDelay, resetTimer)
 }
 
@@ -195,12 +203,65 @@ log.info "Waiting for $state.timeDelay seconds before resetting timer"
 
 def resetTimer() {
 state.timer = 'yes'
-log.info "Timer reset - Messages allowed"
+LOGDEBUG("Timer reset - Messages allowed")
 
 }
 
 
+def setVolume(){
+def timecheck = fromTime2
+if (timecheck != null){
+def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZone)
+    if (between2) {
+    
+    state.volume = volume2
+   speaker.setLevel(state.volume)
+    
+   LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
+    
+}
+else if (!between2) {
+state.volume = volume1
+LOGDEBUG("Quiet Time = No - Setting Normal time volume")
+
+speaker.setLevel(state.volume)
+ 
+	}
+}
+else if (timecheck == null){
+
+state.volume = volume1
+speaker.setLevel(state.volume)
+
+	}
+}
+
+
+// define debug action
+def logCheck(){
+state.checkLog = debugMode
+if(state.checkLog == true){
+log.info "All Logging Enabled"
+}
+else if(state.checkLog == false){
+log.info "Further Logging Disabled"
+}
+
+}
+
+
+// logging...
+def LOGDEBUG(txt){
+    try {
+    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (Childapp Version: ${state.appversion}) - ${txt}") }
+    } catch(ex) {
+    	log.error("LOGDEBUG unable to output requested data!")
+    }
+}
+
+
+
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.3.0"
+    state.appversion = "1.4.0"
 }
