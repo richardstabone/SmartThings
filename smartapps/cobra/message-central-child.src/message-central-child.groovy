@@ -60,9 +60,9 @@ definition(
    
     
     parent: "Cobra:Message Central",
-    iconUrl: "http://54.246.165.27/img/icons/voice.png",
-    iconX2Url: "http://54.246.165.27/img/icons/voice.png",
-    iconX3Url: "http://54.246.165.27/img/icons/voice.png")
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png")
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "namePage"
