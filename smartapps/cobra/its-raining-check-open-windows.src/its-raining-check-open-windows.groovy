@@ -215,7 +215,7 @@ def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZ
     if (between2) {
     
     state.volume = volume2
-   speaker.setLevel(state.volume)
+   speaker1.setLevel(state.volume)
     
    LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
     
@@ -224,14 +224,14 @@ else if (!between2) {
 state.volume = volume1
 LOGDEBUG("Quiet Time = No - Setting Normal time volume")
 
-speaker.setLevel(state.volume)
+speaker1.setLevel(state.volume)
  
 	}
 }
 else if (timecheck == null){
 
 state.volume = volume1
-speaker.setLevel(state.volume)
+speaker1.setLevel(state.volume)
 
 	}
 }
