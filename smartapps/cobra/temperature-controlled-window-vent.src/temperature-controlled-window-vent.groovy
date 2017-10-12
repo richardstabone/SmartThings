@@ -46,7 +46,7 @@ definition(
     name: " Temperature Controlled Window/Vent",
     namespace: "Cobra",
     author: "AJ Parker",
-    description: "Monitor the temperature and when it drops above or below your Temp setting set the window/vent level.",
+    description: "Monitor the temperature and when it goes above or below your Temp setting set the window/vent level.",
     category: "Convenience",
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png"
@@ -168,7 +168,7 @@ def overridesPage() {
         input "message1", "text", title: "Message to play when wet",  required: false
 		input "message2", "text", title: "Message to play when dry",  required: false
    	 	input "msgSwitchDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
-         input "delay2", "number", title: "Number of minutes between messages", description: "Minutes", defaultValue: '0', required: true
+		input "delay2", "number", title: "Number of minutes between messages", description: "Minutes", defaultValue: '0', required: true
 		input "fromTime", "time", title: "Allow messages from", required: true
     	input "toTime", "time", title: "Allow messages until", required: true
     	input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
@@ -328,7 +328,7 @@ checkTime()
 	state.msg1 = message1
 	state.msg2 = message2
     
-	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 == 'on' && state.timer != 'no'){
+	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 != 'off' && state.timer != 'no'){
  LOGDEBUG("Speaking now as the sensor shows wet, the window is open  and the time and day are correct")
 setVolume()
    speaker.speak(state.msg1) 

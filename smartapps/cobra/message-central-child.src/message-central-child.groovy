@@ -300,11 +300,12 @@ state.appgo = false
 // Time
 def timeTalkNow(evt){
 checkDay()
+LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true){
 LOGDEBUG("Time trigger -  Activating now! ")
 def msg = messageTime
 checkVolume()
-LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume%"  )
+LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume%"  )
 speaker.speak(msg)
 }
 else if(state.appgo == false){
@@ -336,7 +337,7 @@ state.msgNow = 'twoNow'
 LOGDEBUG( "$switch1 is $state.talkswitch")
 def mydelay = triggerDelay
 checkVolume()
-LOGDEBUG("Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
+LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
 }
@@ -358,7 +359,7 @@ state.msgNow = 'twoNow'
 LOGDEBUG("$contactSensor is $state.talkcontact")
 def mydelay = triggerDelay
 checkVolume()
-LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
+LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
 }
@@ -378,7 +379,7 @@ state.msgNow = 'twoNow'
 LOGDEBUG( "$water1 is $state.talkwater")
 def mydelay = triggerDelay
 checkVolume()
-LOGDEBUG( "Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
+LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
 }
@@ -399,7 +400,7 @@ state.msgNow = 'twoNow'
 LOGDEBUG( "$presenceSensor1 is $state.talkpresence")
 def mydelay = triggerDelay
 checkVolume()
-LOGDEBUG("Speaker(s) in use: $speaker set at: $volume% - waiting $mydelay seconds before continuing..."  )
+LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
 
 }
@@ -473,6 +474,7 @@ state.volume = volume1
 speaker.setLevel(state.volume)
 
 	}
+ 
 }
 
 
