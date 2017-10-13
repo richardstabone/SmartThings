@@ -37,7 +37,7 @@
  *
  *  Changes:
  *
- *
+ *  V1.3.2 - Debug
  *  V1.3.1 - Code cleanup & new icon path
  *  V1.3.0 - Added 'quiet' time to allow different volume levels at certain times
  *  V1.2.2 - New Icons
@@ -300,12 +300,14 @@ state.appgo = false
 // Time
 def timeTalkNow(evt){
 checkDay()
+
+
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true){
 LOGDEBUG("Time trigger -  Activating now! ")
 def msg = messageTime
 checkVolume()
-LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume%"  )
+LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play: $msg"  )
 speaker.speak(msg)
 }
 else if(state.appgo == false){
@@ -543,5 +545,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.3.1"
+    state.appversion = "1.3.2"
 }

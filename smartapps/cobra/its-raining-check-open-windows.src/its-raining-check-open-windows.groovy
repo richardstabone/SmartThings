@@ -37,7 +37,8 @@
  *
  *  Changes:
  *
- *  V1.4.0 - added 'quiet time' and switchable logging
+ *  V1.4.1 - Corrected typos
+ *  V1.4.0 - added 'quiet time' and switchable debug logging
  *  V1.3.0 - Custom Icons
  *  V1.2.0 - Added configurable delay between message events
  *  V1.1.0 - Added ability to customise alert message
@@ -68,7 +69,7 @@ preferences {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   //       required: false,
-                  "Version: 1.4.0 - Brought to you by Cobra"
+                  "Version: 1.4.1 - Brought to you by Cobra"
     }
 
 	section() {
@@ -253,7 +254,7 @@ log.info "Further Logging Disabled"
 // logging...
 def LOGDEBUG(txt){
     try {
-    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (Childapp Version: ${state.appversion}) - ${txt}") }
+    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (App Version: ${state.appversion}) - ${txt}") }
     } catch(ex) {
     	log.error("LOGDEBUG unable to output requested data!")
     }
@@ -263,5 +264,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.4.0"
+    state.appversion = "1.4.1"
 }
