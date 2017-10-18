@@ -74,7 +74,7 @@ preferences {
 		input(name: "meter", type: "capability.powerMeter", title: "When This Power Meter...", required: true, multiple: false)
         input(name: "belowThreshold", type: "number", title: "Reports Below...", required: true, description: "this number of watts")
         input(name: "delay1", type: "number", title: "And stays that way for...", required: true, description: "this number of minutes")
-        input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: true, multiple: true, submitOnChange:true
+        input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: false, multiple: true, submitOnChange:true
 		input "volume1", "number", title: "Speaker volume", description: "0-100%", defaultValue: 100, required: true
 		input "message1", "text", title: "Message to speak", required: true
         input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true

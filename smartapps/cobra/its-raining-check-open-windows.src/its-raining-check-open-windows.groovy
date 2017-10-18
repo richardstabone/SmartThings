@@ -89,7 +89,7 @@ preferences {
         input "water1", "capability.waterSensor", title: "Select Rain Sensor", required: false, multiple: true
 		}  
       section("Speaker Settings") { 
-        input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: true, multiple: true, submitOnChange:true
+        input "speaker1", "capability.musicPlayer", title: "Choose a speaker", required: false, multiple: true, submitOnChange:true
          input "volume1", "number", title: "Speaker volume", description: "0-100%", required: false
          input "delay1", "number", title: "Delay before speaking (Seconds - enter 0 for no delay)", description: "Seconds", required: true
          input "message1", "text", title: "Message to speak before list of open devices",  defaultValue: "Hey!, It's raining!, and I thought you might like to know that the following windows or doors are open:", required: true

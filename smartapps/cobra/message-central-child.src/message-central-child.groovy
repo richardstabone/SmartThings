@@ -160,7 +160,7 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message", required: false, multiple: false 
-	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: true, multiple: true
+	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
 	
 
