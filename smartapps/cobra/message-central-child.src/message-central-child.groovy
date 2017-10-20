@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.4.0 - Added 'Power' trigger and ability to use 'and stays that way' to use with Washer or Dryer applicance
  *  V1.3.2 - Debug
  *  V1.3.1 - Code cleanup & new icon path
  *  V1.3.0 - Added 'quiet' time to allow different volume levels at certain times
@@ -112,6 +113,11 @@ else if(trigger == 'Presence'){
 subscribe(presenceSensor1, "presence", presenceTalkNow) 
      
 	}
+else if(trigger == 'Power'){
+    LOGDEBUG("trigger is $trigger")
+subscribe(powerSensor, "power", powerTalkNow) 
+     
+	}
     
 }
 
@@ -171,7 +177,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact",]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power"]
   
 }
 
@@ -232,6 +238,23 @@ else if(state.selection == 'Contact'){
 	input "message1", "text", title: "Message to play when sensor opens",  required: false
 	input "message2", "text", title: "Message to play when sensor closes",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+
+} 
+
+else if(state.selection == 'Power'){
+	input "powerSensor", "capability.powerMeter", title: "Select power sensor to trigger message", required: false, multiple: false 
+    input(name: "belowThreshold", type: "number", title: "Power Threshold (Watts)", required: true, description: "this number of watts")
+    input "actionType1", "bool", title: "Select Power Sensor action type: \r\n \r\n On = Alert when power goes ABOVE configured threshold  \r\n Off = Alert when power goes BELOW configured threshold", required: true, defaultValue: false
+	input(name: "delay1", type: "number", title: "Only if it stays that way for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
+    input "message1", "text", title: "Message to play ...",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
@@ -408,6 +431,106 @@ runIn(mydelay, talkSwitch)
 }
 
 
+// Power 
+def powerTalkNow (evt){
+
+
+ state.meterValue = evt.value as double
+    
+	LOGDEBUG("$powerSensor shows $state.meterValue Watts")
+    if(state.enablecurrS1 != 'off'){
+	checkNow1()  
+	}
+    else if(state.enablecurrS1 == 'off'){
+    LOGDEBUG("App disabled by $enableswitch1 being off")
+
+}
+}
+def checkNow1(){
+if( actionType1 == false){
+LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
+    state.belowValue = belowThreshold as int
+    if (state.meterValue < state.belowValue) {
+   def mydelay = 60 * delay1 as int
+   LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
+       runIn(mydelay, checkAgain1)     
+      }
+      }
+      
+else if( actionType1 == true){
+LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
+    state.belowValue = belowThreshold as int
+    if (state.meterValue > state.belowValue) {
+   def mydelay = 60 * delay1 as int
+   LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
+       runIn(mydelay, checkAgain2)     
+      }
+      }
+  }
+
+ 
+
+def checkAgain1() {
+   
+     if (state.meterValue < state.belowValue) {
+      LOGDEBUG( " checkAgain1 - Checking again now... Power is: $state.meterValue")
+    
+      speakNow()
+        
+			}
+     else  if (state.meterValue > state.belowValue) {
+     LOGDEBUG( "checkAgain1 -  Power is: $state.meterValue so cannot run yet...")
+	}	
+}		
+
+def checkAgain2() {
+   
+     if (state.meterValue > state.belowValue) {
+      LOGDEBUG( "checkAgain2 - Checking again now... Power is: $state.meterValue")
+    
+      speakNow()
+        
+			}
+     else  if (state.meterValue < state.belowValue) {
+     LOGDEBUG( "checkAgain2 -  Power is: $state.meterValue so cannot run yet...")
+	}	
+}		
+
+
+
+def speakNow(){
+LOGDEBUG("speakNow...")
+checkVolume()
+state.msg1 = message1
+    if ( state.timer1 == true){
+	LOGDEBUG("Speaking now...")
+	speaker.speak(state.msg1)
+   	startTimerPower()  
+ } 
+ 
+}
+
+def startTimerPower(){
+state.timer1 = false
+state.timeDelay = 60 * msgDelay
+LOGDEBUG("Waiting for $msgDelay minutes before resetting timer to allow further messages")
+runIn(state.timeDelay, resetTimer1)
+}
+
+def resetTimerPower() {
+state.timer1 = true
+LOGDEBUG( "Timer reset - Messages allowed")
+}
+
+
+
+
+
+
+
+
+
+
 
 // Talk now....
 
@@ -545,5 +668,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.3.2"
+    state.appversion = "1.4.0"
 }
