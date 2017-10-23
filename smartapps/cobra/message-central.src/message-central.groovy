@@ -39,7 +39,7 @@
  *
  * 
  *
- *  V1.0.2 - added rename ability
+ *  V1.0.2 - Added icons
  *  V1.0.1 - Header & Debug
  *  V1.0.0 - POC
  *
@@ -76,10 +76,7 @@ preferences {
            
             }
             
-            section("Parent name") {
-                label title: "Enter a name for this Parent", required: false
            
-            }
             
     }
 }
