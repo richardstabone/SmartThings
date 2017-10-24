@@ -37,6 +37,8 @@
  *
  *  Changes:
  *
+ *
+ *  V1.5.0 - Added 'Presence' restriction so will only speak if someone is present/not present
  *  V1.4.0 - Added 'Power' trigger and ability to use 'and stays that way' to use with Washer or Dryer applicance
  *  V1.3.2 - Debug
  *  V1.3.1 - Code cleanup & new icon path
@@ -86,7 +88,8 @@ def initialize() {
       state.appgo = true
       state.timer1 = true
       state.timer2 = true
-     
+      state.presenceRestriction = true
+      
 // Subscriptions    
 
 subscribe(enableSwitch, "switch", switchEnable)
@@ -119,6 +122,9 @@ subscribe(powerSensor, "power", powerTalkNow)
      
 	}
     
+if (restrictPresenceSensor){
+subscribe(restrictPresenceSensor, "presence", restrictPresenceSensorHandler)
+}    
 }
 
 
@@ -199,7 +205,8 @@ if(state.selection == 'Switch'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false    
 }    
  
 
@@ -215,7 +222,8 @@ else if(state.selection == 'Water'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
 }   
 
 else if(state.selection == 'Presence'){
@@ -230,7 +238,8 @@ else if(state.selection == 'Presence'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
 } 
 
 else if(state.selection == 'Contact'){
@@ -245,7 +254,8 @@ else if(state.selection == 'Contact'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
 } 
 
 else if(state.selection == 'Power'){
@@ -262,14 +272,17 @@ else if(state.selection == 'Power'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
 } 
 
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
 	input "messageTime", "text", title: "Message to play",  required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-	
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+   
 }   
 
 
@@ -284,6 +297,37 @@ else if(state.selection == 'Time'){
 
 
 // Handlers
+
+// Define restrictPresenceSensor actions
+def restrictPresenceSensorHandler(evt){
+
+state.presencestatus1 = evt.value
+LOGDEBUG("Presence = $state.presencestatus1")
+def actionPresenceRestrict = restrictPresenceAction
+
+
+if (state.presencestatus1 == "present" && actionPresenceRestrict == true){
+LOGDEBUG("Presence ok")
+state.presenceRestriction = true
+}
+else if (state.presencestatus1 == "not present" && actionPresenceRestrict == true){
+LOGDEBUG("Presence not ok")
+state.presenceRestriction = false
+}
+
+if (state.presencestatus1 == "not present" && actionPresenceRestrict == false){
+LOGDEBUG("Presence ok")
+state.presenceRestriction = true
+}
+else if (state.presencestatus1 == "present" && actionPresenceRestrict == false){
+LOGDEBUG("Presence not ok")
+state.presenceRestriction = false
+}
+
+
+}
+
+
 
 // define debug action
 def logCheck(){
@@ -326,7 +370,7 @@ checkDay()
 
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
-if(state.appgo == true && state.dayCheck == true){
+if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true){
 LOGDEBUG("Time trigger -  Activating now! ")
 def msg = messageTime
 checkVolume()
@@ -338,6 +382,9 @@ LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
 else if(state.dayCheck == false){
 LOGDEBUG( "Cannot continue - Daycheck failed")
+}
+else if(state.presenceRestriction ==  false){
+LOGDEBUG( "Cannot continue - Presence failed")
 }
 
 
@@ -502,11 +549,15 @@ def speakNow(){
 LOGDEBUG("speakNow...")
 checkVolume()
 state.msg1 = message1
-    if ( state.timer1 == true){
+    if ( state.timer1 == true && state.presenceRestriction == true){
 	LOGDEBUG("Speaking now...")
 	speaker.speak(state.msg1)
    	startTimerPower()  
  } 
+  if(state.presenceRestriction ==  false){
+LOGDEBUG( "Cannot continue - Presence failed")
+}
+ 
  
 }
 
@@ -539,7 +590,7 @@ checkTime()
 checkDay()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
-if(state.appgo == true && state.timeOK == true && state.dayCheck == true){
+if(state.appgo == true && state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
@@ -559,6 +610,9 @@ LOGDEBUG("$enableSwitch is off so cannot continue")
 
 else if(state.timeOK == false){
 LOGDEBUG("Not enabled for this time so cannot continue")
+}
+else if(state.presenceRestriction ==  false){
+LOGDEBUG( "Cannot continue - Presence failed")
 }
 
 else if(state.msgNow == 'oneNow' && state.msg1 == null){
@@ -668,5 +722,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.4.0"
+    state.appversion = "1.5.0"
 }
