@@ -565,7 +565,7 @@ def startTimerPower(){
 state.timer1 = false
 state.timeDelay = 60 * msgDelay
 LOGDEBUG("Waiting for $msgDelay minutes before resetting timer to allow further messages")
-runIn(state.timeDelay, resetTimer1)
+runIn(state.timeDelay, resetTimerPower)
 }
 
 def resetTimerPower() {

@@ -328,7 +328,7 @@ checkTime()
 	state.msg1 = message1
 	state.msg2 = message2
     
-	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 != 'off' && state.timer != 'no'){
+	if(state.dayCheck == true && state.timeOK == true && state.msg1 != null && state.currS2 == "wet" && state.voiceSwitch != 'off' && state.currS3 == 'on' && state.timer != 'no'){
  LOGDEBUG("Speaking now as the sensor shows wet, the window is open  and the time and day are correct")
 setVolume()
    speaker.speak(state.msg1) 
