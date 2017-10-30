@@ -204,7 +204,7 @@ def presenceActions(){
 	input "presenceSensor2", "capability.presenceSensor", title: "Select presence sensors to trigger action", multiple: true, required: false
   	}
     
-	else if(state.selection1 == "Group 2 \r\n('Not present' only when everyone leaves)"){
+	else if(state.selection1 == "Group 2 \r\n('Present' if anyone is at home)"){
 	input "presenceSensor3", "capability.presenceSensor", title: "Select presence sensors to trigger action", multiple: true, required: false
     }
     
