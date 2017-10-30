@@ -137,8 +137,7 @@ def mainPage() {
     }             
       section() {
         	basicInputs()
-          	
-        	}
+          	  	}
         
   }
 }

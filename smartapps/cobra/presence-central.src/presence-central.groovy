@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  ****************  Presence Central  ****************
  *
  *  Design Usage:
