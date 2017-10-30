@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  ****************  Presence Central  ****************
  *
  *  Design Usage:
@@ -98,3 +98,11 @@ def initialize() {
         log.debug "child app: ${child.label}"
     }
 }
+
+
+
+// App Version   ***********************************************
+def setAppVersion(){
+    state.appversion = "1.0.0"
+}
+// end app version *********************************************
