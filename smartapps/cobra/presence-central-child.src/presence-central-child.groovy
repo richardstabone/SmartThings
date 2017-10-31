@@ -36,14 +36,14 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 22/10/2017
+ *  Last Update: 31/10/2017
  *
  *  Changes:
  *
  * 
  *
- *  
- *  
+ *  V1.1.0 - added disable switching
+ *  V1.0.1 - debug
  *  V1.0.0 - POC
  *
  */
@@ -84,7 +84,7 @@ def initialize() {
  log.info "Initialised with settings: ${settings}"
       setAppVersion()
       logCheck()
-      state.appgo = true
+      switchRunCheck()
       state.timer1 = true
 
 
@@ -354,6 +354,7 @@ decideActionDeparture()
 
 // Decide which action to call
 def decideActionArrival() {
+if(state.appgo == true){
 LOGDEBUG("Deciding on correct Arrival Action")
 
  if(state.selection2 == "Control A Switch"){
@@ -395,15 +396,15 @@ else if(state.selection2 == "Speak A Message"){
  state.routineGo = routine1
  LOGDEBUG("Running routine: $state.routineGo")
  location.helloHome?.execute(state.routineGo)
- 
- 
- 
  }
-
-
+ }
+else if(state.appgo == false){
+LOGDEBUG( "$enableSwitch is off so cannot continue")
+}
 }
 
 def decideActionDeparture() {
+if(state.appgo == true){
 LOGDEBUG("Deciding on correct Departure Action")
 
  if(state.selection2 == "Control A Switch"){
@@ -445,6 +446,11 @@ else if(state.selection2 == "Speak A Message"){
  location.helloHome?.execute(state.routineGo)
  
  }
+}
+else if(state.appgo == false){
+LOGDEBUG( "$enableSwitch is off so cannot continue")
+}
+
 }
 
 
@@ -566,7 +572,7 @@ def speakNow(){
 LOGDEBUG("speakNow called...")
 checkVolume()
 
-    if ( state.timer1 == true){
+    if ( state.timer1 == true && state.msg1 != null){
 	LOGDEBUG("Speaking now - Message: '$state.msg1'")
 	speaker.speak(state.msg1)
    	startTimerSpeak()  
@@ -574,6 +580,10 @@ checkVolume()
 	else if ( state.timer1 == false){
 	LOGDEBUG("NOT Speaking now - Too close to last message so I have to wait a while before I can speak again...")
  }
+ 	else if(state.msg1 == null){
+    LOGDEBUG("No message configured")
+    
+    }
 }
 
 def startTimerSpeak(){
@@ -662,6 +672,29 @@ speaker.setLevel(state.volume)
 
 // Enable Switch  **********************************************
 
+def switchRunCheck(){
+if(enableSwitch){
+def switchstate = enableSwitch.currentValue('switch')
+LOGDEBUG("Enable switch is used. Switch is: $enableSwitch ")
+
+if(switchstate == 'on'){
+state.appgo = true
+LOGDEBUG("$enableSwitch - Switch State = $switchstate - Appgo = $state.appgo")
+}
+else if(switchstate == 'off'){
+state.appgo = false
+LOGDEBUG("$enableSwitch - Switch State = $switchstate - Appgo = $state.appgo")
+}
+}
+
+
+if(!enableSwitch){
+LOGDEBUG("Enable switch is NOT used. Switch is: $enableSwitch ")
+state.appgo = true
+LOGDEBUG("AppGo = $state.appgo")
+}
+}
+
 def switchEnable(evt){
 state.sEnable = evt.value
 LOGDEBUG("$enableSwitch = $state.sEnable")
@@ -700,6 +733,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.0.0"
+    state.appversion = "1.1.0"
 }
 // end app version *********************************************

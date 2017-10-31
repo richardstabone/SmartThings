@@ -33,11 +33,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 08/09/2017
+ *  Last Update: 31/10/2017
  *
  *  Changes:
  *
- *  V1.5.1 - Debug
+ *  V1.5.1 - Debug - Disable switch not always working
  *  V1.5.0 - Added 'Presence' restriction so will only speak if someone is present/not present
  *  V1.4.0 - Added 'Power' trigger and ability to use 'and stays that way' to use with Washer or Dryer applicance
  *  V1.3.2 - Debug
@@ -356,8 +356,17 @@ def LOGDEBUG(txt){
 
 def switchRunCheck(){
 if(enableSwitch){
+def switchstate = enableSwitch.currentValue('switch')
 LOGDEBUG("Enable switch is used. Switch is: $enableSwitch ")
-LOGDEBUG("$enableSwitch = $state.sEnable")
+
+if(switchstate == 'on'){
+state.appgo = true
+LOGDEBUG("$enableSwitch - Switch State = $switchstate - Appgo = $state.appgo")
+}
+else if(switchstate == 'off'){
+state.appgo = false
+LOGDEBUG("$enableSwitch - Switch State = $switchstate - Appgo = $state.appgo")
+}
 }
 
 
@@ -604,11 +613,12 @@ LOGDEBUG( "Timer reset - Messages allowed")
 // Talk now....
 
 def talkSwitch(){
+if(state.appgo == true){
 checkTime()
 checkDay()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
-if(state.appgo == true && state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
@@ -622,9 +632,7 @@ LOGDEBUG( "All OK! - Playing message 2: '$state.msg2'")
 speaker.speak(state.msg2)
 startTimer2()
 }
-else if(state.appgo == false){
-LOGDEBUG("$enableSwitch is off so cannot continue")
-}
+
 
 else if(state.timeOK == false){
 LOGDEBUG("Not enabled for this time so cannot continue")
@@ -640,8 +648,10 @@ else if(state.msgNow == 'twoNow' && state.msg2 == null){
 LOGDEBUG( "Message 2 is empty so nothing to say")
 }
 }
-
-
+}
+else if(state.appgo == false){
+LOGDEBUG("$enableSwitch is off so cannot continue")
+}
 
 }
 
