@@ -37,7 +37,7 @@
  *
  *  Changes:
  *
- *
+ *  V1.5.1 - Debug
  *  V1.5.0 - Added 'Presence' restriction so will only speak if someone is present/not present
  *  V1.4.0 - Added 'Power' trigger and ability to use 'and stays that way' to use with Washer or Dryer applicance
  *  V1.3.2 - Debug
@@ -85,10 +85,12 @@ def initialize() {
 	  log.info "Initialised with settings: ${settings}"
       setAppVersion()
       logCheck()
-      state.appgo = true
+      checkVolume()
+      switchRunCheck()
       state.timer1 = true
       state.timer2 = true
       state.presenceRestriction = true
+      
       
 // Subscriptions    
 
@@ -352,14 +354,30 @@ def LOGDEBUG(txt){
 
 // Enable Switch
 
+def switchRunCheck(){
+if(enableSwitch){
+LOGDEBUG("Enable switch is used. Switch is: $enableSwitch ")
+LOGDEBUG("$enableSwitch = $state.sEnable")
+}
+
+
+if(!enableSwitch){
+LOGDEBUG("Enable switch is NOT used. Switch is: $enableSwitch ")
+state.appgo = true
+LOGDEBUG("AppGo = $state.appgo")
+}
+}
+
 def switchEnable(evt){
 state.sEnable = evt.value
 LOGDEBUG("$enableSwitch = $state.sEnable")
 if(state.sEnable == 'on'){
 state.appgo = true
+LOGDEBUG("AppGo = $state.appgo")
 }
 else if(state.sEnable == 'off'){
 state.appgo = false
+LOGDEBUG("AppGo = $state.appgo")
 }
 }
 
@@ -485,11 +503,11 @@ def powerTalkNow (evt){
  state.meterValue = evt.value as double
     
 	LOGDEBUG("$powerSensor shows $state.meterValue Watts")
-    if(state.enablecurrS1 != 'off'){
+    if(state.appgo == true){
 	checkNow1()  
 	}
-    else if(state.enablecurrS1 == 'off'){
-    LOGDEBUG("App disabled by $enableswitch1 being off")
+    else if(state.appgo == false){
+    LOGDEBUG("App disabled by $enableswitch being off")
 
 }
 }
@@ -722,5 +740,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.5.0"
+    state.appversion = "1.5.1"
 }
