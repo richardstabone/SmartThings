@@ -44,7 +44,7 @@
  *
  *
  *  V2.1.1 - Debug
- *	V2.1.0 - Added optional contact sensor to turn off heating if open
+ *	V2.1.0 - Added optional contact sensor to turn off heating if windows opens
  *  V2.0.0 - Recode, debug & added time restrictions
  *  V1.2.0 - Added action to turn off heating if 'allow' switch turned off
  *  V1.1.0 - Added days of the week
