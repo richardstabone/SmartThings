@@ -41,8 +41,8 @@
  *  Changes:
  *
  * 
- *
- *  V1.1.0 - added disable switching
+ *  V1.2.0 - Added Locks & Doors to available responses
+ *  V1.1.0 - Added enable/disable switching
  *  V1.0.1 - debug
  *  V1.0.0 - POC
  *
@@ -86,6 +86,8 @@ def initialize() {
       logCheck()
       switchRunCheck()
       state.timer1 = true
+	  state.timerDoor = true
+      state.timerlock = true
 
 
 // Basic Subscriptions    
@@ -218,7 +220,7 @@ def presenceActions(){
 
 
 def outputActions(){
-input "presenceAction", "enum", title: "What action to take?",required: true, submitOnChange: true, options: ["Control A Switch", "Speak A Message", "Send A Message", "Change Mode", "Run a Routine"]
+input "presenceAction", "enum", title: "What action to take?",required: true, submitOnChange: true, options: ["Control A Switch", "Speak A Message", "Send A Message", "Change Mode", "Run a Routine", "Control a Door", "Control a Lock"]
 
 if (presenceAction) {
     state.selection2 = presenceAction
@@ -265,6 +267,15 @@ if (presenceAction) {
                     }
             }
     
+     else if(state.selection2 == "Control a Door"){
+      		input "door1", "capability.doorControl", title: "Select door to open/close", required: false, multiple: true 
+      		input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+           }
+           
+     else if(state.selection2 == "Control a Lock"){
+      		input "lock1", "capability.lock", title: "Select lock(s) ", required: false, multiple: true 
+      		input "lockDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+           }
     
     
     
@@ -397,7 +408,18 @@ else if(state.selection2 == "Speak A Message"){
  LOGDEBUG("Running routine: $state.routineGo")
  location.helloHome?.execute(state.routineGo)
  }
+ 
+ 
+  else if(state.selection2 == "Control a Door"){
+  LOGDEBUG("Decided to: 'Control a Door' ") 
+	openDoorNow()
  }
+ 
+ else if(state.selection2 == "Control a Lock"){
+  LOGDEBUG("Decided to: 'Control a Lock' ") 
+	openLock()
+ }
+} 
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
@@ -446,6 +468,18 @@ else if(state.selection2 == "Speak A Message"){
  location.helloHome?.execute(state.routineGo)
  
  }
+ 
+  else if(state.selection2 == "Control a Door"){
+  LOGDEBUG("Decided to: 'Control a Door' ")
+  closeDoorNow()
+  
+}
+  else if(state.selection2 == "Control a Lock"){
+  LOGDEBUG("Decided to: 'Control a Lock' ") 
+  secureLock()
+  
+}
+ 
 }
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
@@ -601,6 +635,106 @@ LOGDEBUG( "Timer reset - Messages allowed again...")
 
 // end speaking actions ==============================
 
+
+
+// Door Actions ======================================
+def openDoorNow(){
+LOGDEBUG( "calling openDoorNow")
+if(state.timerDoor == true){
+
+            LOGDEBUG( "Opening door...")
+			door1.open()
+            startTimerDoor()
+            }
+            
+if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+
+def closeDoorNow(){
+LOGDEBUG( "calling closeDoorNow")
+if(state.timerDoor == true){
+
+            LOGDEBUG("Closing door...")
+			door1.close()
+            startTimerDoor()
+            
+            }
+
+
+if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+
+def startTimerDoor(){
+LOGDEBUG("calling startTimerDoor")
+state.timerDoor = false
+def doorDelay1 = 60 * doorDelay as int
+LOGDEBUG("Waiting for $doorDelay minutes before resetting timer to allow further actions")
+runIn(doorDelay1, resetTimerDoor1)
+}
+
+def resetTimerDoor1() {
+LOGDEBUG("calling resetTimerdoor1")
+state.timerDoor = true
+LOGDEBUG( "Timer reset - Actions allowed again...")
+}
+
+
+// end door actions ==================================
+
+
+// Lock Actions ======================================
+
+def secureLock(){
+LOGDEBUG( "Securing Lock(s)")
+if(state.timerlock == true){
+// def anyLocked = lock1.count{it.currentLock == "unlocked"} != lock1.size()
+//			if (anyLocked) {
+			lock1.lock()
+            LOGDEBUG("Locked")
+            startTimerLock()
+//            }
+}
+if(state.timerLock == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+def openLock(){
+LOGDEBUG( "Opening Lock(s)")
+if(state.timerlock == true){
+//	def anyUnlocked = lock1.count{it.currentLock == "locked"} != lock1.size()
+//			if (anyUnlocked) {
+			lock1.unlock()
+            LOGDEBUG("Unlocked")
+            startTimerLock()
+//            }
+}
+if(state.timerLock == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+
+def startTimerLock(){
+state.timerlock = false
+state.timeDelayLock = 60 * lockDelay as int
+LOGDEBUG("Waiting for $lockDelay minutes before resetting timer to allow further actions")
+runIn(state.timeDelayLock, resetTimerLock1)
+}
+
+def resetTimerLock1() {
+state.timerlock = true
+LOGDEBUG( "Timer reset - Actions allowed again...")
+}
+
+// end lock actions ==================================
+
 // end Actions ****************************************************************************
 
 
@@ -733,6 +867,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.1.0"
+    state.appversion = "1.2.0"
 }
 // end app version *********************************************

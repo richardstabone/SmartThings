@@ -133,7 +133,11 @@ state.control1  = evt.value
 log.debug "state.control1 = $state.control1"
 	log.debug "$evt.value: $evt, $settings"
 	log.trace "Turning off $fibaro1"
-	fibaro1.off()
+    	fibaro1.setLevelRed(0)
+		fibaro1.setLevelBlue(0)
+		fibaro1.setLevelGreen(0)
+		fibaro1.setLevelWhite(0)
+		fibaro1.off()
 }
 
 // Configure colour or program for 1st colour
