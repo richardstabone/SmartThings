@@ -100,27 +100,38 @@ def initialize() {
 // Trigger subscriptions
 
 		if(trigger == "Single Presence Sensor"){
-     	LOGDEBUG( "Trigger is $trigger")
+     	LOGDEBUG( "Trigger is: '$trigger'")
 		subscribe(presenceSensor1, "presence", singlePresenceHandler) 
     }
 		else if(trigger == "Group 1 \r\n(Anyone arrives or leaves = changed presence)"){
-		LOGDEBUG( "Trigger is $trigger")
+		LOGDEBUG( "Trigger is:  '$trigger'")
         setPresence1()
 		subscribe(presenceSensor2, "presence", group1Handler) 
         
     }    
 		else if(trigger == "Group 2 \r\n('Present' if anyone is at home)"){
-		LOGDEBUG( "Trigger is $trigger")
+		LOGDEBUG( "Trigger is:  '$trigger'")
         setPresence2()
 		subscribe(presenceSensor3, "presence", group2Handler) 
         
     }
+
+
+		else if(trigger == "Check for presence at a certain time"){
+		LOGDEBUG( "Trigger is:  '$trigger'")
+        subscribe(presenceSensor4, "presence", timePresenceHandler) 
+        schedule(checkTime, checkPresenceTimeNow)
+    	state.privatePresence = 'present'
+    }
+
 
 // Other subscriptions.
 
 	if(doorContact1){
     subscribe(doorContact1, "contact", doorContactHandler) 
     }
+    
+    
 }
 
 
@@ -202,7 +213,7 @@ def basicInputs(){
 }
 
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger actions?",required: true, submitOnChange: true, options: ["Single Presence Sensor", "Group 1 \r\n(Anyone arrives or leaves = changed presence)", "Group 2 \r\n('Present' if anyone is at home)"]
+   input "trigger", "enum", title: "How to trigger actions?",required: true, submitOnChange: true, options: ["Single Presence Sensor", "Group 1 \r\n(Anyone arrives or leaves = changed presence)", "Group 2 \r\n('Present' if anyone is at home)", "Check for presence at a certain time"]
   
 }
 
@@ -222,6 +233,10 @@ def presenceActions(){
 	input "presenceSensor3", "capability.presenceSensor", title: "Select presence sensors to trigger action", multiple: true, required: false
     }
     
+    else if(state.selection1 == "Check for presence at a certain time"){
+    input "checkTime", "time", title: "Time to check presence ", required: true
+	input "presenceSensor4", "capability.presenceSensor", title: "Select presence sensor to check", multiple: true, required: false
+    }
     
  }
 }
@@ -239,15 +254,15 @@ if (presenceAction) {
     
     if(state.selection2 == "Control A Switch"){
      input "switch1", "capability.switch", title: "Select switch(s) to turn on/off", required: false, multiple: true 
-     input "presenceSensor1Action1", "bool", title: "\r\n \r\n On = Switch On when someone arrives (Off when they leave) \r\n Off = Switch Off when someone arrives (On when they leave) ", required: true, defaultValue: true  
+     input "presenceSensor1Action1", "bool", title: "\r\n \r\n On = Switch On when someone arrives, or is present at check time (Off when they leave or if not present) \r\n Off = Switch Off when someone arrives or is present at check time (On when they leave or if not present) ", required: true, defaultValue: true  
     }
     
     
    else if(state.selection2 == "Speak A Message"){ 
    input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
-    input "message1", "text", title: "Message to play when sensor arrives",  required: false
-	input "message2", "text", title: "Message to play when sensor leaves",  required: false
+    input "message1", "text", title: "Message to play when sensor arrives (Or is present at check time)",  required: false
+	input "message2", "text", title: "Message to play when sensor leaves (Or is not present at check time)",  required: false
     input "msgDelay", "number", title: "Minutes delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
@@ -256,8 +271,8 @@ if (presenceAction) {
     
     
      else if(state.selection2 == "Send A Message"){
-     input "message1", "text", title: "Message to send when sensor arrives",  required: false
-	 input "message2", "text", title: "Message to send when sensor leaves",  required: false
+     input "message1", "text", title: "Message to send when sensor arrives  (Or is present at check time)",  required: false
+	 input "message2", "text", title: "Message to send when sensor leaves  (Or is not present at check time)",  required: false
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
@@ -266,21 +281,21 @@ if (presenceAction) {
      }
     
     else if(state.selection2 == "Change Mode"){
-    input "newMode1", "mode", title: "Change to this mode when someone arrives"
-    input "newMode2", "mode", title: "Change to this mode when someone leaves"
+    input "newMode1", "mode", title: "Change to this mode when someone arrives (Or is present at check time)"
+    input "newMode2", "mode", title: "Change to this mode when someone leaves (Or is present at check time)"
     
     }
     
      else if(state.selection2 == "Run a Routine"){
       def actions = location.helloHome?.getPhrases()*.label
             if (actions) {
-            input "routine1", "enum", title: "Select a routine to execute when someone arrives", options: actions
-            input "routine2", "enum", title: "Select a routine to execute when someone leaves", options: actions
+            input "routine1", "enum", title: "Select a routine to execute when someone arrives (Or is present at check time)", options: actions
+            input "routine2", "enum", title: "Select a routine to execute when someone leaves (Or is present at check time)", options: actions
                     }
             }
     
      else if(state.selection2 == "Control a Door"){
-     input "doorAction", "enum", title: "How to control door",required: true, submitOnChange: true, options: ["Single Momentary Switch", "Two Momentary Switch(es)", "Open/Close Switch"]
+     input "doorAction", "enum", title: "How to control door",required: true, submitOnChange: true, options: ["Single Momentary Switch", "Two Momentary Switch(es)", "Open/Close Door"]
      		selectDoorActions()
            }
            
@@ -308,13 +323,13 @@ if(doorAction){
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
     
-    else if(state.actionOnDoor == "Open/Close Switch"){
+    else if(state.actionOnDoor == "Open/Close Door"){
     input "door1", "capability.doorControl", title: "Select door to open/close", required: false, multiple: true 
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
     
     else  if(state.actionOnDoor == "Single Momentary Switch"){
-    input "doorSwitch1", "capability.switch", title: "Switch to open", required: false, multiple: true 
+    input "doorSwitch1", "capability.switch", title: "Switch to open/close", required: false, multiple: true 
     input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false 
 	input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
@@ -324,6 +339,7 @@ if(doorAction){
 // ************************ Handlers ****************************************
 
 
+// Single Presence =============================================================
 
 def singlePresenceHandler(evt){
 state.privatePresence = evt.value
@@ -334,6 +350,44 @@ if (state.privatePresence == "not present"){
 departureAction()
 }
 }
+// end single presence =========================================================
+
+// Timed Presence Check =========================================================
+
+
+
+def checkPresenceTimeNow(evt){
+LOGDEBUG("Activating timed check now....")
+if (state.privatePresence == "present"){
+arrivalAction()
+}
+if (state.privatePresence == "not present"){
+departureAction()
+}
+}
+
+
+
+def timePresenceHandler(evt){
+state.privatePresence = evt.value
+LOGDEBUG("state.privatePresence = $state.privatePresence")
+
+
+
+
+}
+
+
+
+
+
+
+
+
+// end timed presence check =====================================================
+
+
+
 
 
 // Group 1  ======================================================================
@@ -343,14 +397,14 @@ def group1Handler(evt) {
         if (state.privatePresence1 != "present") {
             state.privatePresence1 = "present"
             state.privatePresence = "present"
-           log.debug("A sensor arrived so setting group to '$state.privatePresence'")
+           LOGDEBUG("A sensor arrived so setting group to '$state.privatePresence'")
            arrivalAction ()
             }
     } else if (evt.value == "not present") {
         if (state.privatePresence1 != "not present") {
             state.privatePresence1 = "not present"
             state.privatePresence = "not present"
-            log.debug("A sensor left so setting group to '$state.privatePresence'")
+            LOGDEBUG("A sensor left so setting group to '$state.privatePresence'")
             departureAction ()
         }
     }
@@ -469,7 +523,7 @@ else if(state.selection2 == "Speak A Message"){
     LOGDEBUG("Using single momentary switching")  
    switchDoorOn2()
   } 
-  else if(state.actionOnDoor == "Open/Close Switch"){
+  else if(state.actionOnDoor == "Open/Close Door"){
   LOGDEBUG("Using standard door switching")
   LOGDEBUG("Opening door....")
 	openDoorNow()
@@ -485,6 +539,11 @@ else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
 }
+
+
+
+
+
 
 def decideActionDeparture() {
 if(state.appgo == true){
@@ -541,7 +600,7 @@ else if(state.selection2 == "Speak A Message"){
     LOGDEBUG("Using single momentary switching") 
    switchDoorOff2()
   } 
-   else if(state.actionOnDoor == "Open/Close Switch"){
+   else if(state.actionOnDoor == "Open/Close Door"){
    LOGDEBUG("Using standard door switching")
    LOGDEBUG("Closing door....")
 	closeDoorNow()
