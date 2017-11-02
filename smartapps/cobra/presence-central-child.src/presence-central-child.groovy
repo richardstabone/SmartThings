@@ -40,7 +40,7 @@
  *
  *  Changes:
  *
- * 
+ *	V1.2.1 - Changed restrictions from compulary entries to optional entries 
  *  V1.2.0 - Added Locks & Doors to available responses
  *  V1.1.0 - Added enable/disable switching
  *  V1.0.1 - debug
@@ -182,11 +182,12 @@ def finalPage() {
 
 
 def basicInputs(){
+
 	input "enableSwitch", "capability.switch", title: "Select a switch Enable/Disable this automation (Optional)", required: false, multiple: false 
-	input "fromTime", "time", title: "Allow actions from", required: true
-    input "toTime", "time", title: "Allow actions until", required: true 
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-   
+	input "fromTime", "time", title: "Allow actions from (Optional)", required: false
+    input "toTime", "time", title: "Allow actions until (Optional)", required: false 
+    input "days", "enum", title: "Select Days of the Week (Optional)", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+  
 }
 
 def triggerInput() {
@@ -742,7 +743,7 @@ LOGDEBUG( "Timer reset - Actions allowed again...")
 // Check time allowed to run... *******************************
 
 def checkTime(){
-
+if(fromTime){
 def between = timeOfDayIsBetween(fromTime, toTime, new Date(), location.timeZone)
     if (between) {
     state.timeOK = true
@@ -754,9 +755,13 @@ state.timeOK = false
 LOGDEBUG("Time is NOT ok so cannot continue...")
 	}
 }
+else {
+state.timeOK = true
+}    
+}
 
 def checkDay(){
-
+if(days){
  def df = new java.text.SimpleDateFormat("EEEE")
     
     df.setTimeZone(location.timeZone)
@@ -771,6 +776,11 @@ LOGDEBUG( " Day ok so can continue...")
 LOGDEBUG( " Not today!")
  state.dayCheck = false
  }
+}
+else{
+state.dayCheck = true
+}
+ 
  }
 
 // Check volume levels ****************************************
@@ -867,6 +877,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.0"
+    state.appversion = "1.2.1"
 }
 // end app version *********************************************
