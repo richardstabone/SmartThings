@@ -116,7 +116,11 @@ def initialize() {
         
     }
 
+// Other subscriptions.
 
+	if(doorContact1){
+    subscribe(doorContact1, "contact", doorContactHandler) 
+    }
 }
 
 
@@ -276,8 +280,8 @@ if (presenceAction) {
             }
     
      else if(state.selection2 == "Control a Door"){
-      		input "door1", "capability.doorControl", title: "Select door to open/close", required: false, multiple: true 
-      		input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     input "doorAction", "enum", title: "How to control door",required: true, submitOnChange: true, options: ["Single Momentary Switch", "Two Momentary Switch(es)", "Open/Close Switch"]
+     		selectDoorActions()
            }
            
      else if(state.selection2 == "Control a Lock"){
@@ -290,10 +294,36 @@ if (presenceAction) {
     
     
 	}
-}
+}    
 
+def selectDoorActions(){
+if(doorAction){
+    state.actionOnDoor = doorAction
+    
+    if(state.actionOnDoor == "Two Momentary Switch(es)"){
+    input "doorSwitch1", "capability.switch", title: "Switch to open", required: false, multiple: true
+    input "doorSwitch2", "capability.switch", title: "Switch to close", required: false, multiple: true
+    input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false
+    input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
+    input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    }
+    
+    else if(state.actionOnDoor == "Open/Close Switch"){
+    input "door1", "capability.doorControl", title: "Select door to open/close", required: false, multiple: true 
+    input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    }
+    
+    else  if(state.actionOnDoor == "Single Momentary Switch"){
+    input "doorSwitch1", "capability.switch", title: "Switch to open", required: false, multiple: true 
+    input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false 
+	input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
+    input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+  }  
+}
+}
 // ************************ Handlers ****************************************
- 
+
+
 
 def singlePresenceHandler(evt){
 state.privatePresence = evt.value
@@ -338,6 +368,17 @@ def group2Handler(evt) {
 
 
 // end group 2 ========================================================
+
+
+// Door Contact Handler
+
+def doorContactHandler(evt){
+state.contactDoor = evt.value
+LOGDEBUG("state.contactDoor = $state.contactDoor")
+
+
+
+}
 
 // end handlers *************************************************************
 
@@ -420,7 +461,19 @@ else if(state.selection2 == "Speak A Message"){
  
   else if(state.selection2 == "Control a Door"){
   LOGDEBUG("Decided to: 'Control a Door' ") 
+   if(state.actionOnDoor == "Two Momentary Switch(es)"){
+   LOGDEBUG("Using 'two momentary' switching") 
+    switchDoorOn()   
+   }
+   else if(state.actionOnDoor == "Single Momentary Switch"){
+    LOGDEBUG("Using single momentary switching")  
+   switchDoorOn2()
+  } 
+  else if(state.actionOnDoor == "Open/Close Switch"){
+  LOGDEBUG("Using standard door switching")
+  LOGDEBUG("Opening door....")
 	openDoorNow()
+    }
  }
  
  else if(state.selection2 == "Control a Lock"){
@@ -479,8 +532,22 @@ else if(state.selection2 == "Speak A Message"){
  
   else if(state.selection2 == "Control a Door"){
   LOGDEBUG("Decided to: 'Control a Door' ")
-  closeDoorNow()
   
+  if(state.actionOnDoor == "Two Momentary Switch(es)"){
+   LOGDEBUG("Using 'two momentary' switching") 
+   switchDoorOff()
+   }
+   else if(state.actionOnDoor == "Single Momentary Switch"){
+    LOGDEBUG("Using single momentary switching") 
+   switchDoorOff2()
+  } 
+   else if(state.actionOnDoor == "Open/Close Switch"){
+   LOGDEBUG("Using standard door switching")
+   LOGDEBUG("Closing door....")
+	closeDoorNow()
+    }
+  
+ 
 }
   else if(state.selection2 == "Control a Lock"){
   LOGDEBUG("Decided to: 'Control a Lock' ") 
@@ -668,7 +735,6 @@ if(state.timerDoor == true){
             LOGDEBUG("Closing door...")
 			door1.close()
             startTimerDoor()
-            
             }
 
 
@@ -691,6 +757,89 @@ LOGDEBUG("calling resetTimerdoor1")
 state.timerDoor = true
 LOGDEBUG( "Timer reset - Actions allowed again...")
 }
+
+
+def switchDoorOn(){
+LOGDEBUG( "calling switchDoorOn")
+	if(state.timerDoor == true){
+		def	momentaryTime1 = doorMomentaryDelay as int
+        if(state.contactDoor != 'open'){
+			LOGDEBUG("Opening door....")
+	  		doorOn1() 
+	  		runIn(momentaryTime1, doorOff1)
+			startTimerDoor()
+            }
+         else if(state.contactDoor == 'open'){
+          LOGDEBUG("Door already open!")
+}
+	else if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+}
+def switchDoorOff(){
+LOGDEBUG( "calling switchDoorOff")
+	if(state.timerDoor == true){
+		def	momentaryTime1 = doorMomentaryDelay as int
+         if(state.contactDoor != 'closed'){
+			LOGDEBUG("Closing door....")
+			doorOn2() 
+			runIn(momentaryTime1, doorOff2)
+			startTimerDoor()
+            }
+         else if(state.contactDoor == 'closed'){
+           LOGDEBUG("Door already closed!")
+         }
+}
+	else if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+def switchDoorOn2(){
+LOGDEBUG( "calling switchDoorOn")
+	if(state.timerDoor == true){
+		def	momentaryTime1 = doorMomentaryDelay as int
+        if(state.contactDoor != 'open'){
+			LOGDEBUG("Opening door....")
+	  		doorOn1() 
+	  		runIn(momentaryTime1, doorOff1)
+			startTimerDoor()
+            }
+           else if(state.contactDoor == 'open'){
+           LOGDEBUG("Door already open!")
+         } 
+}
+	else if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+def switchDoorOff2(){
+LOGDEBUG( "calling switchDoorOff2")
+	if(state.timerDoor == true){
+		def	momentaryTime1 = doorMomentaryDelay as int
+         if(state.contactDoor != 'closed'){
+			LOGDEBUG("Closing door....")
+			doorOn1() 
+			runIn(momentaryTime1, doorOff1)
+			startTimerDoor()
+            }
+           else if(state.contactDoor == 'closed'){
+           LOGDEBUG("Door already closed!")
+         }
+}
+	else if(state.timerDoor == false){
+LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
+}
+}
+
+
+
+def doorOn1(){doorSwitch1.on()}
+def doorOff1(){doorSwitch1.off()}
+def doorOn2(){doorSwitch2.on()}
+def doorOff2(){doorSwitch2.off()}
 
 
 // end door actions ==================================
