@@ -11,12 +11,12 @@
  *  Copyright 2017 Andrew Parker
  *  
  *  This SmartApp is free!
- *  Donations to support development efforts are accepted via: 
+ *  If you feel it's worth it then, donations to support development efforts are accepted via: 
  *
  *  Paypal at: https://www.paypal.me/smartcobra
  *  
  *
- *  I'm very happy for you to use this app without a donation, but if you find it useful then it would be nice to get a 'shout out' on the forum! -  @Cobra
+ *  If you find this app useful then it would be nice to get a 'shout out' on the forum! -  @Cobra
  *  Have an idea to make this app better?  - Please let me know :)
  *
  *  Website: http://securendpoint.com/smartthings
@@ -40,6 +40,8 @@
  *
  *  Changes:
  *
+ *
+ *  V1.2.2 - Moved 'restriction Options' to last page
  *	V1.2.1 - Changed restrictions from compulsory entries to optional entries 
  *  V1.2.0 - Added Locks & Doors to available responses
  *  V1.1.0 - Added enable/disable switching
@@ -169,12 +171,20 @@ def finalPage() {
             section("Automation name") {
                 label title: "Enter a name for this message automation", required: false
             }
-             section("Modes") {
-           		mode title: "Set for specific mode(s)", required: false
+             section("Optional Restrictions ") {
+           		mode title: "Only allow actions when in specific mode(s)", required: false
+                input "fromTime", "time", title: "Only allow actions from ", required: false
+				input "toTime", "time", title: "Only allow actions until", required: false 
+				input "days", "enum", title: "Only allow actions on these days of the week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+  
             }
              section("Logging") {
             input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
   	        }
+            
+            
+            
+            
       }  
     }
 
@@ -184,10 +194,7 @@ def finalPage() {
 def basicInputs(){
 
 	input "enableSwitch", "capability.switch", title: "Select a switch Enable/Disable this automation (Optional)", required: false, multiple: false 
-	input "fromTime", "time", title: "Allow actions from (Optional)", required: false
-    input "toTime", "time", title: "Allow actions until (Optional)", required: false 
-    input "days", "enum", title: "Select Days of the Week (Optional)", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-  
+	
 }
 
 def triggerInput() {
@@ -877,6 +884,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.1"
+    state.appversion = "1.2.2"
 }
 // end app version *********************************************
