@@ -40,7 +40,7 @@
  *
  *  Changes:
  *
- *	V1.2.1 - Changed restrictions from compulary entries to optional entries 
+ *	V1.2.1 - Changed restrictions from compulsory entries to optional entries 
  *  V1.2.0 - Added Locks & Doors to available responses
  *  V1.1.0 - Added enable/disable switching
  *  V1.0.1 - debug
