@@ -276,7 +276,6 @@ if (presenceAction) {
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
-     
      }
      }
     
@@ -318,21 +317,64 @@ if(doorAction){
     if(state.actionOnDoor == "Two Momentary Switch(es)"){
     input "doorSwitch1", "capability.switch", title: "Switch to open", required: false, multiple: true
     input "doorSwitch2", "capability.switch", title: "Switch to close", required: false, multiple: true
-    input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false
     input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false, submitOnChange:true
+    if(doorContact1){
+    input(name: "alertOption", type: "bool", title: "Send a notification when contact open/closed", description: null, defaultValue: false, submitOnChange:true)
+    }
+    if(alertOption == true){
+       
+		input "doorContactDelay", "number", title: "Once contact has been open/closed for this number of seconds", defaultValue: '0', description: "Seconds", required: true
+        input("recipients", "contact", title: "Send notifications to") {
+    	input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+    	input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
+        }
+    	input "message1", "text", title: "Send this message (Open)",  required: false
+    	input "message2", "text", title: "Send this message (Closed)",  required: false
+        
+     }
     }
     
     else if(state.actionOnDoor == "Open/Close Door"){
     input "door1", "capability.doorControl", title: "Select door to open/close", required: false, multiple: true 
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false, submitOnChange:true
+    if(doorContact1){
+    input(name: "alertOption", type: "bool", title: "Send a notification when contact open/closed", description: null, defaultValue: false, submitOnChange:true)
     }
+    if(alertOption == true){
+       
+		input "doorContactDelay", "number", title: "Once contact has been open/closed for this number of seconds", defaultValue: '0', description: "Seconds", required: true
+        input("recipients", "contact", title: "Send notifications to") {
+    	input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+    	input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
+        }
+    	input "message1", "text", title: "Send this message (Open)",  required: false
+    	input "message2", "text", title: "Send this message (Closed)",  required: false
+        
+     }
+}
     
     else  if(state.actionOnDoor == "Single Momentary Switch"){
     input "doorSwitch1", "capability.switch", title: "Switch to open/close", required: false, multiple: true 
-    input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false 
-	input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
+   	input "doorMomentaryDelay", "number", title: "How many seconds to hold switch on", defaultValue: '1', description: "Seconds", required: true
     input "doorDelay", "number", title: "Minutes delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	input "doorContact1", "capability.contactSensor", title: "Door Contact (Optional)", required: false, multiple: false, submitOnChange:true 
+    if(doorContact1){
+    input(name: "alertOption", type: "bool", title: "Send a notification when contact open/closed", description: null, defaultValue: false, submitOnChange:true)
+    }
+    if(alertOption == true){
+       
+		input "doorContactDelay", "number", title: "Once contact has been open/closed for this number of seconds", defaultValue: '0', description: "Seconds", required: true
+        input("recipients", "contact", title: "Send notifications to") {
+    	input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+    	input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
+        }
+    	input "message1", "text", title: "Send this message (Open)",  required: false
+    	input "message2", "text", title: "Send this message (Closed)",  required: false
+        
+     }
   }  
 }
 }
@@ -376,13 +418,6 @@ LOGDEBUG("state.privatePresence = $state.privatePresence")
 
 
 }
-
-
-
-
-
-
-
 
 // end timed presence check =====================================================
 
@@ -775,12 +810,22 @@ LOGDEBUG( "Timer reset - Messages allowed again...")
 def openDoorNow(){
 LOGDEBUG( "calling openDoorNow")
 if(state.timerDoor == true){
-
+ 		if(state.contactDoor != 'open'){
+			LOGDEBUG("Door is closed...")
             LOGDEBUG( "Opening door...")
+        if(message1){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message1
+            runIn(messageDelay, runContactMsg)
+            }
 			door1.open()
             startTimerDoor()
             }
-            
+  else if(state.contactDoor == 'open'){
+          LOGDEBUG("Door already open!")
+}            
+            }
+           
 if(state.timerDoor == false){
 LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
 }
@@ -790,12 +835,19 @@ LOGDEBUG("Too soon since last action to do anything - I need to wait for the tim
 def closeDoorNow(){
 LOGDEBUG( "calling closeDoorNow")
 if(state.timerDoor == true){
-
+			LOGDEBUG("Door is open...")
             LOGDEBUG("Closing door...")
 			door1.close()
+            if(message2){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message2
+            runIn(messageDelay, runContactMsg)
+            }
             startTimerDoor()
             }
-
+ else if(state.contactDoor == 'open'){
+          LOGDEBUG("Door already open!")
+}
 
 if(state.timerDoor == false){
 LOGDEBUG("Too soon since last action to do anything - I need to wait for the timer to expire")
@@ -822,10 +874,16 @@ def switchDoorOn(){
 LOGDEBUG( "calling switchDoorOn")
 	if(state.timerDoor == true){
 		def	momentaryTime1 = doorMomentaryDelay as int
+       
         if(state.contactDoor != 'open'){
 			LOGDEBUG("Opening door....")
 	  		doorOn1() 
 	  		runIn(momentaryTime1, doorOff1)
+            if(message1){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message1
+            runIn(messageDelay, runContactMsg)
+            }
 			startTimerDoor()
             }
          else if(state.contactDoor == 'open'){
@@ -844,6 +902,11 @@ LOGDEBUG( "calling switchDoorOff")
 			LOGDEBUG("Closing door....")
 			doorOn2() 
 			runIn(momentaryTime1, doorOff2)
+             if(message2){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message2
+            runIn(messageDelay, runContactMsg)
+            }
 			startTimerDoor()
             }
          else if(state.contactDoor == 'closed'){
@@ -863,6 +926,11 @@ LOGDEBUG( "calling switchDoorOn")
 			LOGDEBUG("Opening door....")
 	  		doorOn1() 
 	  		runIn(momentaryTime1, doorOff1)
+             if(message1){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message1
+            RunIn(messageDelay, runContactMsg)
+            }
 			startTimerDoor()
             }
            else if(state.contactDoor == 'open'){
@@ -882,6 +950,11 @@ LOGDEBUG( "calling switchDoorOff2")
 			LOGDEBUG("Closing door....")
 			doorOn1() 
 			runIn(momentaryTime1, doorOff1)
+             if(message2){
+            def messageDelay = doorContactDelay
+        	state.contactMsg = message2
+            RunIn(messageDelay, runContactMsg)
+            }
 			startTimerDoor()
             }
            else if(state.contactDoor == 'closed'){
@@ -899,6 +972,13 @@ def doorOn1(){doorSwitch1.on()}
 def doorOff1(){doorSwitch1.off()}
 def doorOn2(){doorSwitch2.on()}
 def doorOff2(){doorSwitch2.off()}
+
+def runContactMsg(){
+LOGDEBUG("runContactMsg - Sending message...")
+def msg = state.contactMsg
+  sendMessage(msg)
+
+}
 
 
 // end door actions ==================================
