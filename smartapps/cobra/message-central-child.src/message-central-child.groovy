@@ -29,14 +29,13 @@
  *  for the specific language governing permissions and limitations under the License.
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
  *
- *-------------------------------------------------------------------------------------------------------------------
- *
- *  Last Update: 31/10/2017
+ *  Last Update: 07/11/2017
  *
  *  Changes:
  *
+ *
+ *  V1.6.0 - Added Routines & Mode Change as triggers
  *  V1.5.1 - Debug - Disable switch not always working
  *  V1.5.0 - Added 'Presence' restriction so will only speak if someone is present/not present
  *  V1.4.0 - Added 'Power' trigger and ability to use 'and stays that way' to use with Washer or Dryer applicance
@@ -51,6 +50,9 @@
  *  V1.0.1 - Header & Debug
  *  V1.0.0 - POC
  *
+ *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
+ *
+ *-------------------------------------------------------------------------------------------------------------------
  */
 
 definition(
@@ -123,6 +125,16 @@ else if(trigger == 'Power'){
 subscribe(powerSensor, "power", powerTalkNow) 
      
 	}
+else if(trigger == 'Routine'){
+    LOGDEBUG("trigger is $trigger")
+ subscribe(location, "routineExecuted", routineChanged)
+    
+    }
+else if(trigger == 'Mode Change'){
+    LOGDEBUG("trigger is $trigger")
+subscribe(location, "mode", modeChangeHandler)
+
+	}
     
 if (restrictPresenceSensor){
 subscribe(restrictPresenceSensor, "presence", restrictPresenceSensorHandler)
@@ -185,7 +197,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine"]
   
 }
 
@@ -287,8 +299,37 @@ else if(state.selection == 'Time'){
    
 }   
 
-
-
+else if(state.selection == 'Mode Change'){
+	input "newMode1", "mode", title: "Play message when changing to this mode",  required: false
+	input "message1", "text", title: "Message to play",  required: true
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	 input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+} 
+else if(state.selection == 'Routine'){
+	  def actions = location.helloHome?.getPhrases()*.label
+            if (actions) {
+            input "routine1", "enum", title: "Play a message when this routine runs", required: false, options: actions
+            }
+	input "message1", "text", title: "Message to play",  required: true
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
+   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+} 
 
 
 }
@@ -299,6 +340,66 @@ else if(state.selection == 'Time'){
 
 
 // Handlers
+
+
+// Mode Change
+
+def modeChangeHandler(evt){
+state.modeNow = evt.value
+LOGDEBUG("state.modeNow = $state.modeNow")
+ state.msg1 = message1
+ LOGDEBUG("state.msg1 = $state.msg1")
+ 
+ 
+ state.msgNow = 'oneNow'
+ 
+if (evt.isStateChange){
+LOGDEBUG(" State Change - The value of this event is different from its previous value: ${evt.isStateChange()}")
+def modeChangedTo = newMode1
+	if(state.modeNow == modeChangedTo){
+   	LOGDEBUG( "Mode is now $modeChangedTo")
+    
+def mydelay = triggerDelay
+checkVolume()
+LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
+runIn(mydelay, talkSwitch)
+
+
+
+	}
+}
+
+
+    
+}
+
+// Routines
+def routineChanged(evt) {
+state.newRoutine = evt.displayName
+
+state.msg1 = message1
+state.msgNow = 'oneNow'
+def routineToCheckRun = routine1
+LOGDEBUG("state.newRoutine = $state.newRoutine")
+  
+ LOGDEBUG("state.msg1 = $state.msg1") 
+ 
+ if(state.newRoutine == routineToCheckRun){
+ 
+ 	LOGDEBUG( "Routine running: $state.newRoutine")
+    
+def mydelay = triggerDelay
+checkVolume()
+LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
+runIn(mydelay, talkSwitch)
+
+ 
+ }
+
+
+   
+}
+
 
 // Define restrictPresenceSensor actions
 def restrictPresenceSensorHandler(evt){
@@ -613,8 +714,11 @@ LOGDEBUG( "Timer reset - Messages allowed")
 // Talk now....
 
 def talkSwitch(){
+LOGDEBUG("Calling.. talkSwitch")
 if(state.appgo == true){
+LOGDEBUG("Calling.. CheckTime")
 checkTime()
+LOGDEBUG("Calling.. CheckDay")
 checkDay()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
@@ -750,5 +854,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.5.1"
+    state.appversion = "1.6.0"
 }
