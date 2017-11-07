@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.4.2 - Debug where windows was showing open when it wasn't
  *  V1.4.1 - Corrected typos
  *  V1.4.0 - added 'quiet time' and switchable debug logging
  *  V1.3.0 - Custom Icons
@@ -69,7 +70,7 @@ preferences {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   //       required: false,
-                  "Version: 1.4.1 - Brought to you by Cobra"
+                  "Version: 1.4.2 - Brought to you by Cobra"
     }
 
 	section() {
@@ -129,7 +130,7 @@ def initialize() {
 	  log.info "Initialised with settings: ${settings}"
       setAppVersion()
       logCheck()
-
+state.timer = 'yes'
 	subscribe(water1, "water.wet", wetHandler1)
     subscribe(switch1, "switch", switchHandler)
 }
@@ -179,7 +180,7 @@ def open = sensors.findAll { it?.latestValue("contact") == 'open' }
 		if (open) { 
 LOGDEBUG("Open windows or doors: ${open.join(',,, ')}")
                 state.fullMsg1 = "$newmsg  ${open.join(',,, ')}"
-            }
+            
 
 		speaker1.speak(state.fullMsg1)
         
@@ -189,7 +190,10 @@ LOGDEBUG("Open windows or doors: ${open.join(',,, ')}")
 state.timeDelay = 60 * delay2
 LOGDEBUG("Waiting for $state.timeDelay seconds before resetting timer to allow further messages")
 runIn(state.timeDelay, resetTimer)
-
+}
+if (!open) {
+LOGDEBUG("There are no open windows or doors")
+}
 }
 
 	else if (state.timer == 'no'){
@@ -264,5 +268,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.4.1"
+    state.appversion = "1.4.2"
 }
