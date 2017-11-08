@@ -1,12 +1,12 @@
 /**
- *  ****************  Who Took The Car  ****************
+ *  ****************  Which Car  ****************
  *
  *  Design Usage:
  *  This was designed to indicate who took the shared car..... 
  *  It was created as a response to the creation of a special DTH:
  *  This DTH was originally developed by SmartThings for a garage door, 
  *  then modified by Robin Winbourne for use with a dog feeder to give access to four 'states'.
- *  Then modified by me (@cobra) to change the text/colours/icons to be able to use it to show who took a shared car :)
+ *  Then modified by me (@cobra) to change the text/colours/icons to be able to use it to show who took which car :)
  *
  *  Copyright 2017 Andrew Parker
  *  
@@ -36,12 +36,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 10/08/2017
+ *  Last Update: 08/11/2017
  *
  *  Changes:
  *
- *  V1.2.0 - Added driver's own car 
- *  V1.1.1 - Debug & Typos
+ *  
+ *  
  *  V1.1.0 - Added Enable/Disable switch - Added paragraph & header
  *  V1.0.0 - POC
  */
@@ -66,11 +66,11 @@ preferences {
 
 
 section("") {
-        paragraph "V1.2.0"
+        paragraph "V1.1.0"
        paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
                   title: "Who Took The Car?",
                   required: false,
-                  "This app is designed to use a special 'Virtual Switch' to indicate who left with a shared vehicle"
+                  "This app is designed to use a special 'Virtual Switch' to indicate who left with which vehicle"
     }
 
  section(){
