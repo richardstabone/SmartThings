@@ -2,7 +2,7 @@
  *  ****************  Which Car  ****************
  *
  *  Design Usage:
- *  This was designed to indicate who took the shared car..... 
+ *  This was designed to indicate who took which car..... 
  *  It was created as a response to the creation of a special DTH:
  *  This DTH was originally developed by SmartThings for a garage door, 
  *  then modified by Robin Winbourne for use with a dog feeder to give access to four 'states'.
@@ -30,11 +30,7 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
- *-------------------------------------------------------------------------------------------------------------------
- *
- *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
- *
- *-------------------------------------------------------------------------------------------------------------------
+ 
  *
  *  Last Update: 08/11/2017
  *
@@ -44,6 +40,12 @@
  *  V1.2.0 - Added switchable logging  
  *  V1.1.0 - Added Enable/Disable switch - Added paragraph & header
  *  V1.0.0 - POC
+ *
+ *----------------------------------------------------------------------------------------------------------------------------
+ *
+ *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
+ *
+ *----------------------------------------------------------------------------------------------------------------------------
  */
  
  
