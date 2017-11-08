@@ -41,7 +41,7 @@
  *  Changes:
  *
  *  
- *  
+ *  V1.2.0 - Added switchable logging  
  *  V1.1.0 - Added Enable/Disable switch - Added paragraph & header
  *  V1.0.0 - POC
  */
@@ -55,29 +55,31 @@ definition(
     name: "Which Car?",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "Sets a switch when a car leaves, and tries to work out who took what",
+    description: "Sets a switch when a person leaves, and tries to work out who took what car",
     category: "Family",
-   iconUrl: "http://54.246.165.27/img/icons/car.png",
-	iconX2Url: "http://54.246.165.27/img/icons/car.png",
-    iconX3Url: "http://54.246.165.27/img/icons/car.png",
+   iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
+	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
 )
 
 preferences {
 
 
 section("") {
-        paragraph "V1.1.0"
-       paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
-                  title: "Who Took The Car?",
+        paragraph "V1.2.0"
+       paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+                  title: "Which Car?",
                   required: false,
                   "This app is designed to use a special 'Virtual Switch' to indicate who left with which vehicle"
     }
 
- section(){
+ section("Enable/Disable App"){
             input "enableApp", "bool", title: "Enable App", required: true, defaultValue: true
         }
 
-
+ section("Logging") {
+            input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
+  	        }
 
 
 	section() {
@@ -112,6 +114,8 @@ def updated() {
 def initialize() {
 // Check if app is enabled
 appEnable()
+// Check Logging
+logCheck()
 
 	subscribe(car1, "presence", "car1Handler")
     subscribe(car2, "presence", "car2Handler")
@@ -128,11 +132,11 @@ appEnable()
 
 def car1Handler(evt){
 state.d1car = evt.value
-log.debug "$car1 = $state.d1car"
+LOGDEBUG("$car1 = $state.d1car")
 
 if (state.d1car  == "present") { 
 state.d1carStatus = 'not taken'
-log.info "Car 1 = $state.d1carStatus"
+LOGDEBUG("Car 1 = $state.d1carStatus")
 }
 
 
@@ -140,34 +144,33 @@ log.info "Car 1 = $state.d1carStatus"
 
 def car2Handler(evt){
 state.d2car = evt.value
-log.debug "$car2 = $state.d2car"
+LOGDEBUG("$car2 = $state.d2car")
 
 if (state.d2car  == "present") { 
 state.d2carStatus = 'not taken'
-log.info "Car 2 = $state.d2carStatus"
+LOGDEBUG("Car 2 = $state.d2carStatus")
 }
 }
 
 def car3Handler(evt){
 state.d3car = evt.value
-log.debug "$car3 = $state.d3car"
+LOGDEBUG("$car3 = $state.d3car")
 
 if (state.d3car  == "present") { 
 state.d3carStatus = 'not taken'
-log.info "Car 3 = $state.d3carStatus"
+LOGDEBUG("Car 3 = $state.d3carStatus")
 }
 }
 
 def driver1Handler(evt) {
    state.driver1 = evt.value 
- log.debug "$carDriver1 = $state.driver1"
- if (state.driver1  == "present") { 
- log.info " Driver 1 arrived so setting at home"
+LOGDEBUG("$carDriver1 = $state.driver1")
+	if (state.driver1  == "present") { 
+LOGDEBUG("Driver 1 arrived so setting at home")
  switch1.at_home()
  }
- 
-  if (state.driver1  == "not present") { 
-  log.info " Driver 1 left so waiting 10 seconds then processing"
+ 	if (state.driver2  == "not present") { 
+LOGDEBUG("Driver 1 left so waiting 10 seconds then processing")
 runIn(30, processDriver1) 
 runIn(10,processBoth)
  }
@@ -175,15 +178,15 @@ runIn(10,processBoth)
 }
 def driver2Handler(evt) {
    state.driver2 = evt.value  
-   log.debug "$carDriver2 = $state.driver2"
+LOGDEBUG("$carDriver2 = $state.driver2")
    
 		if (state.driver2  == "present") { 
-         log.info " Driver 2 arrived so setting at home"
+LOGDEBUG("Driver 2 arrived so setting at home")
   switch2.at_home()
     }
     
 		if (state.driver2  == "not present") { 
-         log.info " Driver 2 left so waiting 10 seconds then processing"
+LOGDEBUG("Driver 2 left so waiting 10 seconds then processing")
 runIn(30, processDriver2) 
 runIn(10,processBoth)
  }    
@@ -194,26 +197,26 @@ runIn(10,processBoth)
 def processBoth(){
 
 if ( state.driver1 == "not present" &&  state.driver2 == "not present"){
- log.debug "$carDriver1 and $carDriver2 both left so checking if they are in the same car"
+LOGDEBUG("$carDriver1 and $carDriver2 both left so checking if they are in the same car")
 if (state.appGo == true && state.d1car == "not present" && state.d2car == "present" && state.d3car == "present") { 
  	switch1.car1()
     switch2.car1()
 	state.d1carStatus = 'taken'
- log.debug "$carDriver1 & $carDriver2 are in $car1"
+LOGDEBUG("$carDriver1 & $carDriver2 are in $car1")
 
  }
  if (state.appGo == true && state.d2car == "not present" && state.d1car == "present" && state.d3car == "present") { 
  	switch1.car2()
     switch2.car2()
 	state.d2carStatus = 'taken'
- log.debug "$carDriver1 & $carDriver1 are in $car2"
+LOGDEBUG("$carDriver1 & $carDriver1 are in $car2")
 
  }
  if (state.appGo == true && state.d3car == "not present" && state.d2car == "present" && state.d1car == "present") { 
  	switch1.car3()
     switch2.car3()
 	state.d1carStatus = 'taken'
- log.debug "$carDriver1 & $carDriver1 are in $car3"
+LOGDEBUG("$carDriver1 & $carDriver1 are in $car3")
 
  }
  
@@ -226,18 +229,18 @@ if (state.appGo == true && state.d1car == "not present" && state.d2car == "prese
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch1.car1()
 	state.d1carStatus = 'taken'
- log.debug "$carDriver1 is in $car1"
+LOGDEBUG("$carDriver1 is in $car1")
  
 } 
 	if (state.appGo == true && state.d2car == "not present" && state.d2carStatus == 'not taken') { 
 	switch1.car2()
 	state.d2carStatus = 'taken'
-  log.debug "$carDriver1 is in $car2"
+LOGDEBUG("$carDriver1 is in $car2")
 } 
 	if (state.appGo == true && state.d3car == "not present" && state.d3carStatus == 'not taken') { 
 	switch1.car3()
 	state.d3carStatus = 'taken'
-  log.debug "$carDriver1 is in $car3"
+LOGDEBUG("$carDriver1 is in $car3")
 } 
 }
  def processDriver2(){ 
@@ -245,23 +248,40 @@ if (state.appGo == true && state.d1car == "not present" && state.d2car == "prese
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch2.car1()
 	state.d1carStatus = 'taken'
-  log.debug "$carDriver2 is in $car1"
+LOGDEBUG("$carDriver2 is in $car1")
  
 } 
 	if (state.appGo == true && state.d2car == "not present" && state.d2carStatus == 'not taken') { 
 	switch2.car2()
 	state.d2carStatus = 'taken'
-  log.debug "$carDriver2 is in $car2"
+LOGDEBUG("$carDriver2 is in $car2")
 } 
 	if (state.appGo == true && state.d3car == "not present" && state.d3carStatus == 'not taken') { 
 	switch2.car3()
 	state.d3carStatus = 'taken'
-  log.debug "$carDriver2 is in $car3"
+LOGDEBUG("$carDriver2 is in $car3")
 } 
 
 }
 
+// define debug action
+def logCheck(){
+state.checkLog = debugMode
+if(state.checkLog == true){
+log.info "All Logging Enabled"
+}
+else if(state.checkLog == false){
+log.info "Further Logging Disabled"
+}
 
+}
+def LOGDEBUG(txt){
+    try {
+    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (App Version: ${state.appversion}) - ${txt}") }
+    } catch(ex) {
+    	log.error("LOGDEBUG unable to output requested data!")
+    }
+}
 
  
  
@@ -277,3 +297,8 @@ def appEnable (){
     log.debug "App is Disabled" }
     
  }
+ 
+ // App Version   *********************************************************************************
+def setAppVersion(){
+    state.appversion = "1.2.0"
+}
