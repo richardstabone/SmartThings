@@ -173,8 +173,8 @@ LOGDEBUG("Driver 1 arrived so setting at home")
  }
  	if (state.driver2  == "not present") { 
 LOGDEBUG("Driver 1 left so waiting 10 seconds then processing")
-runIn(30, processDriver1) 
-runIn(10,processBoth)
+runIn(60, processDriver1) 
+runIn(60,processBoth)
  }
  
 }
@@ -189,8 +189,8 @@ LOGDEBUG("Driver 2 arrived so setting at home")
     
 		if (state.driver2  == "not present") { 
 LOGDEBUG("Driver 2 left so waiting 10 seconds then processing")
-runIn(30, processDriver2) 
-runIn(10,processBoth)
+runIn(60, processDriver2) 
+runIn(60,processBoth)
  }    
     
 }
