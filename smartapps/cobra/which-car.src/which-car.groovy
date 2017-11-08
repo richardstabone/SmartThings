@@ -55,7 +55,7 @@ definition(
     name: "Which Car?",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "Sets a switch when a car leaves, and tries to work out who took it",
+    description: "Sets a switch when a car leaves, and tries to work out who took what",
     category: "Family",
    iconUrl: "http://54.246.165.27/img/icons/car.png",
 	iconX2Url: "http://54.246.165.27/img/icons/car.png",
@@ -192,18 +192,18 @@ runIn(10, processDriver2)
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch1.car1()
 	state.d1carStatus = 'taken'
- log.debug "$carDriver1 took $car1"
+ log.debug "$carDriver1 is in $car1"
  
 } 
 	if (state.appGo == true && state.d2car == "not present" && state.d2carStatus == 'not taken') { 
 	switch1.car2()
 	state.d2carStatus = 'taken'
-  log.debug "$carDriver1 took $car2"
+  log.debug "$carDriver1 is in $car2"
 } 
 	if (state.appGo == true && state.d3car == "not present" && state.d3carStatus == 'not taken') { 
 	switch1.car3()
 	state.d3carStatus = 'taken'
-  log.debug "$carDriver1 took $car3"
+  log.debug "$carDriver1 is in $car3"
 } 
 }
  def processDriver2(){ 
@@ -211,18 +211,18 @@ runIn(10, processDriver2)
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch2.car1()
 	state.d1carStatus = 'taken'
-  log.debug "$carDriver2 took $car1"
+  log.debug "$carDriver2 is in $car1"
  
 } 
 	if (state.appGo == true && state.d2car == "not present" && state.d2carStatus == 'not taken') { 
 	switch2.car2()
 	state.d2carStatus = 'taken'
-  log.debug "$carDriver2 took $car2"
+  log.debug "$carDriver2 is in $car2"
 } 
 	if (state.appGo == true && state.d3car == "not present" && state.d3carStatus == 'not taken') { 
 	switch2.car3()
 	state.d3carStatus = 'taken'
-  log.debug "$carDriver2 took $car3"
+  log.debug "$carDriver2 is in $car3"
 } 
 
 }
