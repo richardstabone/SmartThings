@@ -38,10 +38,10 @@ metadata {
 
 	tiles {
 		standardTile("toggle", "device.door", inactiveLabel: true, width: 3, height: 3) {
-			state("closed", label:"Alfa", action:"door control.open", icon:"st.People.people8", backgroundColor:"#FF0416")
-			state("open", label:"Mercedes", action:"door control.close", icon:"st.People.people8", backgroundColor:"#0808F9")
-			state("opening", label:"At Home", icon:"st.People.people8", backgroundColor:"#04FF04")
-			state("closing", label:"Rexton", icon:"st.People.people8", backgroundColor:"#FEC003")
+			state("closed", label:"Alfa", action:"door control.open", icon:"st.Transportation.transportation8", backgroundColor:"#FF0416")
+			state("open", label:"Mercedes", action:"door control.close", icon:"st.Transportation.transportation8", backgroundColor:"#0808F9")
+			state("opening", label:"At Home", icon:"st.People.people8", backgroundColor:"#00A0DC")
+			state("closing", label:"Rexton", icon:"st.Transportation.transportation8", backgroundColor:"#FEC003")
 			
 		}
 		standardTile("open", "device.door", inactiveLabel: false, decoration: "flat") {
