@@ -118,9 +118,13 @@ appEnable()
     subscribe(car3, "presence", "car3Handler")
     subscribe(carDriver1, "presence", "driver1Handler")
     subscribe(carDriver2, "presence", "driver2Handler")
- 
-    
+     
 }
+
+
+
+
+
 
 def car1Handler(evt){
 state.d1car = evt.value
@@ -164,7 +168,8 @@ def driver1Handler(evt) {
  
   if (state.driver1  == "not present") { 
   log.info " Driver 1 left so waiting 10 seconds then processing"
-runIn(10, processDriver1) 
+runIn(30, processDriver1) 
+runIn(10,processBoth)
  }
  
 }
@@ -179,13 +184,42 @@ def driver2Handler(evt) {
     
 		if (state.driver2  == "not present") { 
          log.info " Driver 2 left so waiting 10 seconds then processing"
-runIn(10, processDriver2) 
+runIn(30, processDriver2) 
+runIn(10,processBoth)
  }    
     
 }
 
+
+def processBoth(){
+
+if ( state.driver1 == "not present" &&  state.driver2 == "not present"){
+ log.debug "$carDriver1 and $carDriver2 both left so checking if they are in the same car"
+if (state.appGo == true && state.d1car == "not present" && state.d2car == "present" && state.d3car == "present") { 
+ 	switch1.car1()
+    switch2.car1()
+	state.d1carStatus = 'taken'
+ log.debug "$carDriver1 & $carDriver2 are in $car1"
+
+ }
+ if (state.appGo == true && state.d2car == "not present" && state.d1car == "present" && state.d3car == "present") { 
+ 	switch1.car2()
+    switch2.car2()
+	state.d2carStatus = 'taken'
+ log.debug "$carDriver1 & $carDriver1 are in $car2"
+
+ }
+ if (state.appGo == true && state.d3car == "not present" && state.d2car == "present" && state.d1car == "present") { 
+ 	switch1.car3()
+    switch2.car3()
+	state.d1carStatus = 'taken'
+ log.debug "$carDriver1 & $carDriver1 are in $car3"
+
+ }
  
  
+}
+} 
  
  def processDriver1(){ 
  
