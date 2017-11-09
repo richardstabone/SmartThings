@@ -75,19 +75,13 @@ section("") {
                   "This app is designed to use a special 'Virtual Switch' to indicate who left with which vehicle"
     }
 
- section("Enable/Disable App"){
-            input "enableApp", "bool", title: "Enable App", required: true, defaultValue: true
-        }
-
- section("Logging") {
-            input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
-  	        }
 
 
 	section() {
 		input "car1", "capability.presenceSensor", title: "Car 1 Presence Sensor", multiple: false, required: true
    		input "car2", "capability.presenceSensor", title: "Car 2 Presence Sensor", multiple: false, required: true
       	input "car3", "capability.presenceSensor", title: "Car 3 Presence Sensor", multiple: false, required: true
+        input "carDelay", "number", title: "Delay after driver left to check for car presence", defaultValue: '5', description: "Minutes", required: true
     }
     
      section("Select Driver 1 "){
@@ -100,6 +94,10 @@ section("") {
      input "switch1", "capability.doorControl", title: "Driver 1 Virtual Presence Status", multiple: false, required: true
      input "switch2", "capability.doorControl", title: "Driver 2 Virtual Presence Status", multiple: false, required: true
     }
+     section("Logging") {
+            input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
+  	        }
+
 }
 
 def installed() {
@@ -119,11 +117,19 @@ appEnable()
 // Check Logging
 logCheck()
 
+// App Version
+setAppVersion()
+
+// Subscriptions
 	subscribe(car1, "presence", "car1Handler")
     subscribe(car2, "presence", "car2Handler")
     subscribe(car3, "presence", "car3Handler")
     subscribe(carDriver1, "presence", "driver1Handler")
     subscribe(carDriver2, "presence", "driver2Handler")
+    
+    state.d1carStatus = 'not taken'
+    state.d2carStatus = 'not taken'
+    state.d3carStatus = 'not taken'
      
 }
 
@@ -172,9 +178,10 @@ LOGDEBUG("Driver 1 arrived so setting at home")
  switch1.at_home()
  }
  	if (state.driver2  == "not present") { 
-LOGDEBUG("Driver 1 left so waiting 10 seconds then processing")
-runIn(60, processDriver1) 
-runIn(60,processBoth)
+    def driver1Delay = 60 * carDelay as int
+LOGDEBUG("Driver 1 left so waiting $driver1Delay seconds then processing")
+runIn(driver1Delay, processDriver1) 
+
  }
  
 }
@@ -188,16 +195,17 @@ LOGDEBUG("Driver 2 arrived so setting at home")
     }
     
 		if (state.driver2  == "not present") { 
-LOGDEBUG("Driver 2 left so waiting 10 seconds then processing")
-runIn(60, processDriver2) 
-runIn(60,processBoth)
+         def driver2Delay = 60 * carDelay as int
+LOGDEBUG("Driver 2 left so waiting $driver2Delay seconds then processing")
+ runIn(driver2Delay, processDriver2)
+
  }    
     
 }
 
 
 def processBoth(){
-
+ LOGDEBUG("processBoth")
 if ( state.driver1 == "not present" &&  state.driver2 == "not present"){
 LOGDEBUG("$carDriver1 and $carDriver2 both left so checking if they are in the same car")
 if (state.appGo == true && state.d1car == "not present" && state.d2car == "present" && state.d3car == "present") { 
@@ -227,7 +235,7 @@ LOGDEBUG("$carDriver1 & $carDriver1 are in $car3")
 } 
  
  def processDriver1(){ 
- 
+ LOGDEBUG("processDriver1")
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch1.car1()
 	state.d1carStatus = 'taken'
@@ -244,9 +252,10 @@ LOGDEBUG("$carDriver1 is in $car2")
 	state.d3carStatus = 'taken'
 LOGDEBUG("$carDriver1 is in $car3")
 } 
+runIn(10,processBoth)
 }
  def processDriver2(){ 
- 
+  LOGDEBUG("processDriver2")
 	if (state.appGo == true && state.d1car == "not present" && state.d1carStatus == 'not taken') { 
  	switch2.car1()
 	state.d1carStatus = 'taken'
@@ -263,7 +272,7 @@ LOGDEBUG("$carDriver2 is in $car2")
 	state.d3carStatus = 'taken'
 LOGDEBUG("$carDriver2 is in $car3")
 } 
-
+runIn(10,processBoth)
 }
 
 // define debug action
@@ -291,14 +300,8 @@ def LOGDEBUG(txt){
  
  // Enable/Disable App
 def appEnable (){
-	if (enableApp == true){ 
-    state.appGo = true
-    log.debug "App is Enabled" }
-    else if (enableApp == false){ 
-    state.appGo = false
-    log.debug "App is Disabled" }
-    
- }
+	 state.appGo = true
+   }
  
  // App Version   *********************************************************************************
 def setAppVersion(){
