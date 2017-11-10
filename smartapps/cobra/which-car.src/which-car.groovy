@@ -36,7 +36,7 @@
  *
  *  Changes:
  *
- *  
+ *  V1.2.1 - Debug
  *  V1.2.0 - Added switchable logging  
  *  V1.1.0 - Added Enable/Disable switch - Added paragraph & header
  *  V1.0.0 - POC
@@ -68,7 +68,7 @@ preferences {
 
 
 section("") {
-        paragraph "V1.2.0"
+        paragraph "V1.2.1"
        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Which Car?",
                   required: false,
@@ -206,8 +206,17 @@ LOGDEBUG("Driver 2 left so waiting $driver2Delay seconds then processing")
 
 def processBoth(){
  LOGDEBUG("processBoth")
+
+if ( state.driver1 == "present"){
+LOGDEBUG("$carDriver1 Present")
+}
+if ( state.driver2 == "present"){
+LOGDEBUG("$carDriver2 Present")
+}
 if ( state.driver1 == "not present" &&  state.driver2 == "not present"){
 LOGDEBUG("$carDriver1 and $carDriver2 both left so checking if they are in the same car")
+}
+
 if (state.appGo == true && state.d1car == "not present" && state.d2car == "present" && state.d3car == "present") { 
  	switch1.car1()
     switch2.car1()
@@ -232,7 +241,7 @@ LOGDEBUG("$carDriver1 & $carDriver1 are in $car3")
  
  
 }
-} 
+ 
  
  def processDriver1(){ 
  LOGDEBUG("processDriver1")
@@ -305,5 +314,5 @@ def appEnable (){
  
  // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.2.0"
+    state.appversion = "1.2.1"
 }
