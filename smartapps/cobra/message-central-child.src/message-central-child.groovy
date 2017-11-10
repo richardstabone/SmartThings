@@ -34,7 +34,7 @@
  *
  *  Changes:
  *
- *
+ *  V1.8.0 - Added ability to speak/send message if contact is open at a certain time (Used to check I closed the shed door)
  *  V1.7.0 - Added ability to SMS/Push instead of speaking
  *  V1.6.0 - Added Routines & Mode Change as triggers
  *  V1.5.1 - Debug - Disable switch not always working
@@ -93,7 +93,7 @@ def initialize() {
       state.timer1 = true
       state.timer2 = true
       state.presenceRestriction = true
-      
+      state.contact1SW = 'closed' 
      if(state.msgType == "Voice Message"){ 
      checkVolume()
      }
@@ -106,6 +106,12 @@ if(trigger == 'Time'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow)
     }
+if(trigger == 'Time if Contact Open'){
+   LOGDEBUG("Trigger is $trigger")
+   schedule(runTime,timeTalkNow1)
+   subscribe(contact1, "contact", contact1Handler)
+    }    
+    
 else if(trigger == 'Switch'){
      LOGDEBUG( "Trigger is $trigger")
 subscribe(switch1, "switch", switchTalkNow)
@@ -209,7 +215,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open"]
   
 }
 
@@ -376,6 +382,28 @@ else if(state.selection == 'Time'){
    		}
   if(state.msgType == "SMS/Push Message"){
      input "messageTime", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }  
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
+   
+}   
+
+else if(state.selection == 'Time if Contact Open'){
+	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
+    input "contact1", "capability.contactSensor", title: "Select contact sensor to check", required: false, multiple: false 
+   
+  if(state.msgType == "Voice Message"){
+	input "messageTime", "text", title: "Message to play if contact open",  required: true
+   		}
+  if(state.msgType == "SMS/Push Message"){
+     input "messageTime", "text", title: "Message to send if contact open",  required: false
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
@@ -656,6 +684,54 @@ LOGDEBUG( "Cannot continue - Presence failed")
 }
 
 
+// Time if Contact Open
+def contact1Handler (evt) {
+ state.contact1SW = evt.value 
+LOGDEBUG( "$contact1 = $evt.value")
+						 }
+
+
+
+def timeTalkNow1(evt){
+checkDay()
+
+
+LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
+if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' ){
+LOGDEBUG("Time trigger -  Activating now! ")
+
+if(state.msgType == "Voice Message"){ 
+def msg = messageTime
+checkVolume()
+LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play: $msg"  )
+speaker.speak(msg)
+}
+
+if(state.msgType == "SMS/Push Message"){
+def msg = messageTime
+LOGDEBUG("Time - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	} 
+
+}
+
+else if(state.appgo == false){
+LOGDEBUG( "$enableSwitch is off so cannot continue")
+}
+else if(state.dayCheck == false){
+LOGDEBUG( "Cannot continue - Daycheck failed")
+}
+else if(state.presenceRestriction ==  false){
+LOGDEBUG( "Cannot continue - Presence failed")
+}
+
+else if(state.contact1SW != 'open'){
+LOGDEBUG( "Cannot continue - $contact1 is Closed")
+}
+
+
+}
+
 
 
 
@@ -701,6 +777,7 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
 }
 
 }
+
 
 
 // Contact
@@ -1110,5 +1187,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.7.0"
+    state.appversion = "1.8.0"
 }

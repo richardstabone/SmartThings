@@ -118,11 +118,12 @@ state.currS1 = 'closed'
 
 if(checkTime1){
      schedule(checkTime1, checkNow)
+     subscribe(contact1, "contact", contactHandler)
      }
 if(checkTime2){
      schedule(checkTime2, checkNow)
-     }
      subscribe(contact1, "contact", contactHandler)
+      }
 }
 
 
