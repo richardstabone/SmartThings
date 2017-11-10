@@ -30,11 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 07/11/2017
+ *  Last Update: 10/11/2017
  *
  *  Changes:
  *
  *
+ *  V1.7.0 - Added ability to SMS/Push instead of speaking
  *  V1.6.0 - Added Routines & Mode Change as triggers
  *  V1.5.1 - Debug - Disable switch not always working
  *  V1.5.0 - Added 'Presence' restriction so will only speak if someone is present/not present
@@ -87,12 +88,15 @@ def initialize() {
 	  log.info "Initialised with settings: ${settings}"
       setAppVersion()
       logCheck()
-      checkVolume()
+      
       switchRunCheck()
       state.timer1 = true
       state.timer2 = true
       state.presenceRestriction = true
       
+     if(state.msgType == "Voice Message"){ 
+     checkVolume()
+     }
       
 // Subscriptions    
 
@@ -186,13 +190,21 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message (Optional)", required: false, multiple: false 
+    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message"]
+
+ if (messageAction){
+ state.msgType = messageAction
+    if(state.msgType == "Voice Message"){
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
-	
+	}
 
+	else if(state.msgType == "SMS/Push Message"){
+
+
+	}
+ }
 }
-
-
 
 
 // inputs
@@ -209,6 +221,9 @@ def actionInputs() {
     
 if(state.selection == 'Switch'){
     input "switch1", "capability.switch", title: "Select switch to trigger message", required: false, multiple: false 
+
+    
+    if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play when switched on",  required: false
 	input "message2", "text", title: "Message to play when switched off",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
@@ -219,29 +234,55 @@ if(state.selection == 'Switch'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+    }
+    if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send when switched On",  required: false
+	 input "message2", "text", title: "Message to send when switched Off",  required: false
+     input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    }
+    }
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 }    
  
 
 else if(state.selection == 'Water'){
 	input "water1", "capability.waterSensor", title: "Select water sensor to trigger message", required: false, multiple: false 
+     
+    if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play when WET",  required: false
 	input "message2", "text", title: "Message to play when DRY",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
-    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+   	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+     if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send when Wet",  required: false
+	 input "message2", "text", title: "Message to send when Dry",  required: false
+     input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    }
+    }
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 }   
 
 else if(state.selection == 'Presence'){
 	input "presenceSensor1", "capability.presenceSensor", title: "Select presence sensor to trigger message", required: false, multiple: false 
+   
+    if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play when sensor arrives",  required: false
 	input "message2", "text", title: "Message to play when sensor leaves",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: "0", description: "Seconds", required: true
@@ -252,12 +293,26 @@ else if(state.selection == 'Presence'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+     if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send when sensor arrives",  required: false
+	 input "message2", "text", title: "Message to send when sensor leaves",  required: false
+     input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 } 
 
 else if(state.selection == 'Contact'){
 	input "contactSensor", "capability.contactSensor", title: "Select contact sensor to trigger message", required: false, multiple: false 
+   
+     
+    if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play when sensor opens",  required: false
 	input "message2", "text", title: "Message to play when sensor closes",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
@@ -268,8 +323,19 @@ else if(state.selection == 'Contact'){
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+     if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send when sensor opens",  required: false
+	 input "message2", "text", title: "Message to send when sensor closes",  required: false
+     input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 } 
 
 else if(state.selection == 'Power'){
@@ -277,30 +343,57 @@ else if(state.selection == 'Power'){
     input(name: "belowThreshold", type: "number", title: "Power Threshold (Watts)", required: true, description: "this number of watts")
     input "actionType1", "bool", title: "Select Power Sensor action type: \r\n \r\n On = Alert when power goes ABOVE configured threshold  \r\n Off = Alert when power goes BELOW configured threshold", required: true, defaultValue: false
 	input(name: "delay1", type: "number", title: "Only if it stays that way for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
+  if(state.msgType == "Voice Message"){
     input "message1", "text", title: "Message to play ...",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
-    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+   
 	input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+  if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 } 
 
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
+  if(state.msgType == "Voice Message"){
 	input "messageTime", "text", title: "Message to play",  required: true
+   		}
+  if(state.msgType == "SMS/Push Message"){
+     input "messageTime", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }  
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
    
 }   
 
 else if(state.selection == 'Mode Change'){
-	input "newMode1", "mode", title: "Play message when changing to this mode",  required: false
+	input "newMode1", "mode", title: "Action when changing to this mode",  required: false
+    
+     
+  if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play",  required: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
@@ -310,14 +403,28 @@ else if(state.selection == 'Mode Change'){
 	 input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+    
+   if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 } 
 else if(state.selection == 'Routine'){
 	  def actions = location.helloHome?.getPhrases()*.label
             if (actions) {
-            input "routine1", "enum", title: "Play a message when this routine runs", required: false, options: actions
+            input "routine1", "enum", title: "Action when this routine runs", required: false, options: actions
             }
+           
+            
+   if(state.msgType == "Voice Message"){
 	input "message1", "text", title: "Message to play",  required: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
@@ -327,8 +434,18 @@ else if(state.selection == 'Routine'){
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict message", required: false, multiple: false 
-   	input "restrictPresenceAction", "bool", title: "\r\n \r\n On = Play only when someone is 'Present'  \r\n Off = Play only when someone is 'NOT Present'  ", required: true, defaultValue: false
+    }
+  if(state.msgType == "SMS/Push Message"){
+    input "message1", "text", title: "Message to send...",  required: false
+	input("recipients", "contact", title: "Send notifications to") {
+    input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+    input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor){
+   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
 } 
 
 
@@ -349,28 +466,31 @@ state.modeNow = evt.value
 LOGDEBUG("state.modeNow = $state.modeNow")
  state.msg1 = message1
  LOGDEBUG("state.msg1 = $state.msg1")
- 
+	
  
  state.msgNow = 'oneNow'
  
-if (evt.isStateChange){
+		if (evt.isStateChange){
 LOGDEBUG(" State Change - The value of this event is different from its previous value: ${evt.isStateChange()}")
 def modeChangedTo = newMode1
-	if(state.modeNow == modeChangedTo){
+		if(state.modeNow == modeChangedTo){
    	LOGDEBUG( "Mode is now $modeChangedTo")
     
+ 	if(state.msgType == "Voice Message"){    
 def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
-
-
-
-	}
 }
+	
 
-
-    
+if(state.msgType == "SMS/Push Message"){
+def msg = message1
+LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	} 
+   }
+}
 }
 
 // Routines
@@ -387,13 +507,20 @@ LOGDEBUG("state.newRoutine = $state.newRoutine")
  if(state.newRoutine == routineToCheckRun){
  
  	LOGDEBUG( "Routine running: $state.newRoutine")
-    
+	if(state.msgType == "Voice Message"){     
 def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
+}
 
- 
+if(state.msgType == "SMS/Push Message"){
+def msg = message1
+LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	} 
+
+
  }
 
 
@@ -500,11 +627,22 @@ checkDay()
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true){
 LOGDEBUG("Time trigger -  Activating now! ")
+
+if(state.msgType == "Voice Message"){ 
 def msg = messageTime
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play: $msg"  )
 speaker.speak(msg)
 }
+
+if(state.msgType == "SMS/Push Message"){
+def msg = messageTime
+LOGDEBUG("Time - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	} 
+
+}
+
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
@@ -515,8 +653,9 @@ else if(state.presenceRestriction ==  false){
 LOGDEBUG( "Cannot continue - Presence failed")
 }
 
-
 }
+
+
 
 
 
@@ -525,6 +664,9 @@ def switchTalkNow(evt){
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
+
+if(state.msgType == "Voice Message"){
+LOGDEBUG("Switch - Voice Message")
 
 	if(state.talkswitch == 'on'){
 state.msgNow = 'oneNow'
@@ -539,6 +681,24 @@ def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
+}
+
+if(state.msgType == "SMS/Push Message"){
+LOGDEBUG("Switch - SMS/Push Message")
+	if(state.talkswitch == 'on' && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+    }
+    
+    
+    if(state.talkswitch == 'off' && state.msg2 != null){
+def msg = message2
+LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+    }
+
+}
 
 }
 
@@ -549,6 +709,7 @@ state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
+if(state.msgType == "Voice Message"){
 	if(state.talkcontact == 'open'){
 state.msgNow = 'oneNow'
 }
@@ -561,14 +722,40 @@ def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
+}
+
+if(state.msgType == "SMS/Push Message"){
+	if(state.talkcontact == 'open' && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Contact - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
 
 }
+
+	else if (state.talkcontact == 'closed' && state.msg2 != null){
+def msg = message2
+LOGDEBUG("Contact - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+
+}
+
+
+	}
+}
+
+
+
+
+
+
 // Water
 def waterTalkNow(evt){
 state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
+		if(state.msgType == "Voice Message"){
+        
 	if(state.talkwater == 'wet'){
 state.msgNow = 'oneNow'
 	}
@@ -581,7 +768,25 @@ def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
+	}
+    
+if(state.msgType == "SMS/Push Message"){
+	if(state.talkwater == 'wet' && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Water - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
 
+}
+
+	else if(state.talkwater == 'dry' && state.msg2 != null){
+def msg = message2
+LOGDEBUG("Water - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+
+}    
+}    
+    
+    
 }
 
 // Presence
@@ -589,6 +794,9 @@ def presenceTalkNow(evt){
 state.talkpresence = evt.value
 state.msg1 = message1
 state.msg2 = message2
+
+if(state.msgType == "Voice Message"){
+
 	if(state.talkpresence == 'present'){
 state.msgNow = 'oneNow'
 	}
@@ -602,6 +810,28 @@ def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 runIn(mydelay, talkSwitch)
+}
+
+
+if(state.msgType == "SMS/Push Message"){
+	if(state.talkpresence == 'present' && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Presence - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+
+}
+
+	else if (state.talkpresence == 'not present' && state.msg2 != null){
+def msg = message2
+LOGDEBUG("Presence - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+
+}    
+} 
+
+
+
+
 
 }
 
@@ -674,20 +904,29 @@ def checkAgain2() {
 
 
 def speakNow(){
-LOGDEBUG("speakNow...")
-checkVolume()
+LOGDEBUG("Power - speakNow...")
+
 state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true){
+  if(state.msgType == "Voice Message"){
+  checkVolume()
 	LOGDEBUG("Speaking now...")
 	speaker.speak(state.msg1)
    	startTimerPower()  
- } 
+    }
+   if(state.msgType == "SMS/Push Message" && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Power - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+startTimerPower()
+ 
+} 
+}    
   if(state.presenceRestriction ==  false){
 LOGDEBUG( "Cannot continue - Presence failed")
 }
- 
- 
 }
+
 
 def startTimerPower(){
 state.timer1 = false
@@ -787,6 +1026,23 @@ speaker.setLevel(state.volume)
 	}
  
 }
+// Message Actions ==================================
+
+
+def sendMessage(msg) {
+    if (location.contactBookEnabled) {
+        sendNotificationToContacts(msg, recipients)
+    }
+    else {
+        if (sms) {
+            sendSms(sms, msg)
+        }
+        if (pushNotification) {
+            sendPush(msg)
+        }
+    }
+}
+
 
 
 
@@ -854,5 +1110,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.6.0"
+    state.appversion = "1.7.0"
 }

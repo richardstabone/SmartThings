@@ -275,7 +275,7 @@ if (presenceAction) {
 	 input "message2", "text", title: "Message to send when sensor leaves  (Or is not present at check time)",  required: false
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
-     input(name: "pushNotification", type: "bool", title: "Send a push notification", description: null, defaultValue: true)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
      }
      }
     
