@@ -281,7 +281,7 @@ if (presenceAction) {
     
     else if(state.selection2 == "Change Mode"){
     input "newMode1", "mode", title: "Change to this mode when someone arrives (Or is present at check time)",  required: false
-    input "newMode2", "mode", title: "Change to this mode when someone leaves (Or is present at check time)",  required: false
+    input "newMode2", "mode", title: "Change to this mode when someone leaves (Or is not present at check time)",  required: false
     
     }
     
@@ -289,7 +289,7 @@ if (presenceAction) {
       def actions = location.helloHome?.getPhrases()*.label
             if (actions) {
             input "routine1", "enum", title: "Select a routine to execute when someone arrives (Or is present at check time)", required: false, options: actions
-            input "routine2", "enum", title: "Select a routine to execute when someone leaves (Or is present at check time)" , required: false, options: actions
+            input "routine2", "enum", title: "Select a routine to execute when someone leaves (Or is not present at check time)" , required: false, options: actions
                     }
             }
     
