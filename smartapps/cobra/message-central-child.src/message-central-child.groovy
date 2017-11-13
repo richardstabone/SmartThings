@@ -935,7 +935,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue < state.belowValue) {
    def mydelay = 60 * delay1 as int
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain1)     
+       runIn(mydelay, checkAgain1, [overwrite: false])     
       }
       }
       
@@ -945,7 +945,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue > state.belowValue) {
    def mydelay = 60 * delay1 as int
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain2)     
+       runIn(mydelay, checkAgain2, [overwrite: false])     
       }
       }
   }
