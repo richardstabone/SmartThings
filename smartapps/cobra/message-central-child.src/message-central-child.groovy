@@ -30,12 +30,10 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 13/11/2017
+ *  Last Update: 10/11/2017
  *
  *  Changes:
  *
- *
- *  V1.9.0 - Added 'Open Too Long' to speak when a contact (door?) has been open for more than the configured number of minutes
  *  V1.8.0 - Added ability to speak/send message if contact is open at a certain time (Used to check I closed the shed door)
  *  V1.7.0 - Added ability to SMS/Push instead of speaking
  *  V1.6.0 - Added Routines & Mode Change as triggers
@@ -148,12 +146,6 @@ subscribe(location, "mode", modeChangeHandler)
 
 	}
     
-else if(trigger == 'Open Too Long'){
-    LOGDEBUG("trigger is $trigger")
-subscribe(openSensor, "contact", tooLongOpen)
-
-	}
-    
 if (restrictPresenceSensor){
 subscribe(restrictPresenceSensor, "presence", restrictPresenceSensorHandler)
 }    
@@ -223,7 +215,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open", "Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open"]
   
 }
 
@@ -483,34 +475,7 @@ else if(state.selection == 'Routine'){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
 	}
 } 
-if(state.selection == 'Open Too Long'){
-	input "openSensor", "capability.contactSensor", title: "Select contact sensor to trigger message", required: false, multiple: false 
-   	input(name: "opendelay1", type: "number", title: "Only if it stays open for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
-   
-    
-  if(state.msgType == "Voice Message"){
-    input "message1", "text", title: "Message to play ...",  required: false
-    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-  	input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-    input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
-    input "fromTime2", "time", title: "Quiet Time Start", required: false
-    input "toTime2", "time", title: "Quiet Time End", required: false
-    }
-  if(state.msgType == "SMS/Push Message"){
-     input "message1", "text", title: "Message to send...",  required: false
-	 input("recipients", "contact", title: "Send notifications to") {
-     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
-     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-    	}
-    }    
-	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
-    if(restrictPresenceSensor){
-   	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
-	}
-}
-    
+
 
 }
 }
@@ -521,58 +486,6 @@ if(state.selection == 'Open Too Long'){
 
 // Handlers
 
-
-// Open Too Long
-def tooLongOpen(evt){
-state.openContact = evt.value
-
-if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true){
-LOGDEBUG("tooLongOpen - Contact is open")
-openContactTimer1()
-}
-
-else if (state.openContact == 'closed'){
-LOGDEBUG("tooLongOpen - Contact is closed")
-}
- else if(state.appgo == false){
-    LOGDEBUG("App disabled by $enableswitch being off")
-}
-
-}
-
-
-def openContactTimer1(){
-
-LOGDEBUG( "tooLongOpen - openContactTimer1 -  Contact is: $state.openContact")
-   def mydelayOpen = 60 * opendelay1 as int
-   LOGDEBUG( "openContactTimer1 - Checking again after delay: $opendelay1 minute(s)... ")
-       runIn(mydelayOpen, openContactSpeak)     
-      }
-      
-      
-def openContactSpeak(){
-LOGDEBUG( "openContactSpeak -  Contact is: $state.openContact")
-state.msg1 = message1
-state.msgNow = 'oneNow'
-
-
-if (state.openContact == 'open'){
-     LOGDEBUG( "openContactSpeak -  Still open...")
-    
-    if(state.msgType == "Voice Message"){
-    talkSwitch()
-   }          
-  
-      
-  else if(state.msgType == "SMS/Push Message"){
-	def msg = message1
-LOGDEBUG("tooLongOpen - SMS/Push Message - Sending Message: $msg")
-  sendMessage(msg)
-	}
-  
-   
-  }
- }
 
 // Mode Change
 
@@ -1274,5 +1187,5 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.9.0"
+    state.appversion = "1.8.0"
 }
