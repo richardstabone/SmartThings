@@ -94,7 +94,7 @@ preferences {
          input "volume1", "number", title: "Speaker volume", description: "0-100%", required: false
          input "delay1", "number", title: "Delay before speaking (Seconds - enter 0 for no delay)", description: "Seconds", required: true
          input "message1", "text", title: "Message to speak before list of open devices",  defaultValue: "Hey!, It's raining!, and I thought you might like to know that the following windows or doors are open:", required: true
-          input "delay2", "number", title: "Number of minutes between messages", description: "Minutes", required: true
+          input "msgDelay", "number", title: "Number of minutes between messages", description: "Minutes", required: true
           }
  	section("Allow messages between what times?") {
         input "fromTime", "time", title: "From", required: true
@@ -187,7 +187,7 @@ LOGDEBUG("Open windows or doors: ${open.join(',,, ')}")
 	state.timer = 'no'
     
 // log.debug "Message allow: set to $state.timer as I have just played a message"
-state.timeDelay = 60 * delay2
+state.timeDelay = 60 * msgDelay
 LOGDEBUG("Waiting for $state.timeDelay seconds before resetting timer to allow further messages")
 runIn(state.timeDelay, resetTimer)
 }
@@ -197,7 +197,7 @@ LOGDEBUG("There are no open windows or doors")
 }
 
 	else if (state.timer == 'no'){
-	state.timeDelay = 60 * delay2
+	state.timeDelay = 60 * msgDelay
 LOGDEBUG( "Can't speak message yet - too close to last message")
 LOGDEBUG( "Waiting for $state.timeDelay seconds before resetting timer")
 	runIn(state.timeDelay, resetTimer)
