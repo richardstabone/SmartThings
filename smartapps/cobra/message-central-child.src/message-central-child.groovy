@@ -224,7 +224,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open", "Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open", "Contact - Open Too Long"]
   
 }
 
@@ -484,7 +484,7 @@ else if(state.selection == 'Routine'){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
 	}
 } 
-if(state.selection == 'Open Too Long'){
+if(state.selection == 'Contact - Open Too Long'){
 	input "openSensor", "capability.contactSensor", title: "Select contact sensor to trigger message", required: false, multiple: false 
    	input(name: "opendelay1", type: "number", title: "Only if it stays open for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
    
@@ -1023,7 +1023,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue < state.belowValue) {
    def mydelay = 60 * delay1 as int
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain1, [overwrite: false])     
+       runIn(mydelay, checkAgain1)     
       }
       }
       
@@ -1033,7 +1033,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue > state.belowValue) {
    def mydelay = 60 * delay1 as int
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain2, [overwrite: false])     
+       runIn(mydelay, checkAgain2)     
       }
       }
   }
