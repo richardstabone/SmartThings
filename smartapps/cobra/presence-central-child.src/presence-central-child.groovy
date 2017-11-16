@@ -36,11 +36,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 10/11/2017
+ *  Last Update: 16/11/2017
  *
  *  Changes:
  *
- *
+ *  V1.2.3 - Added 'Flash Lights' to available responses
  *  V1.2.2 - Moved 'restriction Options' to last page
  *	V1.2.1 - Changed restrictions from compulsory entries to optional entries 
  *  V1.2.0 - Added Locks & Doors to available responses
@@ -128,10 +128,9 @@ def initialize() {
 // Other subscriptions.
 
 	if(doorContact1){
-    subscribe(doorContact1, "contact", doorContactHandler) 
+    	subscribe(doorContact1, "contact", doorContactHandler) 
     }
-    
-    
+       
 }
 
 
@@ -247,12 +246,21 @@ def presenceActions(){
 
 
 def outputActions(){
-input "presenceAction", "enum", title: "What action to take?",required: true, submitOnChange: true, options: ["Control A Switch", "Speak A Message", "Send A Message", "Change Mode", "Run a Routine", "Control a Door", "Control a Lock"]
+input "presenceAction", "enum", title: "What action to take?",required: true, submitOnChange: true, options: ["Control A Switch", "Speak A Message", "Send A Message", "Change Mode", "Run a Routine", "Control a Door", "Control a Lock", "Flash Lights"]
 
 if (presenceAction) {
     state.selection2 = presenceAction
     
-    if(state.selection2 == "Control A Switch"){
+    
+    if(state.selection2 == "Flash Lights"){
+    input "flashMode", "bool", title: " On = Flash when someone arrives \r\n Off = Flash when someone leaves", required: true, defaultValue: false
+    input "switches", "capability.switch", title: "Flash these lights", multiple: true
+	input "numFlashes", "number", title: "This number of times (default 3)", required: false
+    input "onFor", "number", title: "On for (Milliseconds - default 1000)", required: false
+	input "offFor", "number", title: "Off for (Milliseconds - default 1000)", required: false
+    }
+    
+    else if(state.selection2 == "Control A Switch"){
      input "switch1", "capability.switch", title: "Select switch(s) to turn on/off", required: false, multiple: true 
      input "presenceSensor1Action1", "bool", title: "\r\n \r\n On = Switch On when someone arrives, or is present at check time (Off when they leave or if not present) \r\n Off = Switch Off when someone arrives or is present at check time (On when they leave or if not present) ", required: true, defaultValue: true  
     }
@@ -381,6 +389,7 @@ if(doorAction){
 // ************************ Handlers ****************************************
 
 
+
 // Single Presence =============================================================
 
 def singlePresenceHandler(evt){
@@ -474,6 +483,69 @@ LOGDEBUG("state.contactDoor = $state.contactDoor")
 
 
 // ************************* Actions ****************************************
+
+// Flash Actions
+
+def checkFlashArrived(){
+if (flashMode == true){
+flashLights()
+}
+}
+def checkFlashDeparted(){
+if (flashMode == false){
+flashLights()
+}
+}
+
+
+
+
+
+
+private flashLights() {
+	def doFlash = true
+	def onFor = onFor ?: 1000
+	def offFor = offFor ?: 1000
+	def numFlashes = numFlashes ?: 3
+
+	LOGDEBUG("LAST ACTIVATED IS: ${state.lastActivated}")
+	if (state.lastActivated) {
+		def elapsed = now() - state.lastActivated
+		def sequenceTime = (numFlashes + 1) * (onFor + offFor)
+		doFlash = elapsed > sequenceTime
+		LOGDEBUG("DO FLASH: $doFlash, ELAPSED: $elapsed, LAST ACTIVATED: ${state.lastActivated}")
+	}
+
+	if (doFlash) {
+		LOGDEBUG("FLASHING $numFlashes times")
+		state.lastActivated = now()
+		LOGDEBUG("LAST ACTIVATED SET TO: ${state.lastActivated}")
+		def initialActionOn = switches.collect{it.currentSwitch != "on"}
+		def delay = 0L
+		numFlashes.times {
+			LOGDEBUG("Switch on after  $delay msec")
+			switches.eachWithIndex {s, i ->
+				if (initialActionOn[i]) {
+					s.on(delay: delay)
+				}
+				else {
+					s.off(delay:delay)
+				}
+			}
+			delay += onFor
+			LOGDEBUG("Switch off after $delay msec")
+			switches.eachWithIndex {s, i ->
+				if (initialActionOn[i]) {
+					s.off(delay: delay)
+				}
+				else {
+					s.on(delay:delay)
+				}
+			}
+			delay += offFor
+		}
+	}
+}
 
 
 // Arrival Actions - Check OK to run
@@ -569,10 +641,20 @@ else if(state.selection2 == "Speak A Message"){
   LOGDEBUG("Decided to: 'Control a Lock' ") 
 	openLock()
  }
+ else if(state.selection2 == "Flash Lights"){
+  LOGDEBUG("Decided to: 'Flash Lights' ")
+checkFlashArrived()
+  
+ }
+ 
 } 
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
+
+
+
+
 }
 
 
@@ -648,12 +730,19 @@ else if(state.selection2 == "Speak A Message"){
   secureLock()
   
 }
+ else if(state.selection2 == "Flash Lights"){
+  LOGDEBUG("Decided to: 'Flash Lights' ")
+checkFlashDeparted()
+  
+}
  
 }
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
 
+
+ 
 }
 
 
@@ -1172,6 +1261,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.2"
+    state.appversion = "1.2.3"
 }
 // end app version *********************************************
