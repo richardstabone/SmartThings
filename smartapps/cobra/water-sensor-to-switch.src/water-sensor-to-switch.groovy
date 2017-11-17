@@ -2,8 +2,8 @@
  *  ****************  Switch Follows Water Sensor  ****************
  *
  *  Design Usage:
- *  This was designed to be used with a water sensor to control a virtual switch
- *  Uses a water sensor to receive commands and converts that to virtual switch actions
+ *  This was designed to be used with a water sensor to control a switch
+ *  Uses a water sensor to receive commands and converts that to switch actions
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -53,7 +53,7 @@ definition(
     name: "Water Sensor to Switch",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "Uses a water sensor to receive commands and converts that to virtual switch actions",
+    description: "Uses a water sensor to receive commands and converts that to switch actions",
     category: "",
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
 	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
@@ -66,7 +66,7 @@ preferences {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Water Sensor to Switch",
                   required: false,
-                  "Uses a water sensor to receive commands and converts that to virtual switch actions"
+                  "Uses a water sensor to receive commands and converts that to switch actions"
          }         
 
  	section("Switch to enable/disable app"){
