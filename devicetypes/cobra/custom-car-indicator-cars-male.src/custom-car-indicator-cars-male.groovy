@@ -39,13 +39,13 @@ metadata {
 	tiles {
 		standardTile("toggle", "device.door", inactiveLabel: true, width: 3, height: 3) {
 			state("closed", label:"Alfa", action:"door control.open", icon:"st.Transportation.transportation8", backgroundColor:"#FF0416")
-			state("open", label:"Mercedes", action:"door control.close", icon:"st.Transportation.transportation8", backgroundColor:"#0808F9")
-			state("opening", label:"At Home", icon:"st.People.people8", backgroundColor:"#00A0DC")
-			state("closing", label:"Rexton", icon:"st.Transportation.transportation8", backgroundColor:"#FEC003")
+			state("open", label:"Mercedes", action:"door control.close", icon:"st.Transportation.transportation8", backgroundColor:"#766D6D")
+			state("opening", label:"Not in Car", icon:"st.People.people8", backgroundColor:"#00A0DC")
+			state("closing", label:"Rexton", icon:"st.Transportation.transportation8", backgroundColor:"#010101")
 			
 		}
 		standardTile("open", "device.door", inactiveLabel: false, decoration: "flat") {
-			state "default", label:"At Home", action:"door control.open", icon:"st.People.people8"
+			state "default", label:"Not in Car", action:"door control.open", icon:"st.People.people8"
 		}
 		
 	
