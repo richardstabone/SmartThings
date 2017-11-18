@@ -238,10 +238,11 @@ LOGDEBUG("$carDriver1 & $carDriver1 are in $car2")
 LOGDEBUG("$carDriver1 & $carDriver1 are in $car3")
 
  }
- 
- 
+  if (state.appGo == true && state.d3car == "present" && state.d2car == "present" && state.d1car == "present") { 
+ switch1.at_home()
+ switch2.at_home()
 }
- 
+} 
  
  def processDriver1(){ 
  LOGDEBUG("processDriver1")
