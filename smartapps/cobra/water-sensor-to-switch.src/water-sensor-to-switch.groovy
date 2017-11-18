@@ -14,7 +14,8 @@
  *  Paypal at: https://www.paypal.me/smartcobra
  *  
  *
- *  I'm very happy for you to use this app without a donation, but if you find it useful then it would be nice to get a 'shout out' on the forum! -  @Cobra
+ *  I'm very happy for you to use this app without a donation, but if you find it 
+ *  useful then it would be nice to get a 'shout out' on the forum! -  @Cobra
  *  Have an idea to make this app better?  - Please let me know :)
  *
  *  Website: http://securendpoint.com/smartthings
@@ -34,14 +35,14 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 17/11/2017
+ *  Last Update: 18/11/2017
  *
  *  Changes:
  *
  *  
  * 	
  *  
- *  
+ *  V2.0.0 - Complete re-write - Added additional options and re-wrote actions 
  *  V1.0.0 - POC
  *
  */
@@ -62,7 +63,7 @@ definition(
 
 preferences {
 	section("") {
-        paragraph " V1.0.0 "
+        paragraph " V2.0.0 "
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Water Sensor to Switch",
                   required: false,
@@ -74,10 +75,11 @@ preferences {
 }
 	section("") {
 		input "alarm", "capability.waterSensor", title: "Water Sensor", required: true
-        input "actionType1", "bool", title: "Select Water Sensor action type: \r\n \r\n On = 'Switch' ON when 'DRY'  \r\n Off = 'Switch' ON when 'WET' ", required: true, defaultValue: false
+        
 	}
-	 section("Turn on/off this switch when wet/dry"){
+	 section("Turn On/Off this switch "){
 		input "switch1",  "capability.switch", title: "Switch to control", multiple: true, required: false
+     	input "trigger", "enum", title: "Select Actions",required: true, submitOnChange: true, options: ["On when wet - Off when dry", "On when dry - Off when wet", "On when dry only (No off)", "On when wet only (No off)", "Off when dry only (No on)", "Off when wet only (No on)"]
 	    input "msgDelay", "number", title: "Delay between actions (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
      }
     section("Logging"){
@@ -101,55 +103,170 @@ def initialise() {
 log.debug "Initialised with settings: ${settings}"
  setAppVersion()
  logCheck()
- state.enable1 == 'on'
- state.timer1 == true
-	subscribe(alarm, "water", waterHandler)
-	subscribe(enableswitch1, "switch", enableswitchHandler)
+ state.enable1 = 'on'
+ state.timer1 = true
+ 
+subscribe(enableswitch1, "switch", enableswitchHandler)
+subscribe(switch1, "switch", switch1Handler)    
+    
+   if(trigger == 'On when wet - Off when dry'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option1Handler)
+    }
+
+	else if(trigger == 'On when dry - Off when wet'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option2Handler)
+    }
+    
+	else if(trigger == 'On when dry only (No off)'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option3Handler)
+    }    
+
+	else if(trigger == 'On when wet only (No off)'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option4Handler)
+    }    
+    
+	else if(trigger == 'Off when dry only (No on)'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option5Handler)
+    }  
+
+	else if(trigger == 'Off when wet only (No on)'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(alarm, "water", option6Handler)
+    }  
+  
+    
 
 }
+
+
+// Handlers
   
 def enableswitchHandler(evt) {
 state.enable1 = evt.value
-LOGDEBUG(" Control switch event = $state.enable1")
+LOGDEBUG("Control switch event = $state.enable1")
 } 
+
+def switch1Handler(evt){
+LOGDEBUG("Switch event = $evt.value")
+
+}
+
+
   
-  
-def waterHandler(evt) {
-// state.timer1 = true // debug only
-// state.enable1 = 'on' // debug only
+// On when wet - Off when dry
+def option1Handler(evt){
+def option1 = evt.value
+LOGDEBUG("Action: On when wet - Off when dry")
+LOGDEBUG("Sensor is: $option1")
 
-
-	state.control1 = evt.value
-LOGDEBUG("Handler event = $state.control1 ************************************************")
-controlType1()
-LOGDEBUG("Checked")
-            
-// goes wet
-if (state.enable1 == 'on' && state.control1 == "wet" && state.type1 == 'off' && state.timer1 == true) { 
-	turnOff()
-	
-}
-else if (state.enable1 == 'on' && state.control1 == "wet" && state.type1 == 'on' && state.timer1 == true) { 
-	turnOn()
-		
-}
-
-// goes dry
-
-else if (state.enable1 != 'off' && state.control1 == "dry" && state.type1 == 'off' && state.timer1 == true) {  
-	turnOn()
-		
-}
-else if (state.enable1 != 'off' && state.control1 == "dry" && state.type1 == 'on' && state.timer1 == true) { 
-	turnOff()
-		
-}
-else if (state.enable1 == 'off'){
-LOGDEBUG("Control switch is OFF - Unable to proceed")
-}
+	if(state.enable1 == 'on' && state.timer1 == true){  
+    LOGDEBUG("state.enable1 = $state.enable1 - state.timer1 = $state.timer1")
+   	 	if(option1 == "wet"){turnOn()}
+     	if(option1 == "dry"){turnOff()}
+        
+    }
+    
+   else if(state.enable1 == 'off'){
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+    else if(state.timer1 == false){
+   LOGDEBUG("Timer is active so not processing further")
+   }
 }
 
+// On when dry - Off when wet
+def option2Handler(evt){
+def option2 = evt.value
+LOGDEBUG("Action: On when dry - Off when wet")
+LOGDEBUG("Sensor is: $option2")
+	if(state.enable1 == 'on' && state.timer1 == true){        
+   	 	if(option2 == 'wet'){turnOff()}
+     	if(option2 == 'dry'){turnOn()}
+    }
+    
+   else if(state.enable1 == 'off'){
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+}
 
+
+// On when dry only (No off)
+def option3Handler(evt){
+def option3 = evt.value
+LOGDEBUG("Action: On when dry only (No off)")
+LOGDEBUG("Sensor is: $option3")
+	if(state.enable1 == 'on' && state.timer1 == true){       
+   	 	if(option3 == 'wet'){LOGDEBUG("Wet - Take no action")}
+     	if(option3 == 'dry'){turnOn()}
+    }
+    
+   else if(state.enable1 == 'off'){
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+}
+
+// On when wet only (No off)
+def option4Handler(evt){
+def option4 = evt.value
+LOGDEBUG("Action: On when wet only (No off)")
+LOGDEBUG("Sensor is: $option4")
+	if(state.enable1 == 'on' && state.timer1 == true){       
+   	 	if(option4 == 'wet'){turnOn()}
+      	if(option4 == 'dry'){ LOGDEBUG("Dry - Take no action")}
+    }
+    
+   else if(state.enable1 == 'off'){
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+}
+
+// Off when dry only (No on)
+def option5Handler(evt){
+def option5 = evt.value
+LOGDEBUG("Action: On when wet only (No off)")
+LOGDEBUG("Sensor is: $option5")
+	if(state.enable1 == 'on' && state.timer1 == true){      
+   	 	if(option5 == 'wet'){ LOGDEBUG("Wet - Take no action")}
+      	if(option5 == 'dry'){turnOff()}
+    }
+    
+   else if(state.enable1 == 'off' && state.timer1 == true){    
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+}
+
+// Off when wet only (No on)
+def option6Handler(evt){
+def option6 = evt.value
+LOGDEBUG("Action: On when wet only (No off)")
+LOGDEBUG("Sensor is: $option6")
+	if(state.enable1 == 'on' && state.timer1 == true){        
+   	 	if(option6 == 'wet'){turnOff()}
+        if(option6 == 'dry') { LOGDEBUG("Dry - Take no action")}
+    }
+    
+   else if(state.enable1 == 'off'){
+   LOGDEBUG("Control Switch is OFF so not processing further")
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// Control on/off actions & timer
 
 def turnOn(){
 LOGDEBUG("Turning on...")
@@ -183,21 +300,12 @@ LOGDEBUG( "Timer reset - Actions allowed")
 
 
  
- // check action type switch
 
- def controlType1(){
- LOGDEBUG("Checking control type...")
-	if (actionType1 == true){ 
-    state.type1 = 'on'
-    LOGDEBUG( "Switch Type: ON (Switch when dry)" )}
-    else if (actionType1 == false){ 
-    state.type1 = 'off'
-     LOGDEBUG( "Switch Type: OFF (Switch when wet)") }
-     }
      
      
      
-     // Logging & App version...
+     
+// Logging & App version...
      
 // define debug action
 def logCheck(){
@@ -220,5 +328,5 @@ def LOGDEBUG(txt){
 
 
 def setAppVersion(){
-    state.appversion = "1.0.0"
+    state.appversion = "2.0.0"
 }
