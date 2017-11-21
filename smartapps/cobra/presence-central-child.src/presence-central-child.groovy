@@ -84,18 +84,20 @@ def updated() {
 }
 def initialize() {
  log.info "Initialised with settings: ${settings}"
-      setAppVersion()
-      logCheck()
-      switchRunCheck()
-      state.timer1 = true
-	  state.timerDoor = true
-      state.timerlock = true
-
+    setAppVersion()
+    logCheck()
+    switchRunCheck()
+    state.timer1 = true
+	state.timerDoor = true
+    state.timerlock = true
+//	state.riseSetGo = true
 
 // Basic Subscriptions    
 
 	subscribe(enableSwitch, "switch", switchEnable)
-    
+	subscribe(location, "sunriseTime", sunriseSunsetTimeHandler)
+	subscribe(location, "sunsetTime", sunriseSunsetTimeHandler)
+	astroCheck()
     
 // Trigger subscriptions
 
@@ -130,7 +132,7 @@ def initialize() {
 	if(doorContact1){
     	subscribe(doorContact1, "contact", doorContactHandler) 
     }
-       
+   
 }
 
 
@@ -190,7 +192,26 @@ def finalPage() {
                 input "fromTime", "time", title: "Only allow actions from ", required: false
 				input "toTime", "time", title: "Only allow actions until", required: false 
 				input "days", "enum", title: "Only allow actions on these days of the week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
-  
+                
+		input "setRise", "bool", title: "Only allow actions between SunSet and SunRise", required: false, submitOnChange: true, defaultValue: false
+				
+if(setRise){
+		input "sunriseOffsetValue", "number", title: "Optional Sunrise Offset (Minutes)", required: false
+		input "sunriseOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
+        input "sunsetOffsetValue", "number", title: "Optional Sunset Offset (Minutes)", required: false
+		input "sunsetOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
+}
+
+		input "riseSet", "bool", title: "Only allow actions between SunRise and SunSet", required: false, submitOnChange: true, defaultValue: false
+
+if(riseSet){
+		input "sunriseOffsetValue", "number", title: "Optional Sunrise Offset (Minutes)", required: false
+		input "sunriseOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
+        input "sunsetOffsetValue", "number", title: "Optional Sunset Offset (Minutes)", required: false
+		input "sunsetOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
+}
+
+
             }
              section("Logging") {
             input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false
@@ -431,8 +452,94 @@ LOGDEBUG("state.privatePresence = $state.privatePresence")
 // end timed presence check =====================================================
 
 
+// Sunset & Sunrise Handlers ====================================================
+def sunriseSunsetTimeHandler(evt) {
+	log.trace "sunriseSunsetTimeHandler()"
+	astroCheck()
+}
+
+def astroCheck() {
+	def s = getSunriseAndSunset(sunriseOffset: sunriseOffset, sunsetOffset: sunsetOffset)
+
+	def now = new Date()
+	def riseTime = s.sunrise
+	def setTime = s.sunset
+	LOGDEBUG("riseTime: $riseTime")
+	LOGDEBUG("setTime: $setTime")
+
+	if (state.riseTime != riseTime.time) {
+		unschedule("sunriseHandler")
+
+		if(riseTime.before(now)) {
+			riseTime = riseTime.next()
+		}
+
+		state.riseTime = riseTime.time
+
+		LOGDEBUG("scheduling sunrise handler for $riseTime")
+		schedule(riseTime, sunriseHandler)
+	}
+
+	if (state.setTime != setTime.time) {
+		unschedule("sunsetHandler")
+
+	    if(setTime.before(now)) {
+		    setTime = setTime.next()
+	    }
+
+		state.setTime = setTime.time
+
+		LOGDEBUG("scheduling sunset handler for $setTime")
+	    schedule(setTime, sunsetHandler)
+	}
+}
 
 
+
+def sunsetHandler() {
+LOGDEBUG("Sun has set!")
+def riseCheck = setRise
+def setCheck = riseSet
+
+if (riseCheck == true){
+state.riseSetGo = true
+LOGDEBUG("sunsetHandler - Actions Allowed")
+}
+
+if (setCheck == true){
+state.riseSetGo = false
+LOGDEBUG("sunsetHandler - Actions NOT Allowed")
+}
+
+}
+
+
+
+def sunriseHandler() {
+LOGDEBUG("Sun has risen!")
+def riseCheck = setRise
+def setCheck = riseSet
+
+if (riseCheck == true){
+state.riseSetGo = false
+LOGDEBUG("sunriseHandler - Actions NOT Allowed")
+}
+
+if (setCheck == true){
+state.riseSetGo = true
+LOGDEBUG("sunriseHandler - Actions Allowed")
+}
+
+
+}
+
+private getSunriseOffset() {
+	sunriseOffsetValue ? (sunriseOffsetDir == "Before" ? "-$sunriseOffsetValue" : sunriseOffsetValue) : null
+}
+
+private getSunsetOffset() {
+	sunsetOffsetValue ? (sunsetOffsetDir == "Before" ? "-$sunsetOffsetValue" : sunsetOffsetValue) : null
+}
 
 // Group 1  ======================================================================
 def group1Handler(evt) {
@@ -575,7 +682,7 @@ decideActionDeparture()
 
 // Decide which action to call
 def decideActionArrival() {
-if(state.appgo == true){
+if(state.appgo == true && state.riseSetGo == true){
 LOGDEBUG("Deciding on correct Arrival Action")
 
  if(state.selection2 == "Control A Switch"){
@@ -652,6 +759,9 @@ else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
 
+else if(state.riseSetGo == false){
+LOGDEBUG( "Cannot continue because of sunset-sunrise restrictions")
+}
 
 
 
@@ -663,7 +773,7 @@ LOGDEBUG( "$enableSwitch is off so cannot continue")
 
 
 def decideActionDeparture() {
-if(state.appgo == true){
+if(state.appgo == true && state.riseSetGo == true){
 LOGDEBUG("Deciding on correct Departure Action")
 
  if(state.selection2 == "Control A Switch"){
@@ -740,7 +850,9 @@ checkFlashDeparted()
 else if(state.appgo == false){
 LOGDEBUG( "$enableSwitch is off so cannot continue")
 }
-
+else if(state.riseSetGo == false){
+LOGDEBUG( "Cannot continue because of sunset-sunrise restrictions")
+}
 
  
 }
