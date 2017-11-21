@@ -40,6 +40,7 @@
  *
  *  Changes:
  *
+ *  V1.2.4 - added sunset/sunrise/ restrictions (with offset)
  *  V1.2.3 - Added 'Flash Lights' to available responses
  *  V1.2.2 - Moved 'restriction Options' to last page
  *	V1.2.1 - Changed restrictions from compulsory entries to optional entries 
@@ -1373,6 +1374,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.3"
+    state.appversion = "1.2.4"
 }
 // end app version *********************************************
