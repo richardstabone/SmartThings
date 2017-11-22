@@ -36,10 +36,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 16/11/2017
+ *  Last Update: 22/11/2017
  *
  *  Changes:
  *
+ *
+ *  V1.2.5 - debug - Typo issue with sunrise/sunset which caused the app to only work when switched on.
  *  V1.2.4 - added sunset/sunrise/ restrictions (with offset)
  *  V1.2.3 - Added 'Flash Lights' to available responses
  *  V1.2.2 - Moved 'restriction Options' to last page
@@ -91,7 +93,7 @@ def initialize() {
     state.timer1 = true
 	state.timerDoor = true
     state.timerlock = true
-//	state.riseSetGo = true
+	state.riseSetGo = true
 
 // Basic Subscriptions    
 
@@ -147,7 +149,7 @@ def mainPage() {
       
         section {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/presence.png",
-                  title: "Message Control Child",
+                  title: "Presence Control Child",
                   required: false,
                   "This child app allows you to define different actions upon arrival or departure of one or more presence sensors"
                   }
@@ -1374,6 +1376,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.4"
+    state.appversion = "1.2.5"
 }
 // end app version *********************************************
