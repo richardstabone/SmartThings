@@ -35,7 +35,7 @@
  *  Changes:
  *
  *
- *
+ *  V2.0.0 - Added 'Weather Report' - Trigger with Switch, Water, Contact, Time
  *  V1.9.0 - Added 'Open Too Long' to speak when a contact (door?) has been open for more than the configured number of minutes
  *  V1.8.0 - Added ability to speak/send message if contact is open at a certain time (Used to check I closed the shed door)
  *  V1.7.0 - Added ability to SMS/Push instead of speaking
@@ -205,7 +205,7 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message (Optional)", required: false, multiple: false 
-    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message"]
+    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message", "Weather Report"]
 
  if (messageAction){
  state.msgType = messageAction
@@ -214,8 +214,9 @@ def speakerInputs(){
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
 	}
 
-	else if(state.msgType == "SMS/Push Message"){
-
+	else if(state.msgType == "Weather Report"){
+	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
+	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "80",  required: true
 
 	}
  }
@@ -235,7 +236,7 @@ def actionInputs() {
     
     
 if(state.selection == 'Switch'){
-    input "switch1", "capability.switch", title: "Select switch to trigger message", required: false, multiple: false 
+    input "switch1", "capability.switch", title: "Select switch to trigger message/report", required: false, multiple: false 
 
     
     if(state.msgType == "Voice Message"){
@@ -258,6 +259,18 @@ if(state.selection == 'Switch'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     }
     }
+	if(state.msgType == "Weather Report"){
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    input "weatherSwitchMode", "bool", title: "   On = Play when switched on  \r\n   Off = Play when switched off ", required: true, defaultValue: true
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
+    
+   
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -266,9 +279,10 @@ if(state.selection == 'Switch'){
  
 
 else if(state.selection == 'Water'){
-	input "water1", "capability.waterSensor", title: "Select water sensor to trigger message", required: false, multiple: false 
+	
      
     if(state.msgType == "Voice Message"){
+    input "water1", "capability.waterSensor", title: "Select water sensor to trigger message", required: false, multiple: false 
 	input "message1", "text", title: "Message to play when WET",  required: false
 	input "message2", "text", title: "Message to play when DRY",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
@@ -281,6 +295,7 @@ else if(state.selection == 'Water'){
     input "toTime2", "time", title: "Quiet Time End", required: false
     }
      if(state.msgType == "SMS/Push Message"){
+     input "water1", "capability.waterSensor", title: "Select water sensor to trigger message", required: false, multiple: false 
      input "message1", "text", title: "Message to send when Wet",  required: false
 	 input "message2", "text", title: "Message to send when Dry",  required: false
      input("recipients", "contact", title: "Send notifications to") {
@@ -288,6 +303,17 @@ else if(state.selection == 'Water'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     }
     }
+    if(state.msgType == "Weather Report"){
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    input "weatherSwitchMode", "bool", title: "   On = Play when wet  \r\n   Off = Play when dry ", required: true, defaultValue: true
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
+    
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -346,7 +372,18 @@ else if(state.selection == 'Contact'){
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
-    }    
+    }   
+    if(state.msgType == "Weather Report"){
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    input "weatherSwitchMode", "bool", title: "   On = Play when open  \r\n   Off = Play when closed ", required: true, defaultValue: true
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
+    
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -388,15 +425,22 @@ else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
   if(state.msgType == "Voice Message"){
 	input "messageTime", "text", title: "Message to play",  required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
    		}
   if(state.msgType == "SMS/Push Message"){
      input "messageTime", "text", title: "Message to send...",  required: false
+     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }  
+    if(state.msgType == "Weather Report"){
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    }
+    
+   
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -448,7 +492,16 @@ else if(state.selection == 'Mode Change'){
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
-    }    
+    } 
+     if(state.msgType == "Weather Report"){
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -478,7 +531,16 @@ else if(state.selection == 'Routine'){
     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
-    }    
+    } 
+     if(state.msgType == "Weather Report"){
+    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
+    input "fromTime", "time", title: "Allow messages from", required: true
+    input "toTime", "time", title: "Allow messages until", required: true
+    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
+    input "fromTime2", "time", title: "Quiet Time Start", required: false
+    input "toTime2", "time", title: "Quiet Time End", required: false
+    }
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -605,6 +667,11 @@ def msg = message1
 LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
+    
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Mode - Weather Report")
+getWeatherReport()
+}    
    }
 }
 }
@@ -635,7 +702,10 @@ def msg = message1
 LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
-
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Routine - Weather Report")
+getWeatherReport()
+}
 
  }
 
@@ -756,6 +826,11 @@ def msg = messageTime
 LOGDEBUG("Time - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
+    
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Time - Weather Report")
+getWeatherReport()
+}
 
 }
 
@@ -829,6 +904,19 @@ state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Switch - Weather Report")
+if (weatherSwitchMode == true && state.talkswitch == 'on'){
+getWeatherReport()
+}
+if (weatherSwitchMode == false && state.talkswitch == 'off'){
+getWeatherReport()
+}
+
+
+
+
+}
 if(state.msgType == "Voice Message"){
 LOGDEBUG("Switch - Voice Message")
 
@@ -874,6 +962,15 @@ state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Contact - Weather Report")
+if (weatherSwitchMode == true && state.talkcontact == 'open'){
+getWeatherReport()
+}
+if (weatherSwitchMode == false && state.talkcontact == 'closed'){
+getWeatherReport()
+}
+}
 if(state.msgType == "Voice Message"){
 	if(state.talkcontact == 'open'){
 state.msgNow = 'oneNow'
@@ -919,7 +1016,17 @@ state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-		if(state.msgType == "Voice Message"){
+if(state.msgType == "Weather Report"){
+LOGDEBUG("Water - Weather Report")
+if (weatherSwitchMode == true && state.talkwater == 'wet'){
+getWeatherReport()
+}
+if (weatherSwitchMode == false && state.talkwater == 'dry'){
+getWeatherReport()
+}
+}		
+
+if(state.msgType == "Voice Message"){
         
 	if(state.talkwater == 'wet'){
 state.msgNow = 'oneNow'
@@ -1273,7 +1380,137 @@ LOGDEBUG("Timer 2 reset - Messages allowed")
 }
 
 
+private getWeatherReport() {
+	if (location.timeZone || zipCode) {
+		def isMetric = location.temperatureScale == "C"
+        def sb = new StringBuilder()
+      	def weather = getWeatherFeature("forecast", zipCode)
+        def inputMsg = message1
+            sb << inputMsg 
+			if (isMetric) {
+        		sb << weather.forecast.txt_forecast.forecastday[0].fcttext_metric 
+        	}
+        	else {
+          		sb << weather.forecast.txt_forecast.forecastday[0].fcttext
+        	}
+        
+        
+		def msg = sb.toString()
+        msg = msg.replaceAll(/([0-9]+)C/,'$1 degrees')
+        msg = msg.replaceAll(/([0-9]+)F/,'$1 degrees')
+        compileMsg(msg)		
+	}
+	else {
+		msg = "Please set the location of your hub with the SmartThings mobile app, or enter a zip code to receive weather forecasts."
+		compileMsg(msg)
+    }
+}
+
+
+private compileMsg(msg) {
+	log.debug "msg = ${msg}"
+	convertVariables(msg)
+}
+
+
+private convertVariables(msgIn){
+    def msgOut = ""
+    msgOut = msgIn.toUpperCase()
+    
+// Weather Variables    
+    msgOut = msgOut.replace(" N ", " North ")
+    msgOut = msgOut.replace(" S ", " South ")
+    msgOut = msgOut.replace(" E ", " East ")
+    msgOut = msgOut.replace(" W ", " West ")
+    msgOut = msgOut.replace(" NNE ", " North Northeast ")
+    msgOut = msgOut.replace(" NNW ", " North Northwest ")
+    msgOut = msgOut.replace(" SSE ", " South Southeast ")
+    msgOut = msgOut.replace(" SSW ", " South Southwest ")
+    msgOut = msgOut.replace(" ENE ", " East Northeast ")
+    msgOut = msgOut.replace(" ESE ", " East Southeast ")
+    msgOut = msgOut.replace(" WNW ", " West Northeast ")
+    msgOut = msgOut.replace(" WSW ", " West Southwest ")
+    msgOut = msgOut.replace(" MPH", " Miles Per Hour")
+    
+// Day, Date, Time Variables    
+
+	if (msgOut.contains("%TIME%")) {msgOut = msgOut.toUpperCase().replace('%TIME%', getTime(false,true))}  
+	if (msgOut.contains("%DAY%")) {msgOut = msgOut.toUpperCase().replace('%DAY%', getDay() )}  
+	if (msgOut.contains("%DATE%")) {msgOut = msgOut.toUpperCase().replace('%DATE%', getdate() )}  
+   state.fullPhrase = msgOut
+  log.trace "$state.fullPhrase"
+  speakWeatherNow()
+  
+}
+
+private getTime(includeSeconds, includeAmPm){
+    def calendar = Calendar.getInstance()
+	calendar.setTimeZone(location.timeZone)
+	def timeHH = calendar.get(Calendar.HOUR) 
+    def timemm = calendar.get(Calendar.MINUTE)
+    def timess = calendar.get(Calendar.SECOND)
+    def timeampm = calendar.get(Calendar.AM_PM) ? "pm" : "am"
+    def timestring = "${timeHH}:${timemm}"
+    if (includeSeconds) { timestring += ":${timess}" }
+    if (includeAmPm) { timestring += " ${timeampm}" }
+    log.trace "$timestring"
+    return timestring
+}
+
+private getDay(){
+	def df = new java.text.SimpleDateFormat("EEEE")
+	if (location.timeZone) {
+		df.setTimeZone(location.timeZone)
+	}
+	else {
+		df.setTimeZone(TimeZone.getTimeZone("America/New_York"))
+	}
+	def day = df.format(new Date())
+    return day
+}
+
+private parseDate(date, epoch, type){
+    def parseDate = ""
+    if (epoch){
+    	long longDate = Long.valueOf(epoch).longValue()
+        parseDate = new Date(longDate).format("yyyy-MM-dd'T'HH:mm:ss.SSSZ", location.timeZone)
+    }
+    else {
+    	parseDate = date
+    }
+    new Date().parse("yyyy-MM-dd'T'HH:mm:ss.SSSZ", parseDate).format("${type}", timeZone(parseDate))
+}
+private getdate() {
+    def month = parseDate("", now(), "MMMM")
+    def year = parseDate("", now(), "yyyy")
+    def dayNum = parseDate("", now(), "dd")
+	
+    log.debug "Date:  $dayNum $month $year"
+         
+    return dayNum + " " + " " + month + " " + year + " "
+}
+
+
+
+def speakWeatherNow(){
+if(state.appgo == true){
+LOGDEBUG("speakWeatherNow - Calling.. CheckTime")
+checkTime()
+LOGDEBUG("speakWeatherNow - Calling.. CheckDay")
+checkDay()
+LOGDEBUG("speakWeatherNow - Calling.. CheckVolume")
+checkVolume()
+
+LOGDEBUG("speakWeatherNow - state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
+
+if (state.dayCheck == true && state.timeOK == true && state.presenceRestriction == true){
+speaker.speak(state.fullPhrase)
+	}
+}
+}
+
+
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "1.9.0"
+    state.appversion = "2.0.0"
 }
