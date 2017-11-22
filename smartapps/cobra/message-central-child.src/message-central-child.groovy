@@ -30,12 +30,13 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 13/11/2017
+ *  Last Update: 22/11/2017
  *
  *  Changes:
  *
  *
- *  V2.0.0 - Added 'Weather Report' - Trigger with Switch, Water, Contact, Time
+ *  V2.0.1 - Debug
+ *  V2.0.0 - Added 'Weather Report' - Trigger with Switch, Water, Contact, & Time
  *  V1.9.0 - Added 'Open Too Long' to speak when a contact (door?) has been open for more than the configured number of minutes
  *  V1.8.0 - Added ability to speak/send message if contact is open at a certain time (Used to check I closed the shed door)
  *  V1.7.0 - Added ability to SMS/Push instead of speaking
@@ -205,7 +206,7 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message (Optional)", required: false, multiple: false 
-    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message", "Weather Report"]
+    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message", "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"]
 
  if (messageAction){
  state.msgType = messageAction
@@ -259,7 +260,7 @@ if(state.selection == 'Switch'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     }
     }
-	if(state.msgType == "Weather Report"){
+	if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when switched on  \r\n   Off = Play when switched off ", required: true, defaultValue: true
     input "fromTime", "time", title: "Allow messages from", required: true
@@ -303,7 +304,7 @@ else if(state.selection == 'Water'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     }
     }
-    if(state.msgType == "Weather Report"){
+    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when wet  \r\n   Off = Play when dry ", required: true, defaultValue: true
     input "fromTime", "time", title: "Allow messages from", required: true
@@ -373,7 +374,7 @@ else if(state.selection == 'Contact'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }   
-    if(state.msgType == "Weather Report"){
+    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when open  \r\n   Off = Play when closed ", required: true, defaultValue: true
     input "fromTime", "time", title: "Allow messages from", required: true
@@ -435,7 +436,7 @@ else if(state.selection == 'Time'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }  
-    if(state.msgType == "Weather Report"){
+    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     }
@@ -493,7 +494,7 @@ else if(state.selection == 'Mode Change'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     } 
-     if(state.msgType == "Weather Report"){
+     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
@@ -532,7 +533,7 @@ else if(state.selection == 'Routine'){
     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     } 
-     if(state.msgType == "Weather Report"){
+     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "fromTime", "time", title: "Allow messages from", required: true
     input "toTime", "time", title: "Allow messages until", required: true
@@ -1512,5 +1513,5 @@ speaker.speak(state.fullPhrase)
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.0.0"
+    state.appversion = "2.0.1"
 }
