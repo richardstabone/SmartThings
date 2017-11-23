@@ -1,5 +1,5 @@
 /**
- *  ****************  Fibaro Bright/Dim Switch ****************
+ *  ****************  Fibaro Bright/Dim Switch **************** 
  *
  *  Design Usage:
  *  This was designed to be used with the excellent Fibaro RGBW DTH by: '@codersaur' (David Lomas)
