@@ -53,17 +53,18 @@
 definition(
     name: "Fibaro Bright/Dim Switch - Custom Colours",
     namespace: "Cobra",
-    author: "SmartThings",
+    author: "Andrew Parker",
     description: "Turn On/Off Fibaro RGBW Controller's colour (and brightness) or program with a switch",
     category: "My Apps",
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Meta/light_contact-outlet.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Meta/light_contact-outlet@2x.png"
+    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
 )
 
 
 section("") {
         paragraph "V1.0.0"
-        paragraph image: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+        paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Fibaro Bright/Dim Switch - Custom Colours",
                   required: false,
                   " This app allows you to use a virtual switch to turn on/off LED colours or the built-in Fibaro programs \r\n Specifically designed to work with the excellent DTH by 'codersaur' (David Lomas) \r\n These switches can then be used in other apps "
