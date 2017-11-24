@@ -669,8 +669,9 @@ LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
     
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Mode - Weather Report")
+checkVolume()
 getWeatherReport()
 }    
    }
@@ -703,8 +704,9 @@ def msg = message1
 LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Routine - Weather Report")
+checkVolume()
 getWeatherReport()
 }
 
@@ -809,7 +811,7 @@ LOGDEBUG("AppGo = $state.appgo")
 // Time
 def timeTalkNow(evt){
 checkDay()
-
+state.timeOK = true
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true){
@@ -828,8 +830,9 @@ LOGDEBUG("Time - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
     
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Time - Weather Report")
+checkVolume()
 getWeatherReport()
 }
 
@@ -905,12 +908,14 @@ state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Switch - Weather Report")
 if (weatherSwitchMode == true && state.talkswitch == 'on'){
+checkVolume()
 getWeatherReport()
 }
 if (weatherSwitchMode == false && state.talkswitch == 'off'){
+checkVolume
 getWeatherReport()
 }
 
@@ -963,12 +968,14 @@ state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Contact - Weather Report")
 if (weatherSwitchMode == true && state.talkcontact == 'open'){
+checkVolume()
 getWeatherReport()
 }
 if (weatherSwitchMode == false && state.talkcontact == 'closed'){
+checkVolume()
 getWeatherReport()
 }
 }
@@ -1017,12 +1024,14 @@ state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report"){
+if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 LOGDEBUG("Water - Weather Report")
 if (weatherSwitchMode == true && state.talkwater == 'wet'){
+checkVolume()
 getWeatherReport()
 }
 if (weatherSwitchMode == false && state.talkwater == 'dry'){
+checkVolume()
 getWeatherReport()
 }
 }		
