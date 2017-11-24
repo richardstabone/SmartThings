@@ -30,11 +30,11 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 22/11/2017
+ *  Last Update: 24/11/2017
  *
  *  Changes:
  *
- *
+ *	V2.1.0 - Removed requirement for allowed time & days - Now optional
  *  V2.0.1 - Debug
  *  V2.0.0 - Added 'Weather Report' - Trigger with Switch, Water, Contact, & Time
  *  V1.9.0 - Added 'Open Too Long' to speak when a contact (door?) has been open for more than the configured number of minutes
@@ -98,9 +98,14 @@ def initialize() {
       state.timer2 = true
       state.presenceRestriction = true
       state.contact1SW = 'closed' 
+      
      if(state.msgType == "Voice Message"){ 
      checkVolume()
      }
+     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){ 
+     checkVolume()
+     }
+     
       
 // Subscriptions    
 
@@ -215,7 +220,7 @@ def speakerInputs(){
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
 	}
 
-	else if(state.msgType == "Weather Report"){
+	else if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "80",  required: true
 
@@ -245,9 +250,9 @@ if(state.selection == 'Switch'){
 	input "message2", "text", title: "Message to play when switched off",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -263,9 +268,9 @@ if(state.selection == 'Switch'){
 	if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when switched on  \r\n   Off = Play when switched off ", required: true, defaultValue: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -288,9 +293,9 @@ else if(state.selection == 'Water'){
 	input "message2", "text", title: "Message to play when DRY",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
    	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-	input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -307,9 +312,9 @@ else if(state.selection == 'Water'){
     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when wet  \r\n   Off = Play when dry ", required: true, defaultValue: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -329,9 +334,9 @@ else if(state.selection == 'Presence'){
 	input "message2", "text", title: "Message to play when sensor leaves",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: "0", description: "Seconds", required: true
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-	input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -359,9 +364,9 @@ else if(state.selection == 'Contact'){
 	input "message2", "text", title: "Message to play when sensor closes",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", description: "Seconds", required: true
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-	input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+	input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -377,9 +382,9 @@ else if(state.selection == 'Contact'){
     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
     input "weatherSwitchMode", "bool", title: "   On = Play when open  \r\n   Off = Play when closed ", required: true, defaultValue: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -430,7 +435,7 @@ else if(state.selection == 'Time'){
    		}
   if(state.msgType == "SMS/Push Message"){
      input "messageTime", "text", title: "Message to send...",  required: false
-     input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+     input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
@@ -463,7 +468,7 @@ else if(state.selection == 'Time if Contact Open'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }  
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
@@ -479,9 +484,9 @@ else if(state.selection == 'Mode Change'){
 	input "message1", "text", title: "Message to play",  required: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	 input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -496,9 +501,9 @@ else if(state.selection == 'Mode Change'){
     } 
      if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -519,9 +524,9 @@ else if(state.selection == 'Routine'){
 	input "message1", "text", title: "Message to play",  required: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -535,9 +540,9 @@ else if(state.selection == 'Routine'){
     } 
      if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
     input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -555,9 +560,9 @@ if(state.selection == 'Contact - Open Too Long'){
   if(state.msgType == "Voice Message"){
     input "message1", "text", title: "Message to play ...",  required: false
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
-  	input "fromTime", "time", title: "Allow messages from", required: true
-    input "toTime", "time", title: "Allow messages until", required: true
-    input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+  	input "fromTime", "time", title: "Allow messages from", required: false
+    input "toTime", "time", title: "Allow messages until", required: false
+    input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
@@ -1333,7 +1338,8 @@ def sendMessage(msg) {
 // Check time allowed to run...
 
 def checkTime(){
-
+def timecheckNow = fromTime
+if (timecheckNow){
 def between = timeOfDayIsBetween(fromTime, toTime, new Date(), location.timeZone)
     if (between) {
     state.timeOK = true
@@ -1344,10 +1350,16 @@ else if (!between) {
 state.timeOK = false
 LOGDEBUG("Time is NOT ok so cannot continue...")
 	}
+  }
+else if (!timecheckNow){  
+  LOGDEBUG("Time restrictions have not been configured -  Continue...")
+  state.timeOK = true
+  }
 }
 
 def checkDay(){
-
+def dayCheckNow = days
+if (dayCheckNow){
  def df = new java.text.SimpleDateFormat("EEEE")
     
     df.setTimeZone(location.timeZone)
@@ -1363,7 +1375,12 @@ LOGDEBUG( " Not today!")
  state.dayCheck = false
  }
  }
- 
+
+else if (!dayCheckNow){
+LOGDEBUG("Day restrictions have not been configured -  Continue...")
+state.dayCheck = true
+     }
+} 
  // Delay between messages...
 
 def startTimer1(){
@@ -1522,5 +1539,5 @@ speaker.speak(state.fullPhrase)
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.0.1"
+    state.appversion = "2.1.0"
 }
