@@ -34,6 +34,8 @@
  *
  *  Changes:
  *
+ *
+ *  V2.2.0 - Removed requirement for allowed time & days - Now optional
  *  V2.1.0 - GUI revamp - Moved restrictions to their own page
  *  V2.0.1 - Debug
  *  V2.0.0 - Added 'Weather Report' - Trigger with Switch, Water, Contact, & Time
@@ -1461,5 +1463,5 @@ speaker.speak(state.fullPhrase)
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.1.0"
+    state.appversion = "2.2.0"
 }
