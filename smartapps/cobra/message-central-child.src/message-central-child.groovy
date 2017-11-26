@@ -1438,7 +1438,7 @@ private getdate() {
 	
     log.debug "Date:  $dayNum $month $year"
          
-    return dayNum + " " + " " + month + " " + year + " "
+    return dayNum + " " + " " + month + " "
 }
 
 
