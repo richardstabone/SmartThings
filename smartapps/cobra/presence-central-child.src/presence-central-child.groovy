@@ -457,7 +457,7 @@ LOGDEBUG("state.privatePresence = $state.privatePresence")
 
 // Sunset & Sunrise Handlers ====================================================
 def sunriseSunsetTimeHandler(evt) {
-	log.trace "sunriseSunsetTimeHandler()"
+	LOGDEBUG("sunriseSunsetTimeHandler()")
 	astroCheck()
 }
 
