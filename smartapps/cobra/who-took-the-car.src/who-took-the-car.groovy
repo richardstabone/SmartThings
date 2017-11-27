@@ -52,14 +52,15 @@
  
  
 definition(
-    name: "Who took the car?",
+    name: "Who_took_the_car",
     namespace: "Cobra",
     author: "Andrew Parker",
     description: "Sets a switch when a car leaves, and tries to work out who took it",
     category: "Family",
-   iconUrl: "http://54.246.165.27/img/icons/car.png",
-	iconX2Url: "http://54.246.165.27/img/icons/car.png",
-    iconX3Url: "http://54.246.165.27/img/icons/car.png",
+    
+   iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
+	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
+    iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
 )
 
 preferences {
@@ -67,7 +68,7 @@ preferences {
 
 section("") {
         paragraph "V1.2.0"
-       paragraph image: "http://54.246.165.27/img/icons/cobra3.png",
+       paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Who Took The Car?",
                   required: false,
                   "This app is designed to use a special 'Virtual Switch' to indicate who left with a shared vehicle"

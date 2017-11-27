@@ -52,11 +52,13 @@
  
  
 definition(
-    name: "It's Raining - Check Open Windows",
+    name: "It's_Raining_Check_Open_Windows",
     namespace: "Cobra",
     author: "Andrew Parker",
     description: "If a sensor detects rain, then announce any open windows & doors (Contact Sensors)",
     category: "",
+  
+    
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
     iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
@@ -76,7 +78,7 @@ preferences {
 	section() {
     
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/rain.png",
-                  title: "It's Raining - Check Open Windows",
+                  title: "It's Raining! - Check Open Windows",
                   required: false,
                   "This app uses a rain sensor to alert if any windows or doors are open"
     }

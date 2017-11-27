@@ -43,11 +43,14 @@
 
 
 definition(
-    name: " Temperature Controlled Window/Vent",
+    name: "Temperature_Controlled_Window/Vent",
     namespace: "Cobra",
     author: "AJ Parker",
     description: "Monitor the temperature and when it goes above or below your Temp setting set the window/vent level.",
     category: "Convenience",
+    
+	
+    
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png"
 )

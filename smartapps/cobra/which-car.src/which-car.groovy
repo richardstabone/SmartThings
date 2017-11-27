@@ -54,11 +54,14 @@
  
  
 definition(
-    name: "Which Car?",
+    name: "Which_Car",
     namespace: "Cobra",
     author: "Andrew Parker",
     description: "Sets a switch when a person leaves, and tries to work out who took what car",
     category: "Family",
+    
+    
+    
    iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
 	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",
     iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/car.png",

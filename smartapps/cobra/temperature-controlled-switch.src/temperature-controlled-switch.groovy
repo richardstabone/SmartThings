@@ -56,11 +56,13 @@
 
 
 definition(
-    name: "Temperature Controlled Switch",
+    name: "Temperature_Controlled_Switch",
     namespace: "Cobra",
     author: "Andrew Parker",
     description: "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
     category: "",
+    
+       
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
 	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
     iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
