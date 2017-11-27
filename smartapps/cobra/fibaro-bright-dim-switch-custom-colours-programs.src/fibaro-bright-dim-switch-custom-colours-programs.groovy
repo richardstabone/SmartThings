@@ -238,7 +238,7 @@ LOGDEBUG("$evt.value: $evt, $settings")
 
 def switchOnHandler2(evt) {
 if(state.riseSetGo == true && state.appGo == true){
-fibaro1.off()
+// fibaro1.off()
 	setBright()
     }
     
@@ -253,7 +253,7 @@ LOGDEBUG("Unable to continue - Sunset/Sunrise restriction")
 
 def switchOffHandler2(evt) {
 if(state.riseSetGo == true && state.appGo == true){
-fibaro1.off()
+// fibaro1.off()
 	setDim()
     }
 else if(state.appGo == false){

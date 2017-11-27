@@ -1277,6 +1277,7 @@ LOGDEBUG("Time is NOT ok so cannot continue...")
 	}
   }
 else if (timecheckNow == null){  
+state.timeOK = true
   LOGDEBUG("Time restrictions have not been configured -  Continue...")
   }
 }
