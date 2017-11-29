@@ -1453,9 +1453,10 @@ checkDay()
 LOGDEBUG("speakWeatherNow - Calling.. CheckVolume")
 checkVolume()
 
-LOGDEBUG("speakWeatherNow - state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
+LOGDEBUG("speakWeatherNow - state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.presenceRestriction = $state.presenceRestriction - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 
 if (state.dayCheck == true && state.timeOK == true && state.presenceRestriction == true){
+LOGDEBUG("$state.fullPhrase")
 speaker.speak(state.fullPhrase)
 	}
 }
