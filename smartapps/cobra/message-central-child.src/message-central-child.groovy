@@ -34,6 +34,8 @@
  *
  *  Changes:
  *
+ *
+ *  V2.3.1 - Debug
  *  V2.3.0 - Added %time%, %day%, %date%, %year% as variables used in messages
  *  V2.2.0 - Removed requirement for allowed time & days - Now optional
  *  V2.1.0 - GUI revamp - Moved restrictions to their own page
@@ -172,7 +174,7 @@ def mainPage() {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
                   title: "Message Control Child",
                   required: false,
-                  "This child app allows you use different triggers to create different messages"
+                  "This child app allows you use different triggers to create different voice or text messages"
                   }
      section() {
    
@@ -182,9 +184,12 @@ def mainPage() {
                          " %time%    - Replaced with current time in 12 or 24 hour format (Switchable)\r\n" +
                          " %day%     - Replaced with current day of the week\r\n" +
                          " %date%    - Replaced with current day number & month\r\n" +
-                         " %year%    - Replaced with the current year\r\n" +
-                         " %device%  - Replaced with the name of the triggering device\r\n" +
-                         " %action%  - Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
+                         " %year%    - Replaced with the current year\r\n" 
+                         
+         // Look at adding additional variables:                
+                  //       +
+                  //       " %device%  - Replaced with the name of the triggering device\r\n" +
+                 //        " %action%  - Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
                     
     }     
     
@@ -559,7 +564,7 @@ LOGDEBUG("tooLongOpen - Contact is closed")
 def openContactTimer1(){
 
 LOGDEBUG( "tooLongOpen - openContactTimer1 -  Contact is: $state.openContact")
-   def mydelayOpen = 60 * opendelay1 as int
+   def mydelayOpen = 60 * opendelay1
    LOGDEBUG( "openContactTimer1 - Checking again after delay: $opendelay1 minute(s)... ")
        runIn(mydelayOpen, openContactSpeak)     
       }
@@ -1107,9 +1112,9 @@ state.meterValue = evt.value as double
 def checkNow1(){
 if( actionType1 == false){
 LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
-    state.belowValue = belowThreshold as int
+    state.belowValue = belowThreshold 
     if (state.meterValue < state.belowValue) {
-   def mydelay = 60 * delay1 as int
+   def mydelay = 60 * delay1 
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
        runIn(mydelay, checkAgain1)     
       }
@@ -1117,9 +1122,9 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
       
 else if( actionType1 == true){
 LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
-    state.belowValue = belowThreshold as int
+    state.belowValue = belowThreshold
     if (state.meterValue > state.belowValue) {
-   def mydelay = 60 * delay1 as int
+   def mydelay = 60 * delay1
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
        runIn(mydelay, checkAgain2)     
       }
@@ -1479,11 +1484,11 @@ private getTime(includeSeconds, includeAmPm){
     
 LOGDEBUG("timeHH = $timeHH")
  
- if (timeHH.contains ("0")) {timeHH = timeHH.replace("0", "12")}   //  Changes hours so it doesn't say 0 for 12 midday
-  
+ if (timeHH == "0") {timeHH = timeHH.replace("0", "12")}   //  Changes hours so it doesn't say 0 for 12 midday
+ if (timeHH == "10") {timeHH = timeHH.replace("10", "TEN")}   //  Changes 10 to TEN as there seems to be an issue with it saying 100 for 10 o'clock
   
  if (hour24 == true){ // Convert to 24hr clock if selected
-LOGDEBUG("hour24 = $hour24")
+LOGDEBUG("hour24 = $hour24 -  So converting hours to 24hr format")
      
  if (timeHH == "1" && timeampm.contains ("pm")){timeHH = timeHH.replace("1", "13")}
  if (timeHH == "2" && timeampm.contains ("pm")){timeHH = timeHH.replace("2", "14")}
@@ -1500,19 +1505,20 @@ LOGDEBUG("hour24 = $hour24")
  }
  
      if (timemm == "0") {
+     LOGDEBUG("timemm = 0  - So changing to o'clock")
      timemm = timemm.replace("0", "o'clock")
-     if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ")}
-     else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ")}
+    	  if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ") LOGDEBUG("Removing PM")}
+     else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ") LOGDEBUG("Removing AM")}
       }
-else if (timemm == "1") {timemm = timemm.replace("1", "01")}  
-else if (timemm == "2") {timemm = timemm.replace("2", "02")}  
-else if (timemm == "3") {timemm = timemm.replace("3", "03")}  
-else if (timemm == "4") {timemm = timemm.replace("4", "04")}  
-else if (timemm == "5") {timemm = timemm.replace("5", "05")}  
-else if (timemm == "6") {timemm = timemm.replace("6", "06")}  
-else if (timemm == "7") {timemm = timemm.replace("7", "07")}  
-else if (timemm == "8") {timemm = timemm.replace("8", "08")}  
-else if (timemm == "9") {timemm = timemm.replace("9", "09")}  
+else if (timemm == "1") {timemm = timemm.replace("1", "01")LOGDEBUG("Changing minutes '1' to '01'")}  
+else if (timemm == "2") {timemm = timemm.replace("2", "02")LOGDEBUG("Changing minutes '2' to '02'")}  
+else if (timemm == "3") {timemm = timemm.replace("3", "03")LOGDEBUG("Changing minutes '3' to '03'")}  
+else if (timemm == "4") {timemm = timemm.replace("4", "04")LOGDEBUG("Changing minutes '4' to '04'")}  
+else if (timemm == "5") {timemm = timemm.replace("5", "05")LOGDEBUG("Changing minutes '5' to '05'")}  
+else if (timemm == "6") {timemm = timemm.replace("6", "06")LOGDEBUG("Changing minutes '6' to '06'")}  
+else if (timemm == "7") {timemm = timemm.replace("7", "07")LOGDEBUG("Changing minutes '7' to '07'")}  
+else if (timemm == "8") {timemm = timemm.replace("8", "08")LOGDEBUG("Changing minutes '8' to '08'")}  
+else if (timemm == "9") {timemm = timemm.replace("9", "09")LOGDEBUG("Changing minutes '9' to '09'")}  
 
          
  
@@ -1589,6 +1595,6 @@ speaker.speak(state.fullPhrase)
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.3.0"
+    state.appversion = "2.3.1"
 }
 
