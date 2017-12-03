@@ -1429,6 +1429,7 @@ LOGDEBUG("Running convertVariables... Converting message variables")
     msgOut = msgIn.toUpperCase()
     
 // Weather Variables    
+
     msgOut = msgOut.replace(" N ", " North ")
     msgOut = msgOut.replace(" S ", " South ")
     msgOut = msgOut.replace(" E ", " East ")
@@ -1507,8 +1508,8 @@ LOGDEBUG("hour24 = $hour24 -  So converting hours to 24hr format")
      if (timemm == "0") {
      LOGDEBUG("timemm = 0  - So changing to o'clock")
      timemm = timemm.replace("0", "o'clock")
-    	  if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ") LOGDEBUG("Removing PM")}
-     else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ") LOGDEBUG("Removing AM")}
+    	  if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ")}
+     else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ")}
       }
 else if (timemm == "1") {timemm = timemm.replace("1", "01")LOGDEBUG("Changing minutes '1' to '01'")}  
 else if (timemm == "2") {timemm = timemm.replace("2", "02")LOGDEBUG("Changing minutes '2' to '02'")}  
