@@ -35,8 +35,11 @@
  *  Changes:
  *
  *
+<<<<<<< HEAD
  *  V2.3.1 - Debug
  *  V2.3.0 - Added %time%, %day%, %date%, %year% as variables used in messages
+=======
+>>>>>>> parent of dcff45b... 01/12/2017
  *  V2.2.0 - Removed requirement for allowed time & days - Now optional
  *  V2.1.0 - GUI revamp - Moved restrictions to their own page
  *  V2.0.1 - Debug
@@ -71,8 +74,9 @@ definition(
     description: "Child App for Message Automation",
      category: "Fun & Social",
 
-parent: "Cobra:Message Central",
-
+   
+    
+    parent: "Cobra:Message Central",
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
     iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
     iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png")
@@ -179,6 +183,7 @@ def mainPage() {
      section() {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
+<<<<<<< HEAD
                          " Child Version: $state.appversion - Copyright © 2017 Cobra\r\n\r\n" +
                       	 " Optional 'Variables' you can use in messages:\r\n\r\n" +
                          " %time%    - Replaced with current time in 12 or 24 hour format (Switchable)\r\n" +
@@ -194,6 +199,10 @@ def mainPage() {
     }     
     
     
+=======
+                         "Child Version: $state.appversion - Copyright © 2017 Cobra"
+    }             
+>>>>>>> parent of dcff45b... 01/12/2017
       section() {
         	speakerInputs()
             triggerInput()
@@ -213,9 +222,6 @@ def restrictionsPage() {
 def namePage() {
        dynamicPage(name: "namePage") {
        
-      section("Time Format") { 
-      input "hour24", "bool", title: "If using the %time% variable, On = 24hr format - Off = 12Hr format", required: true, defaultValue: false
-       }
             section("Automation name") {
                 label title: "Enter a name for this message automation", required: false
             }
@@ -237,26 +243,20 @@ def speakerInputs(){
     if(state.msgType == "Voice Message"){
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
-    
- 
 	}
 
 	else if(state.msgType == "Weather Report"){
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
-	
+
 	}
  }
 }
 
-// todo
-// Temperature trigger? (Above & below configured temp?)
-// motion trigger?
-
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Time", "Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time if Contact Open", "Contact - Open Too Long"]
   
 }
 
@@ -273,9 +273,7 @@ def restrictionInputs(){
     input "restrictions2", "bool", title: "Restrict Volume by Time", required: true, defaultValue: false, submitOnChange: true
     input "restrictions3", "bool", title: "Restrict by Presence Sensor", required: true, defaultValue: false, submitOnChange: true
      }
-
-    
-    
+     
      if(restrictions1){    
      	section("Time/Day") {
     input "fromTime", "time", title: "Allow messages from", required: false
@@ -543,9 +541,8 @@ if(state.selection == 'Contact - Open Too Long'){
 
 // Open Too Long
 def tooLongOpen(evt){
-state.deviceVar = openSensor
 state.openContact = evt.value
-state.actionVar = evt.value
+
 if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true){
 LOGDEBUG("tooLongOpen - Contact is open")
 openContactTimer1()
@@ -597,9 +594,7 @@ LOGDEBUG("tooLongOpen - SMS/Push Message - Sending Message: $msg")
 // Mode Change
 
 def modeChangeHandler(evt){
-state.deviceVar = newMode1
 state.modeNow = evt.value
-state.actionVar = evt.value
 LOGDEBUG("state.modeNow = $state.modeNow")
  state.msg1 = message1
  LOGDEBUG("state.msg1 = $state.msg1")
@@ -638,9 +633,8 @@ getWeatherReport()
 
 // Routines
 def routineChanged(evt) {
-state.deviceVar = routine1
 state.newRoutine = evt.displayName
-state.actionVar = evt.value
+
 state.msg1 = message1
 state.msgNow = 'oneNow'
 def routineToCheckRun = routine1
@@ -769,7 +763,6 @@ LOGDEBUG("AppGo = $state.appgo")
 
 // Time
 def timeTalkNow(evt){
-
 checkDay()
 state.timeOK = true
 
@@ -781,10 +774,7 @@ if(state.msgType == "Voice Message"){
 def msg = messageTime
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play: $msg"  )
-LOGDEBUG("Calling.. CompileMsg")
-compileMsg(msg)
-LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+speaker.speak(msg)
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -816,7 +806,6 @@ LOGDEBUG( "Cannot continue - Presence failed")
 
 // Time if Contact Open
 def contact1Handler (evt) {
-deviceVar = contact1
  state.contact1SW = evt.value 
 LOGDEBUG( "$contact1 = $evt.value")
 						 }
@@ -835,11 +824,7 @@ if(state.msgType == "Voice Message"){
 def msg = messageTime
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play: $msg"  )
-LOGDEBUG("Calling.. CompileMsg")
-compileMsg(msg)
-LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
-
+speaker.speak(msg)
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -872,8 +857,6 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
-state.deviceVar = switch1
-state.actionVar = evt.value
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -934,8 +917,6 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
 
 // Contact
 def contactTalkNow(evt){
-state.deviceVar = contactSensor
-state.actionVar = evt.value
 state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -992,8 +973,6 @@ LOGDEBUG("Contact - SMS/Push Message - Sending Message: $msg")
 
 // Water
 def waterTalkNow(evt){
-state.deviceVar = water1
-state.actionVar = evt.value
 state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -1047,8 +1026,6 @@ LOGDEBUG("Water - SMS/Push Message - Sending Message: $msg")
 
 // Presence
 def presenceTalkNow(evt){
-state.deviceVar = presenceSensor1
-state.actionVar = evt.value
 state.talkpresence = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -1096,9 +1073,9 @@ LOGDEBUG("Presence - SMS/Push Message - Sending Message: $msg")
 
 // Power 
 def powerTalkNow (evt){
-state.deviceVar = powerSensor
-state.actionVar = evt.value as double
-state.meterValue = evt.value as double
+
+
+ state.meterValue = evt.value as double
     
 	LOGDEBUG("$powerSensor shows $state.meterValue Watts")
     if(state.appgo == true){
@@ -1168,10 +1145,8 @@ state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true){
   if(state.msgType == "Voice Message"){
   checkVolume()
-	LOGDEBUG("Calling.. CompileMsg")
-compileMsg(state.msg1)
-LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+	LOGDEBUG("Speaking now...")
+	speaker.speak(state.msg1)
    	startTimerPower()  
     }
    if(state.msgType == "SMS/Push Message" && state.msg1 != null){
@@ -1220,24 +1195,19 @@ checkTime()
 LOGDEBUG("Calling.. CheckDay")
 checkDay()
 
-
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
 if(state.msgNow == 'oneNow' && state.timer1 == true && state.msg1 != null){
-LOGDEBUG("Calling.. CompileMsg")
-compileMsg(state.msg1)
-LOGDEBUG("All OK! - Playing message 1: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+LOGDEBUG("All OK! - Playing message 1: '$state.msg1'")
+speaker.speak(state.msg1)
 startTimer1()
 }
 else if(state.msgNow == 'twoNow'  && state.msg2 != null && state.timer2 == true){
-LOGDEBUG("Calling.. CompileMsg")
-compileMsg(state.msg2)
-LOGDEBUG("All OK! - Playing message 2: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+LOGDEBUG( "All OK! - Playing message 2: '$state.msg2'")
+speaker.speak(state.msg2)
 startTimer2()
 }
 
@@ -1295,17 +1265,15 @@ speaker.setLevel(state.volume)
 
 
 def sendMessage(msg) {
-compileMsg(msg)
-log.trace "SendMessage - $state.fullPhrase"
     if (location.contactBookEnabled) {
-        sendNotificationToContacts(state.fullPhrase, recipients)
+        sendNotificationToContacts(msg, recipients)
     }
     else {
         if (sms) {
-            sendSms(sms, state.fullPhrase)
+            sendSms(sms, msg)
         }
         if (pushNotification) {
-            sendPush(state.fullPhrase)
+            sendPush(msg)
         }
     }
 }
@@ -1405,26 +1373,22 @@ private getWeatherReport() {
 		def msg = sb.toString()
         msg = msg.replaceAll(/([0-9]+)C/,'$1 degrees')
         msg = msg.replaceAll(/([0-9]+)F/,'$1 degrees')
-        compileMsg(msg)	
-        speakWeatherNow()
+        compileMsg(msg)		
 	}
 	else {
 		msg = "Please set the location of your hub with the SmartThings mobile app, or enter a zip code to receive weather forecasts."
 		compileMsg(msg)
-        speakWeatherNow()
     }
 }
 
+
 private compileMsg(msg) {
-	LOGDEBUG("msg = ${msg}")
+	log.debug "msg = ${msg}"
 	convertVariables(msg)
 }
 
 
 private convertVariables(msgIn){
-
-LOGDEBUG("Running convertVariables... Converting message variables")
-
     def msgOut = ""
     msgOut = msgIn.toUpperCase()
     
@@ -1447,40 +1411,21 @@ LOGDEBUG("Running convertVariables... Converting message variables")
 // Day, Date, Time Variables    
 
 	if (msgOut.contains("%TIME%")) {msgOut = msgOut.toUpperCase().replace('%TIME%', getTime(false,true))}  
-    if (msgOut.contains("%DAY%")) {msgOut = msgOut.toUpperCase().replace('%DAY%', getDay() )}  
+	if (msgOut.contains("%DAY%")) {msgOut = msgOut.toUpperCase().replace('%DAY%', getDay() )}  
 	if (msgOut.contains("%DATE%")) {msgOut = msgOut.toUpperCase().replace('%DATE%', getdate() )}  
-    if (msgOut.contains("%YEAR%")) {msgOut = msgOut.toUpperCase().replace('%YEAR%', getyear() )}  
-    
-// Other Variables
-
-    
    state.fullPhrase = msgOut
-LOGDEBUG("convertVariables - Returning message: $state.fullPhrase")
-  return state.fullPhrase
+  log.trace "$state.fullPhrase"
+  speakWeatherNow()
   
-  
-}
-
-
-private getDeviceNow(){
-LOGDEBUG("Calling getDeviceNow... ")
-def dev1 = state.deviceVar
-LOGDEBUG("Device = $dev1 ")
-return dev1
-}
-private getActionNow(){
-LOGDEBUG("Calling getActionNow... ")
-def act1 = state.actionVar
-LOGDEBUG("Action = $act1 ")
-return act1
 }
 
 private getTime(includeSeconds, includeAmPm){
     def calendar = Calendar.getInstance()
 	calendar.setTimeZone(location.timeZone)
-	def timeHH = calendar.get(Calendar.HOUR) toString()
-    def timemm = calendar.get(Calendar.MINUTE) toString()
+	def timeHH = calendar.get(Calendar.HOUR) 
+    def timemm = calendar.get(Calendar.MINUTE)
     def timess = calendar.get(Calendar.SECOND)
+<<<<<<< HEAD
     def timeampm = calendar.get(Calendar.AM_PM) ? "pm" : "am" 
     
 LOGDEBUG("timeHH = $timeHH")
@@ -1529,10 +1474,13 @@ else if (timemm == "9") {timemm = timemm.replace("9", "09")LOGDEBUG("Changing mi
  
  LOGDEBUG("timeHH Now = $timeHH")
     def timestring = "${timeHH}  ${timemm}"
+=======
+    def timeampm = calendar.get(Calendar.AM_PM) ? "pm" : "am"
+    def timestring = "${timeHH}:${timemm}"
+>>>>>>> parent of dcff45b... 01/12/2017
     if (includeSeconds) { timestring += ":${timess}" }
     if (includeAmPm) { timestring += " ${timeampm}" }
-   LOGDEBUG("timestring = $timestring")
-    
+    log.trace "$timestring"
     return timestring
 }
 
@@ -1561,18 +1509,14 @@ private parseDate(date, epoch, type){
 }
 private getdate() {
     def month = parseDate("", now(), "MMMM")
+    def year = parseDate("", now(), "yyyy")
     def dayNum = parseDate("", now(), "dd")
-  LOGDEBUG("Date:  $dayNum $month")
+	
+    log.debug "Date:  $dayNum $month $year"
          
     return dayNum + " " + " " + month + " "
 }
-private getyear() {
-    def year = parseDate("", now(), "yyyy")
-	
-   LOGDEBUG("Year =  $year")
-         
-    return year
-}
+
 
 
 def speakWeatherNow(){
@@ -1596,6 +1540,9 @@ speaker.speak(state.fullPhrase)
 
 // App Version   *********************************************************************************
 def setAppVersion(){
+<<<<<<< HEAD
     state.appversion = "2.3.1"
+=======
+    state.appversion = "2.2.0"
+>>>>>>> parent of dcff45b... 01/12/2017
 }
-
