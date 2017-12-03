@@ -816,7 +816,7 @@ LOGDEBUG( "Cannot continue - Presence failed")
 
 // Time if Contact Open
 def contact1Handler (evt) {
-deviceVar = contact1
+// deviceVar = contact1
  state.contact1SW = evt.value 
 LOGDEBUG( "$contact1 = $evt.value")
 						 }
@@ -872,8 +872,8 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
-state.deviceVar = switch1
-state.actionVar = evt.value
+// state.deviceVar = switch1
+// state.actionVar = evt.value
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -934,8 +934,8 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
 
 // Contact
 def contactTalkNow(evt){
-state.deviceVar = contactSensor
-state.actionVar = evt.value
+// state.deviceVar = contactSensor
+// state.actionVar = evt.value
 state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -992,8 +992,8 @@ LOGDEBUG("Contact - SMS/Push Message - Sending Message: $msg")
 
 // Water
 def waterTalkNow(evt){
-state.deviceVar = water1
-state.actionVar = evt.value
+// state.deviceVar = water1
+// state.actionVar = evt.value
 state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -1047,8 +1047,8 @@ LOGDEBUG("Water - SMS/Push Message - Sending Message: $msg")
 
 // Presence
 def presenceTalkNow(evt){
-state.deviceVar = presenceSensor1
-state.actionVar = evt.value
+// state.deviceVar = presenceSensor1
+// state.actionVar = evt.value
 state.talkpresence = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -1096,10 +1096,10 @@ LOGDEBUG("Presence - SMS/Push Message - Sending Message: $msg")
 
 // Power 
 def powerTalkNow (evt){
-state.deviceVar = powerSensor
-state.actionVar = evt.value as double
+// state.deviceVar = powerSensor
+// state.actionVar = evt.value as double
 state.meterValue = evt.value as double
-    
+
 	LOGDEBUG("$powerSensor shows $state.meterValue Watts")
     if(state.appgo == true){
 	checkNow1()  
@@ -1112,7 +1112,7 @@ state.meterValue = evt.value as double
 def checkNow1(){
 if( actionType1 == false){
 LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
-    state.belowValue = belowThreshold 
+    state.belowValue = belowThreshold as int
     if (state.meterValue < state.belowValue) {
    def mydelay = 60 * delay1 
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
@@ -1122,7 +1122,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
       
 else if( actionType1 == true){
 LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
-    state.belowValue = belowThreshold
+    state.belowValue = belowThreshold as int
     if (state.meterValue > state.belowValue) {
    def mydelay = 60 * delay1
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
