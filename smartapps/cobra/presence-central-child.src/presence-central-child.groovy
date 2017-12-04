@@ -36,11 +36,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 22/11/2017
+ *  Last Update: 02/12/2017
  *
  *  Changes:
  *
- *
+ *  V1.3.0 - Updated 'Control a Switch' to give further options
  *  V1.2.5 - debug - Typo issue with sunrise/sunset which caused the app to only work when switched on.
  *  V1.2.4 - added sunset/sunrise/ restrictions (with offset)
  *  V1.2.3 - Added 'Flash Lights' to available responses
@@ -286,7 +286,8 @@ if (presenceAction) {
     
     else if(state.selection2 == "Control A Switch"){
      input "switch1", "capability.switch", title: "Select switch(s) to turn on/off", required: false, multiple: true 
-     input "presenceSensor1Action1", "bool", title: "\r\n \r\n On = Switch On when someone arrives, or is present at check time (Off when they leave or if not present) \r\n Off = Switch Off when someone arrives or is present at check time (On when they leave or if not present) ", required: true, defaultValue: true  
+     input "presenceSensor1Action1", "enum", title: "What action to take?",required: true, submitOnChange: true, options: ["On when arrived/present & Off when left/not present","Off when arrived/present & On when left/not present", "On when arrived/present (No Off)", "Off when arrived/present (No On)", "On when left/not present (No Off)", "Off when left/not present (No On)"]
+
     }
     
     
@@ -432,7 +433,7 @@ departureAction()
 
 
 def checkPresenceTimeNow(evt){
-LOGDEBUG("Activating timed check now....")
+LOGDEBUG("Activating timed check now.... ($checkTime)")
 if (state.privatePresence == "present"){
 arrivalAction()
 }
@@ -690,20 +691,38 @@ LOGDEBUG("Deciding on correct Arrival Action")
 
  if(state.selection2 == "Control A Switch"){
   LOGDEBUG("Decided to: 'Control A Switch' ")
-  
-  def actionType1 = presenceSensor1Action1
- LOGDEBUG("actionType1 = $actionType1") 
-  if (actionType1 == true){
+
+
+
+
+ if(presenceSensor1Action1){
+   state.actionType1 = presenceSensor1Action1
+   
+   if (state.actionType1 == "On when arrived/present & Off when left/not present"){
+   LOGDEBUG(" Action Type = On when arrived/present & Off when left/not present")
    LOGDEBUG("Switching on...")
-  switch1.on()
-  }
-  else  if (actionType1 == false){
-  LOGDEBUG("Switching off...")
-  switch1.off()
-  }
-  
-  
+		switch1.on()
+      }
+   else if (state.actionType1 == "Off when arrived/present & On when left/not present"){
+   LOGDEBUG(" Action Type = Off when arrived/present & On when left/not present")
+   LOGDEBUG("Switching off...")
+		switch1.off()
+      } 
+      
+   else if (state.actionType1 == "On when arrived/present (No Off)"){
+   LOGDEBUG(" Action Type = On when arrived/present (No Off)")
+   LOGDEBUG("Switching on...")
+		switch1.on()
+      } 
+   else if (state.actionType1 == "Off when arrived/present (No On)"){
+   LOGDEBUG(" Action Type = Off when arrived/present (No On)")
+   LOGDEBUG("Switching off...")
+		switch1.off()
+      }   
+      
+	}  
  }
+ 
 else if(state.selection2 == "Speak A Message"){
   LOGDEBUG("Decided to: 'Speak A Message' ")
   state.msg1 = message1
@@ -782,16 +801,35 @@ LOGDEBUG("Deciding on correct Departure Action")
  if(state.selection2 == "Control A Switch"){
  LOGDEBUG("Decided to: 'Control A Switch' ")
  
-  def actionType1 = presenceSensor1Action1
-  LOGDEBUG("actionType1 = $actionType1") 
-  if (actionType1 == false){
-  LOGDEBUG("Switching on...")
-  switch1.on()
-  }
-  else  if (actionType1 == true){
-  LOGDEBUG("Switching off...")
-  switch1.off()
-  }
+ 
+ // "On when arrived/present & Off when left/not present","Off when arrived/present & On when left/not present", "On when arrived/present (No Off)", "Off when arrived/present (No On)", "On when left/not present (No Off)", "Off when left/not present (No On)"]
+ 
+ if(presenceSensor1Action1){
+   state.actionType1 = presenceSensor1Action1
+   
+   if (state.actionType1 == "On when arrived/present & Off when left/not present"){
+   LOGDEBUG(" Action Type = On when arrived/present & Off when left/not present")
+   LOGDEBUG("Switching off...")
+		switch1.off()
+      }
+   else if (state.actionType1 == "Off when arrived/present & On when left/not present"){
+   LOGDEBUG(" Action Type = Off when arrived/present & On when left/not present")
+   LOGDEBUG("Switching on...")
+		switch1.on()
+      } 
+      
+   else if (state.actionType1 == "On when left/not present (No Off)"){
+   LOGDEBUG(" Action Type = On when left/not present (No Off)")
+   LOGDEBUG("Switching on...")
+		switch1.on()
+      } 
+   else if (state.actionType1 == "Off when left/not present (No On)"){
+   LOGDEBUG(" Action Type = Off when left/not present (No On)")
+   LOGDEBUG("Switching off...")
+		switch1.off()
+      }   
+      
+	}  
  }
 else if(state.selection2 == "Speak A Message"){
   LOGDEBUG("Decided to: 'Speak A Message' ")
@@ -1376,6 +1414,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.2.5"
+    state.appversion = "1.3.0"
 }
 // end app version *********************************************
