@@ -1434,6 +1434,10 @@ LOGDEBUG("Running convertVariables... Converting message variables")
     msgOut = msgOut.replace(" S ", " South ")
     msgOut = msgOut.replace(" E ", " East ")
     msgOut = msgOut.replace(" W ", " West ")
+    msgOut = msgOut.replace(" NE ", " Northeast ")
+    msgOut = msgOut.replace(" NW ", " Northwest ")
+    msgOut = msgOut.replace(" SE ", " Southeast ")
+    msgOut = msgOut.replace(" SW ", " Southwest ")
     msgOut = msgOut.replace(" NNE ", " North Northeast ")
     msgOut = msgOut.replace(" NNW ", " North Northwest ")
     msgOut = msgOut.replace(" SSE ", " South Southeast ")
@@ -1450,6 +1454,10 @@ LOGDEBUG("Running convertVariables... Converting message variables")
     if (msgOut.contains("%DAY%")) {msgOut = msgOut.toUpperCase().replace('%DAY%', getDay() )}  
 	if (msgOut.contains("%DATE%")) {msgOut = msgOut.toUpperCase().replace('%DATE%', getdate() )}  
     if (msgOut.contains("%YEAR%")) {msgOut = msgOut.toUpperCase().replace('%YEAR%', getyear() )}  
+//    if (msgOut.contains("%WEATHER%")) {msgOut = msgOut.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
+    
+    
+    
     
 // Other Variables
 

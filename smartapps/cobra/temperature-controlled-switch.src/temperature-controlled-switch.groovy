@@ -165,10 +165,10 @@ def inputPage(){
 		input "temperatureSensor1", "capability.temperatureMeasurement" , required: true
 	}
 	section("Desired Temperature") {
-		input "temperature1", "number", title: "Temperature?", required: true
+		input "temperature1", "number", title: "Temperature?", required: true, multiple: true
 	}
    	section("Control this switch/heater...") {
-		input "switch2", "capability.switch", required: true
+		input "switch2", "capability.switch", required: true, multiple: true
 	}
     section("Switch off if this contact is open (Optional)") {
 		input "contact1", "capability.contactSensor", required: false
