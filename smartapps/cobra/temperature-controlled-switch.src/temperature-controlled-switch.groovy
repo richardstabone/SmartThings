@@ -37,8 +37,8 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Created: 18/11/2017
- *  Last Update:
+ *  Created: 18/09/2017
+ *  Last Update:18/11/2017
  *
  *  Changes:
  *
@@ -62,7 +62,7 @@ definition(
     description: "This SmartApp was designed to control a heater or cooler - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
     category: "",
     
-    parent: "Cobra:Group Central",
+ //   parent: "Cobra:Group Central",
     
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
 	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
