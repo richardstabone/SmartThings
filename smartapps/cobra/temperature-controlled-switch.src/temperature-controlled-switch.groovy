@@ -1,12 +1,12 @@
 /**
- *  ****************  Temperature Controlled Switch.  ****************
+ *  ****************  Temperature Controlled Switch  ****************
  *
  *	Credits: 
  *	Parts of 'allOk()' code come from an app by: TIM SLAGLE
  *	Parts of 'LOGDEBUG()' code from an app by: BRIAN LOWRANCE
  *
  *  Design Usage:
- *  This was designed to control an electric heater - Switching on/off around desired room temperature
+ *  This was designed to control a heater or cooler - Switching on/off around desired temperature
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -37,12 +37,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Created: 18/09/2017
+ *  Created: 18/11/2017
  *  Last Update:
  *
  *  Changes:
  *
- *
+ *  V2.2.0 - Added ability to use for cooling as well as heating
  *  V2.1.1 - Debug
  *	V2.1.0 - Added optional contact sensor to turn off heating if windows opens
  *  V2.0.0 - Recode, debug & added time restrictions
@@ -59,10 +59,11 @@ definition(
     name: "Temperature_Controlled_Switch",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
+    description: "This SmartApp was designed to control a heater or cooler - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
     category: "",
     
-       
+    parent: "Cobra:Group Central",
+    
     iconUrl: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
 	iconX2Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
     iconX3Url: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
@@ -123,7 +124,7 @@ def introPage() {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/temp.png",
                   title: "Temperature Controlled Switch",
                   required: false,
-                 "This SmartApp was designed to control a heater - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch, contact sensor and configurable restrictions on when it can run"
+                 "This SmartApp was designed to control a heater or cooler - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch, contact sensor and configurable restrictions on when it can run"
                   }
                   
         section() {   
@@ -133,7 +134,8 @@ def introPage() {
     
     
 		section("Basic App Settings") {
-	input "switch1", "capability.switch", title: "Select switch to enable/disable app (Optional)", required: false, multiple: false 
+        input "appmode", "bool", title: " Select mode of operation\r\n Off = Heating - On = Cooling", required: true, submitOnChange: true, defaultValue: false    
+		input "switch1", "capability.switch", title: "Select switch to enable/disable app (Optional)", required: false, multiple: false 
     }  
 }
 
@@ -165,13 +167,13 @@ def inputPage(){
 		input "temperatureSensor1", "capability.temperatureMeasurement" , required: true
 	}
 	section("Desired Temperature") {
-		input "temperature1", "number", title: "Temperature?", required: true, multiple: true
+		input "temperature1", "number", title: "Temperature?", required: true
 	}
-   	section("Control this switch/heater...") {
+   	section("Control this Switch/Heater/Cooler...") {
 		input "switch2", "capability.switch", required: true, multiple: true
 	}
     section("Switch off if this contact is open (Optional)") {
-		input "contact1", "capability.contactSensor", required: false
+		input "contact1", "capability.contactSensor", required: false, multiple: true
 	}
      
  }
@@ -203,10 +205,10 @@ def contactHandler(evt){
 if (state.contact1Now == 'open'){
 	LOGDEBUG("Contact is $state.contact1Now - Switching off now...")
 switch2.off()
-	LOGDEBUG("$switch2 is OFF - Heating Disabled")
+	LOGDEBUG("$switch2 is OFF - Heating/Cooling Disabled")
 	}
  else{
-LOGDEBUG("Contact is $state.contact1Now - Heating Allowed")
+LOGDEBUG("Contact is $state.contact1Now - Heating/Cooling Allowed")
 
  }
 }
@@ -217,11 +219,11 @@ switch2.off()
 }
 
 def temperatureHandler(evt) {
-	if(allOk){
-    
+	if(allOk){    
 LOGDEBUG("All ok so can continue...")
 
-
+	if(appmode == false){
+	LOGDEBUG("Configured for heating mode")
 	def myTemp = temperature1
 	// Is reported temp below or above setting?	
 	if (evt.doubleValue < myTemp) {
@@ -233,8 +235,21 @@ LOGDEBUG("All ok so can continue...")
        LOGDEBUG( "Reported temperature is equal to, or above, $myTemp so deactivating $switch2")
 			switch2.off()
 	}
-
-
+}
+else if(appmode == true){
+LOGDEBUG("Configured for cooling mode")
+	def myTemp = temperature1
+	// Is reported temp below or above setting?	
+	if (evt.doubleValue > myTemp) {
+		
+		LOGDEBUG( "Reported temperature is above $myTemp so activating $switch2")
+			switch2.on()
+		}
+        else if (evt.doubleValue <= myTemp) {
+       LOGDEBUG( "Reported temperature is equal to, or below, $myTemp so deactivating $switch2")
+			switch2.off()
+	}
+}
 
 
 
@@ -242,8 +257,7 @@ LOGDEBUG("All ok so can continue...")
 	else if(!allOk){
 LOGDEBUG(" Not ok - one or more conditions are not met")
 LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $enableOk")
-// switch2.off()
-// LOGDEBUG("$switch2 is OFF")
+
 }
 }
 
@@ -371,5 +385,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.1.1"
+    state.appversion = "2.2.0"
 }
