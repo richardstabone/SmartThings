@@ -292,11 +292,11 @@ private getcontactOk() {
 	result
     
 
-result
 }
 
 
-private getModeOk() {
+private getmodeOk() {
+	
 	def result = !modes || modes.contains(location.mode)
 	LOGDEBUG("modeOk = $result")
 	result
@@ -327,6 +327,10 @@ private getTimeOk() {
 		def stop = timeToday(ending).time
 		result = start < stop ? currTime >= start && currTime <= stop : currTime <= stop || currTime >= start
 	}
+    else if (!starting && !ending) {
+    LOGDEBUG("No time restrictions configured... Continue")
+//    def result = true
+    }
 	LOGDEBUG("timeOk = $result")
 	result
 }
