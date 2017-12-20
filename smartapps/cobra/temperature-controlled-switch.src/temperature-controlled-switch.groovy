@@ -42,6 +42,7 @@
  *
  *  Changes:
  *
+ *  V2.2.1 - Debug installation issue where app would not install if a time was not set
  *  V2.2.0 - Added ability to use for cooling as well as heating
  *  V2.1.1 - Debug
  *	V2.1.0 - Added optional contact sensor to turn off heating if windows opens
@@ -56,10 +57,10 @@
 
 
 definition(
-    name: "Temperature_Controlled_Switch",
+    name: "Temperature Controlled Switch",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "This SmartApp was designed to control a heater or cooler - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can run",
+    description: "This SmartApp was designed to control a heater or cooler - turning on/off with  varying temperatures. \r\nIt has an optional 'override' switch and configurable restrictions on when it can or cannot run",
     category: "",
     
  //   parent: "Cobra:Group Central",
@@ -107,8 +108,8 @@ def initialize() {
 // **********************************************************************************
 // Others...
 	subscribe(temperatureSensor1, "temperature", temperatureHandler)
-	schedule(ending, offNow)
-    subscribe(contact1, "contact", contactHandler)
+    if(ending){	schedule(ending, offNow) }
+    if(contact1){ subscribe(contact1, "contact", contactHandler)}
 }
 
 
@@ -389,5 +390,5 @@ def LOGDEBUG(txt){
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.2.0"
+    state.appversion = "2.2.1"
 }
