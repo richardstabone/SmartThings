@@ -35,7 +35,9 @@
  *  Changes:
  *
  *
- *  V2.3.1 - Debug
+ *  V2.4.0 - Revamped Weather Report - converted it to variable %weather%
+ *  V2.3.2 - Changed %day% variable to correct English
+ *  V2.3.1 - Added option to use 24hr format
  *  V2.3.0 - Added %time%, %day%, %date%, %year% as variables used in messages
  *  V2.2.0 - Removed requirement for allowed time & days - Now optional
  *  V2.1.0 - GUI revamp - Moved restrictions to their own page
@@ -181,10 +183,11 @@ def mainPage() {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                          " Child Version: $state.appversion - Copyright © 2017 Cobra\r\n\r\n" +
                       	 " Optional 'Variables' you can use in messages:\r\n\r\n" +
-                         " %time%    - Replaced with current time in 12 or 24 hour format (Switchable)\r\n" +
-                         " %day%     - Replaced with current day of the week\r\n" +
-                         " %date%    - Replaced with current day number & month\r\n" +
-                         " %year%    - Replaced with the current year\r\n" 
+                         " %time%			- Replaced with current time in 12 or 24 hour format (Switchable)\r\n" +
+                         " %day%			- Replaced with current day of the week\r\n" +
+                         " %date%			- Replaced with current day number & month\r\n" +
+                         " %year%			- Replaced with the current year\r\n" +
+                         " %weather%		- Replaced with the current weather forcast"
                          
          // Look at adding additional variables:                
                   //       +
@@ -230,7 +233,7 @@ def namePage() {
 // defaults
 def speakerInputs(){	
 	input "enableSwitch", "capability.switch", title: "Select switch Enable/Disable this message (Optional)", required: false, multiple: false 
-    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message", "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"]
+    input "messageAction", "enum", title: "Select Message Type", required: true, submitOnChange: true,  options: ["Voice Message", "SMS/Push Message"]
 
  if (messageAction){
  state.msgType = messageAction
@@ -241,11 +244,7 @@ def speakerInputs(){
  
 	}
 
-	else if(state.msgType == "Weather Report"){
-	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
-	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
 	
-	}
  }
 }
 
@@ -328,10 +327,7 @@ if(state.selection == 'Switch'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     }
     }
-	if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    input "weatherSwitchMode", "bool", title: "   On = Play when switched on  \r\n   Off = Play when switched off ", required: true, defaultValue: true
-       }
+	
     
 
 }    
@@ -357,10 +353,7 @@ else if(state.selection == 'Water'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }
-    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    input "weatherSwitchMode", "bool", title: "   On = Play when wet  \r\n   Off = Play when dry ", required: true, defaultValue: true
-    	}
+   
     }   
 
 else if(state.selection == 'Presence'){
@@ -401,10 +394,7 @@ else if(state.selection == 'Contact'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }   
-    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    input "weatherSwitchMode", "bool", title: "   On = Play when open  \r\n   Off = Play when closed ", required: true, defaultValue: true
-        }
+   
    
 } 
 
@@ -441,9 +431,7 @@ else if(state.selection == 'Time'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     }  
-    if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-    }
+   
     
      
 }   
@@ -482,9 +470,7 @@ else if(state.selection == 'Mode Change'){
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     } 
-     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-       }
+   
 	} 
     
 else if(state.selection == 'Routine'){
@@ -506,10 +492,7 @@ else if(state.selection == 'Routine'){
     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
     	}
     } 
-     if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-    input "message1", "text", title: "Message to play before weather report",  required: true, defaultValue: "It's %time% on %day%, %date% ,,, Here is your weather forcast for today,,,"
-   
-    }
+    
 } 
 if(state.selection == 'Contact - Open Too Long'){
 	input "openSensor", "capability.contactSensor", title: "Select contact sensor to trigger message", required: false, multiple: false 
@@ -597,9 +580,9 @@ LOGDEBUG("tooLongOpen - SMS/Push Message - Sending Message: $msg")
 // Mode Change
 
 def modeChangeHandler(evt){
-state.deviceVar = newMode1
+//state.deviceVar = newMode1
 state.modeNow = evt.value
-state.actionVar = evt.value
+//state.actionVar = evt.value
 LOGDEBUG("state.modeNow = $state.modeNow")
  state.msg1 = message1
  LOGDEBUG("state.msg1 = $state.msg1")
@@ -627,20 +610,16 @@ LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
     
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Mode - Weather Report")
-checkVolume()
-getWeatherReport()
-}    
+
    }
 }
 }
 
 // Routines
 def routineChanged(evt) {
-state.deviceVar = routine1
+//state.deviceVar = routine1
 state.newRoutine = evt.displayName
-state.actionVar = evt.value
+//state.actionVar = evt.value
 state.msg1 = message1
 state.msgNow = 'oneNow'
 def routineToCheckRun = routine1
@@ -663,11 +642,6 @@ def msg = message1
 LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Routine - Weather Report")
-checkVolume()
-getWeatherReport()
-}
 
  }
 
@@ -793,11 +767,6 @@ LOGDEBUG("Time - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
 	} 
     
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Time - Weather Report")
-checkVolume()
-getWeatherReport()
-}
 
 }
 
@@ -872,27 +841,11 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
-// state.deviceVar = switch1
-// state.actionVar = evt.value
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Switch - Weather Report")
-if (weatherSwitchMode == true && state.talkswitch == 'on'){
-checkVolume()
-getWeatherReport()
-}
-if (weatherSwitchMode == false && state.talkswitch == 'off'){
-checkVolume
-getWeatherReport()
-}
 
-
-
-
-}
 if(state.msgType == "Voice Message"){
 LOGDEBUG("Switch - Voice Message")
 
@@ -934,23 +887,10 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
 
 // Contact
 def contactTalkNow(evt){
-// state.deviceVar = contactSensor
-// state.actionVar = evt.value
 state.talkcontact = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Contact - Weather Report")
-if (weatherSwitchMode == true && state.talkcontact == 'open'){
-checkVolume()
-getWeatherReport()
-}
-if (weatherSwitchMode == false && state.talkcontact == 'closed'){
-checkVolume()
-getWeatherReport()
-}
-}
 if(state.msgType == "Voice Message"){
 	if(state.talkcontact == 'open'){
 state.msgNow = 'oneNow'
@@ -998,17 +938,6 @@ state.talkwater = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
-if(state.msgType == "Weather Report\r\n(Only for Switch, Water, Contact, Mode, Routine & Time)"){
-LOGDEBUG("Water - Weather Report")
-if (weatherSwitchMode == true && state.talkwater == 'wet'){
-checkVolume()
-getWeatherReport()
-}
-if (weatherSwitchMode == false && state.talkwater == 'dry'){
-checkVolume()
-getWeatherReport()
-}
-}		
 
 if(state.msgType == "Voice Message"){
         
@@ -1392,8 +1321,7 @@ private getWeatherReport() {
 		def isMetric = location.temperatureScale == "C"
         def sb = new StringBuilder()
       	def weather = getWeatherFeature("forecast", zipCode)
-        def inputMsg = message1
-            sb << inputMsg 
+
 			if (isMetric) {
         		sb << weather.forecast.txt_forecast.forecastday[0].fcttext_metric 
         	}
@@ -1402,22 +1330,32 @@ private getWeatherReport() {
         	}
         
         
-		def msg = sb.toString()
-        msg = msg.replaceAll(/([0-9]+)C/,'$1 degrees')
-        msg = msg.replaceAll(/([0-9]+)F/,'$1 degrees')
-        compileMsg(msg)	
-        speakWeatherNow()
+		def msgWeather = sb.toString()
+        msgWeather = msgWeather.replaceAll(/([0-9]+)C/,'$1 degrees')
+        msgWeather = msgWeather.replaceAll(/([0-9]+)F/,'$1 degrees')
+    return msgWeather
+   
+   
 	}
 	else {
-		msg = "Please set the location of your hub with the SmartThings mobile app, or enter a zip code to receive weather forecasts."
-		compileMsg(msg)
-        speakWeatherNow()
+		msgWeather = "Please set the location of your hub with the SmartThings mobile app, or enter a zip code to receive weather forecasts."
+	
     }
 }
 
 private compileMsg(msg) {
-	LOGDEBUG("msg = ${msg}")
-	convertVariables(msg)
+	LOGDEBUG("compileMsg - msg = ${msg}")
+    def msgComp = ""
+    msgComp = msg.toUpperCase()
+    LOGDEBUG("msgComp = $msgComp")
+    
+    if (msgComp.contains("%TIME%")) {msgComp = msgComp.toUpperCase().replace('%TIME%', getTime(false,true))}  
+    if (msgComp.contains("%DAY%")) {msgComp = msgComp.toUpperCase().replace('%DAY%', getDay() )}  
+	if (msgComp.contains("%DATE%")) {msgComp = msgComp.toUpperCase().replace('%DATE%', getdate() )}  
+    if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
+    if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
+    
+    convertVariables(msgComp)
 }
 
 
@@ -1448,19 +1386,6 @@ LOGDEBUG("Running convertVariables... Converting message variables")
     msgOut = msgOut.replace(" WSW ", " West Southwest ")
     msgOut = msgOut.replace(" MPH", " Miles Per Hour")
     
-// Day, Date, Time Variables    
-
-	if (msgOut.contains("%TIME%")) {msgOut = msgOut.toUpperCase().replace('%TIME%', getTime(false,true))}  
-    if (msgOut.contains("%DAY%")) {msgOut = msgOut.toUpperCase().replace('%DAY%', getDay() )}  
-	if (msgOut.contains("%DATE%")) {msgOut = msgOut.toUpperCase().replace('%DATE%', getdate() )}  
-    if (msgOut.contains("%YEAR%")) {msgOut = msgOut.toUpperCase().replace('%YEAR%', getyear() )}  
-//    if (msgOut.contains("%WEATHER%")) {msgOut = msgOut.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
-    
-    
-    
-    
-// Other Variables
-
     
    state.fullPhrase = msgOut
 LOGDEBUG("convertVariables - Returning message: $state.fullPhrase")
@@ -1470,18 +1395,7 @@ LOGDEBUG("convertVariables - Returning message: $state.fullPhrase")
 }
 
 
-private getDeviceNow(){
-LOGDEBUG("Calling getDeviceNow... ")
-def dev1 = state.deviceVar
-LOGDEBUG("Device = $dev1 ")
-return dev1
-}
-private getActionNow(){
-LOGDEBUG("Calling getActionNow... ")
-def act1 = state.actionVar
-LOGDEBUG("Action = $act1 ")
-return act1
-}
+
 
 private getTime(includeSeconds, includeAmPm){
     def calendar = Calendar.getInstance()
@@ -1493,7 +1407,7 @@ private getTime(includeSeconds, includeAmPm){
     
 LOGDEBUG("timeHH = $timeHH")
  
- if (timeHH == "0") {timeHH = timeHH.replace("0", "12")}   //  Changes hours so it doesn't say 0 for 12 midday
+ if (timeHH == "0") {timeHH = timeHH.replace("0", "12")}   //  Changes hours so it doesn't say 0 for 12 midday/midnight
  if (timeHH == "10") {timeHH = timeHH.replace("10", "TEN")}   //  Changes 10 to TEN as there seems to be an issue with it saying 100 for 10 o'clock
   
  if (hour24 == true){ // Convert to 24hr clock if selected
@@ -1511,23 +1425,30 @@ LOGDEBUG("hour24 = $hour24 -  So converting hours to 24hr format")
  if (timeHH == "10" && timeampm.contains ("pm")){timeHH = timeHH.replace("10", "22")}
  if (timeHH == "11" && timeampm.contains ("pm")){timeHH = timeHH.replace("11", "23")}
  timeampm = timeampm.replace("pm", " ")
+  if (timemm == "0") {
+     LOGDEBUG("timemm = 0  - So changing to 'hundred hours")
+     timemm = timemm.replace("0", " hundred hours")
+    	  if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ")}
+     else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ")}
+      }
  }
  
-     if (timemm == "0") {
+     if (timemm == "0" && hour24 == false) {
      LOGDEBUG("timemm = 0  - So changing to o'clock")
      timemm = timemm.replace("0", "o'clock")
     	  if(timeampm.contains ("pm")){timeampm = timeampm.replace("pm", " ")}
      else if(timeampm.contains ("am")){timeampm = timeampm.replace("am", " ")}
       }
-else if (timemm == "1") {timemm = timemm.replace("1", "01")LOGDEBUG("Changing minutes '1' to '01'")}  
-else if (timemm == "2") {timemm = timemm.replace("2", "02")LOGDEBUG("Changing minutes '2' to '02'")}  
-else if (timemm == "3") {timemm = timemm.replace("3", "03")LOGDEBUG("Changing minutes '3' to '03'")}  
-else if (timemm == "4") {timemm = timemm.replace("4", "04")LOGDEBUG("Changing minutes '4' to '04'")}  
-else if (timemm == "5") {timemm = timemm.replace("5", "05")LOGDEBUG("Changing minutes '5' to '05'")}  
-else if (timemm == "6") {timemm = timemm.replace("6", "06")LOGDEBUG("Changing minutes '6' to '06'")}  
-else if (timemm == "7") {timemm = timemm.replace("7", "07")LOGDEBUG("Changing minutes '7' to '07'")}  
-else if (timemm == "8") {timemm = timemm.replace("8", "08")LOGDEBUG("Changing minutes '8' to '08'")}  
-else if (timemm == "9") {timemm = timemm.replace("9", "09")LOGDEBUG("Changing minutes '9' to '09'")}  
+      
+else if (timemm == "1") {timemm = timemm.replace("1", "01")}
+else if (timemm == "2") {timemm = timemm.replace("2", "02")}
+else if (timemm == "3") {timemm = timemm.replace("3", "03")}
+else if (timemm == "4") {timemm = timemm.replace("4", "04")}  
+else if (timemm == "5") {timemm = timemm.replace("5", "05")}  
+else if (timemm == "6") {timemm = timemm.replace("6", "06")}  
+else if (timemm == "7") {timemm = timemm.replace("7", "07")}  
+else if (timemm == "8") {timemm = timemm.replace("8", "08")}  
+else if (timemm == "9") {timemm = timemm.replace("9", "09")}  
 
          
  
@@ -1553,6 +1474,7 @@ private getDay(){
 		df.setTimeZone(TimeZone.getTimeZone("America/New_York"))
 	}
 	def day = df.format(new Date())
+    
     return day
 }
 
@@ -1571,7 +1493,41 @@ private getdate() {
     def month = parseDate("", now(), "MMMM")
     def dayNum = parseDate("", now(), "dd")
   LOGDEBUG("Date:  $dayNum $month")
-         
+    
+    LOGDEBUG("dayNum = $dayNum - Converting into 'proper' English")
+    if(dayNum == "1"){dayNum = dayNum.replace("1","THE FIRST OF")}
+	if(dayNum == "2"){dayNum = dayNum.replace("2","THE SECOND OF")}
+    if(dayNum == "3"){dayNum = dayNum.replace("3","THE THIRD OF")}
+    if(dayNum == "4"){dayNum = dayNum.replace("4","THE FOURTH OF")}
+    if(dayNum == "5"){dayNum = dayNum.replace("5","THE FIFTH OF")}
+    if(dayNum == "6"){dayNum = dayNum.replace("6","THE SIXTH OF")}
+    if(dayNum == "7"){dayNum = dayNum.replace("7","THE SEVENTH OF")}
+    if(dayNum == "8"){dayNum = dayNum.replace("8","THE EIGHTH OF")}
+    if(dayNum == "9"){dayNum = dayNum.replace("9","THE NINTH OF")}
+    if(dayNum == "10"){dayNum = dayNum.replace("10","THE TENTH OF")}
+    if(dayNum == "11"){dayNum = dayNum.replace("11","THE ELEVENTH OF")}
+    if(dayNum == "12"){dayNum = dayNum.replace("12","THE TWELTH OF")}
+    if(dayNum == "13"){dayNum = dayNum.replace("13","THE THIRTEENTH OF")}
+    if(dayNum == "14"){dayNum = dayNum.replace("14","THE FOURTEENTH OF")}
+    if(dayNum == "15"){dayNum = dayNum.replace("15","THE FIFTEENTH OF")}
+    if(dayNum == "16"){dayNum = dayNum.replace("16","THE SIXTEENTH OF")}
+    if(dayNum == "17"){dayNum = dayNum.replace("17","THE SEVENTEENTH OF")}
+    if(dayNum == "18"){dayNum = dayNum.replace("18","THE EIGHTEENTH OF")}
+    if(dayNum == "19"){dayNum = dayNum.replace("19","THE NINETEENTH OF")}
+    if(dayNum == "20"){dayNum = dayNum.replace("20","THE TWENTIETH OF")}
+    if(dayNum == "21"){dayNum = dayNum.replace("21","THE TWENTY FIRST OF")}
+    if(dayNum == "22"){dayNum = dayNum.replace("22","THE TWENTY SECOND OF")} 
+    if(dayNum == "23"){dayNum = dayNum.replace("23","THE TWENTY THIRD OF")}
+    if(dayNum == "24"){dayNum = dayNum.replace("24","THE TWENTY FOURTH OF")}
+    if(dayNum == "25"){dayNum = dayNum.replace("21","THE TWENTY FIFTH OF")}
+    if(dayNum == "26"){dayNum = dayNum.replace("26","THE TWENTY SIXTH OF")}
+    if(dayNum == "27"){dayNum = dayNum.replace("27","THE TWENTY SEVENTH OF")}
+    if(dayNum == "28"){dayNum = dayNum.replace("28","THE TWENTY EIGHTH OF")}
+    if(dayNum == "29"){dayNum = dayNum.replace("29","THE TWENTY NINTH OF")}
+    if(dayNum == "30"){dayNum = dayNum.replace("30","THE THIRTIETH OF")}
+    if(dayNum == "31"){dayNum = dayNum.replace("21","THE THIRTY FIRST OF")}
+     LOGDEBUG("dayNum is now: $dayNum")  
+    
     return dayNum + " " + " " + month + " "
 }
 private getyear() {
@@ -1583,27 +1539,13 @@ private getyear() {
 }
 
 
-def speakWeatherNow(){
-if(state.appgo == true){
-LOGDEBUG("speakWeatherNow - Calling.. CheckTime")
-checkTime()
-LOGDEBUG("speakWeatherNow - Calling.. CheckDay")
-checkDay()
-LOGDEBUG("speakWeatherNow - Calling.. CheckVolume")
-checkVolume()
 
-LOGDEBUG("speakWeatherNow - state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.presenceRestriction = $state.presenceRestriction - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 
-if (state.dayCheck == true && state.timeOK == true && state.presenceRestriction == true){
-LOGDEBUG("$state.fullPhrase")
-speaker.speak(state.fullPhrase)
-	}
-}
-}
+
 
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.3.1"
+    state.appversion = "2.4.0"
 }
 
