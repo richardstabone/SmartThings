@@ -30,7 +30,7 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 04/12/2017
+ *  Last Update: 22/12/2017
  *
  *  Changes:
  *
@@ -189,7 +189,7 @@ def mainPage() {
                          " %year%			- Replaced with the current year\r\n" +
                          " %weather%		- Replaced with the current weather forcast"
                          
-         // Look at adding additional variables:                
+         // Look at possibly adding additional variables:                
                   //       +
                   //       " %device%  - Replaced with the name of the triggering device\r\n" +
                  //        " %action%  - Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
