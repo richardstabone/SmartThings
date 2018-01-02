@@ -1355,13 +1355,13 @@ private compileMsg(msg) {
     if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
     
-    convertVariables(msgComp)
+    convertWeatherMessage(msgComp)
 }
 
 
-private convertVariables(msgIn){
+private convertWeatherMessage(msgIn){
 
-LOGDEBUG("Running convertVariables... Converting message variables")
+LOGDEBUG("Running convertWeatherMessage... Converting weather message to English...")
 
     def msgOut = ""
     msgOut = msgIn.toUpperCase()
@@ -1385,10 +1385,10 @@ LOGDEBUG("Running convertVariables... Converting message variables")
     msgOut = msgOut.replace(" WNW ", " West Northeast ")
     msgOut = msgOut.replace(" WSW ", " West Southwest ")
     msgOut = msgOut.replace(" MPH", " Miles Per Hour")
-    
+    msgOut = msgOut.replace(" PRECIP", " PRECIPITATION")
     
    state.fullPhrase = msgOut
-LOGDEBUG("convertVariables - Returning message: $state.fullPhrase")
+LOGDEBUG("convertWeatherMessage - Returning message: $state.fullPhrase")
   return state.fullPhrase
   
   

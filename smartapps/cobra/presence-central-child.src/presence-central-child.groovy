@@ -40,6 +40,8 @@
  *
  *  Changes:
  *
+ *
+ *  V1.4.0 - Added 'Present' if everyone is at home trigger
  *  V1.3.0 - Updated 'Control a Switch' to give further options
  *  V1.2.5 - debug - Typo issue with sunrise/sunset which caused the app to only work when switched on.
  *  V1.2.4 - added sunset/sunrise/ restrictions (with offset)
@@ -120,7 +122,12 @@ def initialize() {
 		subscribe(presenceSensor3, "presence", group2Handler) 
         
     }
-
+		else if(trigger == "Group 3 \r\n('Present' if everyone is at home)"){
+		LOGDEBUG( "Trigger is:  '$trigger'")
+        setPresence3()
+		subscribe(presenceSensor5, "presence", group3Handler) 
+        
+    }
 
 		else if(trigger == "Check for presence at a certain time"){
 		LOGDEBUG( "Trigger is:  '$trigger'")
@@ -236,7 +243,7 @@ def basicInputs(){
 }
 
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger actions?",required: true, submitOnChange: true, options: ["Single Presence Sensor", "Group 1 \r\n(Anyone arrives or leaves = changed presence)", "Group 2 \r\n('Present' if anyone is at home)", "Check for presence at a certain time"]
+   input "trigger", "enum", title: "How to trigger actions?",required: true, submitOnChange: true, options: ["Single Presence Sensor", "Group 1 \r\n(Anyone arrives or leaves = changed presence)", "Group 2 \r\n('Present' if anyone is at home)", "Group 3 \r\n('Present' if everyone is at home)", "Check for presence at a certain time"]
   
 }
 
@@ -254,6 +261,10 @@ def presenceActions(){
     
 	else if(state.selection1 == "Group 2 \r\n('Present' if anyone is at home)"){
 	input "presenceSensor3", "capability.presenceSensor", title: "Select presence sensors to trigger action", multiple: true, required: false
+    }
+    
+    else if(state.selection1 == "Group 3 \r\n('Present' if everyone is at home)"){
+	input "presenceSensor5", "capability.presenceSensor", title: "Select presence sensors to trigger action", multiple: true, required: false
     }
     
     else if(state.selection1 == "Check for presence at a certain time"){
@@ -573,6 +584,14 @@ def group1Handler(evt) {
 
 def group2Handler(evt) {
 	setPresence2()
+}
+
+
+// end group 2 ========================================================
+// Group 2 ============================================================
+
+def group3Handler(evt) {
+	setPresence3()
 }
 
 
@@ -963,6 +982,45 @@ def	presentCounter2 = 0
 }
 
 // end group 2 actions ==================================
+
+
+// Group 3 Actions ======================================
+
+def setPresence3(){
+def	presentCounter3 = 0
+        presenceSensor5.each {
+    	if (it.currentValue("presence") == "not present") {
+        	presentCounter3++
+        }
+    }
+    
+    log.debug("Number of sensors NOT present: ${presentCounter3}")
+    
+    if (presentCounter3 > 0) {
+    	if (state.privatePresence3 != "not present") {
+            state.privatePresence3 = "not present"
+            state.privatePresence = "not present"
+            log.debug("Arrived - At least one sensor left - set group to '$state.privatePresence'")
+            departureAction ()
+             
+        }
+    } else {
+    	if (state.privatePresence3 != "present") {
+            state.privatePresence3 = "present"
+            state.privatePresence = "present"
+            log.debug("Departed - All sensors present - set group to '$state.privatePresence'")
+            arrivalAction ()
+        }
+    }
+}
+
+// end group 3 actions ==================================
+
+
+
+
+
+
 
 // Mode Actions  ======================================
 
@@ -1414,6 +1472,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.3.0"
+    state.appversion = "1.4.0"
 }
 // end app version *********************************************
