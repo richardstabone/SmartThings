@@ -34,7 +34,7 @@
  *
  *  Changes:
  *
- *
+ *  V2.6.0 - Added 'Temperature' trigger ability for above or below configured temperature
  *  V2.5.0 - Added 'Motion' trigger ability for motion 'active' or 'inactive'
  *  V2.4.1 - Debug issue with presence restrictions not working correctly
  *  V2.4.0 - Revamped Weather Report - converted it to variable %weather%
@@ -152,6 +152,12 @@ else if(trigger == 'Motion'){
 subscribe(motionSensor, "motion" , motionTalkNow) 
      
 	}    
+    
+else if(trigger == 'Temperature'){
+    LOGDEBUG("trigger is $trigger")
+subscribe(tempSensor, "temperature" , tempTalkNow) 
+     
+	}    
 else if(trigger == 'Routine'){
     LOGDEBUG("trigger is $trigger")
  subscribe(location, "routineExecuted", routineChanged)
@@ -255,14 +261,12 @@ def speakerInputs(){
  }
 }
 
-// todo
-// Temperature trigger? (Above & below configured temp?)
-// motion trigger?
+
 
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Motion", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Motion", "Temperature", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
   
 }
 
@@ -443,7 +447,24 @@ else if(state.selection == 'Motion'){
     	}
     }    
 }
-
+else if(state.selection == 'Temperature'){
+	input "tempSensor",  "capability.temperatureMeasurement" , title: "Select Temperature Sensor", required: false, multiple: false 
+    input "temperature1", "number", title: "Set Temperature", required: true
+    input "tempActionType", "bool", title: "Select Temperature Sensor action type: \r\n \r\n On = Alert when above set temperature  \r\n Off = Alert when below set temperature", required: true, defaultValue: false
+	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
+  if(state.msgType == "Voice Message"){
+    input "message1", "text", title: "Message to play ...",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    }
+  if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+}
 
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
@@ -549,6 +570,49 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 // Handlers
+
+// Temperature
+def tempTalkNow(evt){
+state.tempStatus1 = evt.doubleValue
+state.msg1 = message1
+state.msgNow = 'oneNow'
+def myTemp = temperature1
+
+if(tempActionType == true && state.tempStatus1 > myTemp){
+
+ if(state.msgType == "Voice Message"){
+    talkSwitch()
+   }          
+  
+      
+  else if(state.msgType == "SMS/Push Message"){
+	def msg = message1
+LOGDEBUG("TempTalkNow - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	}
+
+
+	}
+if(tempActionType == false && state.tempStatus1 < myTemp){
+ if(state.msgType == "Voice Message"){
+    talkSwitch()
+   }          
+  
+      
+  else if(state.msgType == "SMS/Push Message"){
+	def msg = message1
+LOGDEBUG("TempTalkNow - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	}
+
+	}
+
+
+}
+
+
+
+
 
 // Motion
 
@@ -1641,6 +1705,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.5.0"
+    state.appversion = "2.6.0"
 }
 
