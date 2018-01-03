@@ -35,7 +35,7 @@
  *  Changes:
  *
  *
- *
+ *  V2.5.0 - Added 'Motion' trigger ability for motion 'active' or 'inactive'
  *  V2.4.1 - Debug issue with presence restrictions not working correctly
  *  V2.4.0 - Revamped Weather Report - converted it to variable %weather%
  *  V2.3.2 - Changed %day% variable to correct English
@@ -147,6 +147,11 @@ else if(trigger == 'Power'){
 subscribe(powerSensor, "power", powerTalkNow) 
      
 	}
+else if(trigger == 'Motion'){
+    LOGDEBUG("trigger is $trigger")
+subscribe(motionSensor, "motion" , motionTalkNow) 
+     
+	}    
 else if(trigger == 'Routine'){
     LOGDEBUG("trigger is $trigger")
  subscribe(location, "routineExecuted", routineChanged)
@@ -257,7 +262,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Motion", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
   
 }
 
@@ -420,6 +425,26 @@ else if(state.selection == 'Power'){
     }    
 } 
 
+
+else if(state.selection == 'Motion'){
+	input "motionSensor",  "capability.motionSensor", title: "Select Motion Sensor", required: false, multiple: false 
+    input "motionActionType", "bool", title: "Select Motion Sensor action type: \r\n \r\n On = Alert when motion 'Active'  \r\n Off = Alert when motion 'Inactive'", required: true, defaultValue: false
+	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
+  if(state.msgType == "Voice Message"){
+    input "message1", "text", title: "Message to play ...",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    }
+  if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send...",  required: false
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    	}
+    }    
+}
+
+
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
   if(state.msgType == "Voice Message"){
@@ -524,6 +549,47 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 // Handlers
+
+// Motion
+
+def motionTalkNow(evt){
+state.motionStatus1 = evt.value
+state.msg1 = message1
+state.msgNow = 'oneNow'
+
+if(motionActionType == true && state.motionStatus1 == 'active'){
+ LOGDEBUG( "MotionTalkNow... Sensor Active - Configured to alert on active motion sensor")
+    
+    if(state.msgType == "Voice Message"){
+    talkSwitch()
+   }          
+  
+      
+  else if(state.msgType == "SMS/Push Message"){
+	def msg = message1
+LOGDEBUG("MotionTalkNow - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	}
+}
+
+if(motionActionType == false && state.motionStatus1 == 'inactive'){
+ LOGDEBUG( "MotionTalkNow... Sensor Inactive - Configured to alert on inactive motion sensor")
+    
+    if(state.msgType == "Voice Message"){
+    talkSwitch()
+   }          
+  
+      
+  else if(state.msgType == "SMS/Push Message"){
+	def msg = message1
+LOGDEBUG("MotionTalkNow - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+	}
+}
+
+
+
+}
 
 
 // Open Too Long
@@ -1575,6 +1641,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.4.1"
+    state.appversion = "2.5.0"
 }
 
