@@ -1,5 +1,5 @@
 /**
- *  ****************  Presence Central.  ****************
+ *  ****************  Presence Central  ****************
  *
  *  Credits: I have to credit Brian Gudauskas (@bridaus -Reliable Presence) & Eric Roberts (@baldeagle072 - Everyones Presence) for stealing some of their code for multiple presence sensor determinations
  *

@@ -30,11 +30,13 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 22/12/2017
+ *  Last Update: 03/01/2018
  *
  *  Changes:
  *
  *
+ *
+ *  V2.4.1 - Debug issue with presence restrictions not working correctly
  *  V2.4.0 - Revamped Weather Report - converted it to variable %weather%
  *  V2.3.2 - Changed %day% variable to correct English
  *  V2.3.1 - Added option to use 24hr format
@@ -652,8 +654,15 @@ LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
 
 // Define restrictPresenceSensor actions
 def restrictPresenceSensorHandler(evt){
-
 state.presencestatus1 = evt.value
+checkPresence()
+
+
+}
+
+
+def checkPresence(){
+
 LOGDEBUG("Presence = $state.presencestatus1")
 def actionPresenceRestrict = restrictPresenceAction
 
@@ -743,7 +752,7 @@ LOGDEBUG("AppGo = $state.appgo")
 
 // Time
 def timeTalkNow(evt){
-
+checkPresence()
 checkDay()
 state.timeOK = true
 
@@ -794,7 +803,7 @@ LOGDEBUG( "$contact1 = $evt.value")
 
 def timeTalkNow1(evt){
 checkDay()
-
+checkPresence()
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' ){
@@ -861,6 +870,7 @@ LOGDEBUG( "$switch1 is $state.talkswitch")
 def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
+
 runIn(mydelay, talkSwitch)
 }
 
@@ -903,6 +913,7 @@ LOGDEBUG("$contactSensor is $state.talkcontact")
 def mydelay = triggerDelay
 checkVolume()
 LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
+
 runIn(mydelay, talkSwitch)
 }
 
@@ -1045,7 +1056,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue < state.belowValue) {
    def mydelay = 60 * delay1 
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain1)     
+       runIn(mydelay, checkAgain1, [overwrite: false])     
       }
       }
       
@@ -1055,7 +1066,7 @@ LOGDEBUG( "checkNow1 -  Power is: $state.meterValue")
     if (state.meterValue > state.belowValue) {
    def mydelay = 60 * delay1
    LOGDEBUG( "Checking again after delay: $delay1 minutes... Power is: $state.meterValue")
-       runIn(mydelay, checkAgain2)     
+       runIn(mydelay, checkAgain2, [overwrite: false])     
       }
       }
   }
@@ -1092,7 +1103,7 @@ def checkAgain2() {
 
 def speakNow(){
 LOGDEBUG("Power - speakNow...")
-
+checkPresence()
 state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true){
   if(state.msgType == "Voice Message"){
@@ -1148,7 +1159,8 @@ LOGDEBUG("Calling.. CheckTime")
 checkTime()
 LOGDEBUG("Calling.. CheckDay")
 checkDay()
-
+LOGDEBUG("Calling.. CheckPresence")
+checkPresence()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
@@ -1224,7 +1236,20 @@ speaker.setLevel(state.volume)
 
 
 def sendMessage(msg) {
+
+LOGDEBUG("Calling.. sendMessage")
 compileMsg(msg)
+if(state.appgo == true){
+LOGDEBUG("Calling.. CheckTime")
+checkTime()
+LOGDEBUG("Calling.. CheckDay")
+checkDay()
+LOGDEBUG("Calling.. CheckPresence")
+checkPresence()
+
+LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
+
 log.trace "SendMessage - $state.fullPhrase"
     if (location.contactBookEnabled) {
         sendNotificationToContacts(state.fullPhrase, recipients)
@@ -1237,6 +1262,8 @@ log.trace "SendMessage - $state.fullPhrase"
             sendPush(state.fullPhrase)
         }
     }
+}
+}
 }
 
 
@@ -1356,12 +1383,14 @@ private compileMsg(msg) {
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
     
     convertWeatherMessage(msgComp)
+  
+    
 }
 
 
 private convertWeatherMessage(msgIn){
 
-LOGDEBUG("Running convertWeatherMessage... Converting weather message to English...")
+LOGDEBUG("Running convertWeatherMessage... Converting weather message to English (If weather requested)...")
 
     def msgOut = ""
     msgOut = msgIn.toUpperCase()
@@ -1388,7 +1417,7 @@ LOGDEBUG("Running convertWeatherMessage... Converting weather message to English
     msgOut = msgOut.replace(" PRECIP", " PRECIPITATION")
     
    state.fullPhrase = msgOut
-LOGDEBUG("convertWeatherMessage - Returning message: $state.fullPhrase")
+
   return state.fullPhrase
   
   
@@ -1457,7 +1486,7 @@ else if (timemm == "9") {timemm = timemm.replace("9", "09")}
  
  
  LOGDEBUG("timeHH Now = $timeHH")
-    def timestring = "${timeHH}  ${timemm}"
+    def timestring = "${timeHH} ${timemm}"
     if (includeSeconds) { timestring += ":${timess}" }
     if (includeAmPm) { timestring += " ${timeampm}" }
    LOGDEBUG("timestring = $timestring")
@@ -1495,15 +1524,15 @@ private getdate() {
   LOGDEBUG("Date:  $dayNum $month")
     
     LOGDEBUG("dayNum = $dayNum - Converting into 'proper' English")
-    if(dayNum == "1"){dayNum = dayNum.replace("1","THE FIRST OF")}
-	if(dayNum == "2"){dayNum = dayNum.replace("2","THE SECOND OF")}
-    if(dayNum == "3"){dayNum = dayNum.replace("3","THE THIRD OF")}
-    if(dayNum == "4"){dayNum = dayNum.replace("4","THE FOURTH OF")}
-    if(dayNum == "5"){dayNum = dayNum.replace("5","THE FIFTH OF")}
-    if(dayNum == "6"){dayNum = dayNum.replace("6","THE SIXTH OF")}
-    if(dayNum == "7"){dayNum = dayNum.replace("7","THE SEVENTH OF")}
-    if(dayNum == "8"){dayNum = dayNum.replace("8","THE EIGHTH OF")}
-    if(dayNum == "9"){dayNum = dayNum.replace("9","THE NINTH OF")}
+    if(dayNum == "01"){dayNum = dayNum.replace("01","THE FIRST OF")}
+	if(dayNum == "02"){dayNum = dayNum.replace("02","THE SECOND OF")}
+    if(dayNum == "03"){dayNum = dayNum.replace("03","THE THIRD OF")}
+    if(dayNum == "04"){dayNum = dayNum.replace("04","THE FOURTH OF")}
+    if(dayNum == "05"){dayNum = dayNum.replace("05","THE FIFTH OF")}
+    if(dayNum == "06"){dayNum = dayNum.replace("06","THE SIXTH OF")}
+    if(dayNum == "07"){dayNum = dayNum.replace("07","THE SEVENTH OF")}
+    if(dayNum == "08"){dayNum = dayNum.replace("08","THE EIGHTH OF")}
+    if(dayNum == "09"){dayNum = dayNum.replace("09","THE NINTH OF")}
     if(dayNum == "10"){dayNum = dayNum.replace("10","THE TENTH OF")}
     if(dayNum == "11"){dayNum = dayNum.replace("11","THE ELEVENTH OF")}
     if(dayNum == "12"){dayNum = dayNum.replace("12","THE TWELTH OF")}
@@ -1526,9 +1555,9 @@ private getdate() {
     if(dayNum == "29"){dayNum = dayNum.replace("29","THE TWENTY NINTH OF")}
     if(dayNum == "30"){dayNum = dayNum.replace("30","THE THIRTIETH OF")}
     if(dayNum == "31"){dayNum = dayNum.replace("21","THE THIRTY FIRST OF")}
-     LOGDEBUG("dayNum is now: $dayNum")  
+     LOGDEBUG("Day number has been converted to: '$dayNum'")  
     
-    return dayNum + " " + " " + month + " "
+    return dayNum + " " + month + " "
 }
 private getyear() {
     def year = parseDate("", now(), "yyyy")
@@ -1546,6 +1575,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.4.0"
+    state.appversion = "2.4.1"
 }
 
