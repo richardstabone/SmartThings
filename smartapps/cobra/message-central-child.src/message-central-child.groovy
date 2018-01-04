@@ -335,10 +335,12 @@ if(state.selection == 'Switch'){
     if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send when switched On",  required: false
 	 input "message2", "text", title: "Message to send when switched Off",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     }
     }
 	
@@ -362,10 +364,12 @@ else if(state.selection == 'Water'){
      input "water1", "capability.waterSensor", title: "Select water sensor to trigger message", required: false, multiple: false 
      input "message1", "text", title: "Message to send when Wet",  required: false
 	 input "message2", "text", title: "Message to send when Dry",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     
     	}
     }
    
@@ -384,10 +388,12 @@ else if(state.selection == 'Presence'){
      if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send when sensor arrives",  required: false
 	 input "message2", "text", title: "Message to send when sensor leaves",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     
     	}
     }
 } 
@@ -405,10 +411,12 @@ else if(state.selection == 'Contact'){
      if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send when sensor opens",  required: false
 	 input "message2", "text", title: "Message to send when sensor closes",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     
     	}
     }   
    
@@ -420,18 +428,21 @@ else if(state.selection == 'Power'){
     input(name: "belowThreshold", type: "number", title: "Power Threshold (Watts)", required: true, description: "this number of watts")
     input "actionType1", "bool", title: "Select Power Sensor action type: \r\n \r\n On = Alert when power goes ABOVE configured threshold  \r\n Off = Alert when power goes BELOW configured threshold", required: true, defaultValue: false
 	input(name: "delay1", type: "number", title: "Only if it stays that way for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
-    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     
   if(state.msgType == "Voice Message"){
     input "message1", "text", title: "Message to play ...",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
   if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send...",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     	}
     }    
 } 
@@ -440,18 +451,21 @@ else if(state.selection == 'Power'){
 else if(state.selection == 'Motion'){
 	input "motionSensor",  "capability.motionSensor", title: "Select Motion Sensor", required: false, multiple: false 
     input "motionActionType", "bool", title: "Select Motion Sensor action type: \r\n \r\n On = Alert when motion 'Active'  \r\n Off = Alert when motion 'Inactive'", required: true, defaultValue: false
-	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	
     
   if(state.msgType == "Voice Message"){
     input "message1", "text", title: "Message to play ...",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
   if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send...",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+   
     	}
     }    
 }
@@ -459,18 +473,21 @@ else if(state.selection == 'Temperature'){
 	input "tempSensor",  "capability.temperatureMeasurement" , title: "Select Temperature Sensor", required: false, multiple: false 
     input "temperature1", "number", title: "Set Temperature", required: true
     input "tempActionType", "bool", title: "Select Temperature Sensor action type: \r\n \r\n On = Alert when above set temperature  \r\n Off = Alert when below set temperature", required: true, defaultValue: false
-	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	
     
   if(state.msgType == "Voice Message"){
     input "message1", "text", title: "Message to play ...",  required: false
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
   if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send...",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     
     	}
     }    
 }
@@ -523,10 +540,12 @@ else if(state.selection == 'Mode Change'){
     
    if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send...",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     	}
     } 
    
@@ -546,10 +565,12 @@ else if(state.selection == 'Routine'){
     }
   if(state.msgType == "SMS/Push Message"){
     input "message1", "text", title: "Message to send...",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input("recipients", "contact", title: "Send notifications to") {
     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     	}
     } 
     
@@ -566,10 +587,11 @@ if(state.selection == 'Contact - Open Too Long'){
     }
   if(state.msgType == "SMS/Push Message"){
      input "message1", "text", title: "Message to send...",  required: false
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
-     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
     	}
     }    
 }
@@ -805,7 +827,7 @@ checkPresence()
 
 
 def checkPresence(){
-
+if(restrictPresenceSensor == true){
 LOGDEBUG("Presence = $state.presencestatus1")
 def actionPresenceRestrict = restrictPresenceAction
 
@@ -827,8 +849,10 @@ else if (state.presencestatus1 == "present" && actionPresenceRestrict == false){
 LOGDEBUG("Presence not ok")
 state.presenceRestriction = false
 }
-
-
+}
+else if(restrictPresenceSensor == false){
+state.presenceRestriction = true
+}
 }
 
 
@@ -993,10 +1017,14 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
+state.actVar = evt.value
+state.devVar = switch1
+log.trace "$state.devVar = $state.actVar"
+
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
-
+def mydelay = triggerDelay
 
 if(state.msgType == "Voice Message"){
 LOGDEBUG("Switch - Voice Message")
@@ -1010,7 +1038,7 @@ state.msgNow = 'twoNow'
 	}
 
 LOGDEBUG( "$switch1 is $state.talkswitch")
-def mydelay = triggerDelay
+
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 
@@ -1389,8 +1417,15 @@ LOGDEBUG("Calling.. CheckDay")
 checkDay()
 LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
+def mydelay = triggerDelay
+LOGDEBUG("Waiting $mydelay seconds before sending")
+runIn(mydelay, pushNow)
+}
+}
 
-LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
+def pushNow(){
+
+LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.timer1 == true){
 
 log.trace "SendMessage - $state.fullPhrase"
@@ -1410,7 +1445,7 @@ log.trace "SendMessage - $state.fullPhrase"
     }
 }
 }
-}
+
 
 
 
@@ -1527,6 +1562,7 @@ private compileMsg(msg) {
 	if (msgComp.contains("%DATE%")) {msgComp = msgComp.toUpperCase().replace('%DATE%', getdate() )}  
     if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
+  
     
     convertWeatherMessage(msgComp)
   
@@ -1712,8 +1748,6 @@ private getyear() {
          
     return year
 }
-
-
 
 
 
