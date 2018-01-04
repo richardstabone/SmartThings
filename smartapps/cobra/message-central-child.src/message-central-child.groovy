@@ -30,10 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 03/01/2018
+ *  Last Update: 04/01/2018
  *
  *  Changes:
  *
+ *
+ *  V2.6.1 - Added delay between messages to SMS/Push
  *  V2.6.0 - Added 'Temperature' trigger ability for above or below configured temperature
  *  V2.5.0 - Added 'Motion' trigger ability for motion 'active' or 'inactive'
  *  V2.4.1 - Debug issue with presence restrictions not working correctly
@@ -336,6 +338,7 @@ if(state.selection == 'Switch'){
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     }
     }
 	
@@ -362,6 +365,7 @@ else if(state.selection == 'Water'){
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }
    
@@ -383,6 +387,7 @@ else if(state.selection == 'Presence'){
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }
 } 
@@ -403,6 +408,7 @@ else if(state.selection == 'Contact'){
      input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }   
    
@@ -425,6 +431,7 @@ else if(state.selection == 'Power'){
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }    
 } 
@@ -444,6 +451,7 @@ else if(state.selection == 'Motion'){
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }    
 }
@@ -462,6 +470,7 @@ else if(state.selection == 'Temperature'){
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }    
 }
@@ -477,6 +486,7 @@ else if(state.selection == 'Time'){
    	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    
     	}
     }  
    
@@ -516,6 +526,7 @@ else if(state.selection == 'Mode Change'){
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     } 
    
@@ -538,6 +549,7 @@ else if(state.selection == 'Routine'){
 	input("recipients", "contact", title: "Send notifications to") {
     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     } 
     
@@ -557,6 +569,7 @@ if(state.selection == 'Contact - Open Too Long'){
 	 input("recipients", "contact", title: "Send notifications to") {
      input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
      input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     	}
     }    
 }
@@ -1378,18 +1391,21 @@ LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.timer1 == true){
 
 log.trace "SendMessage - $state.fullPhrase"
     if (location.contactBookEnabled) {
         sendNotificationToContacts(state.fullPhrase, recipients)
+        startTimer1()
     }
     else {
         if (sms) {
             sendSms(sms, state.fullPhrase)
+            startTimer1()
         }
         if (pushNotification) {
             sendPush(state.fullPhrase)
+            startTimer1()
         }
     }
 }
@@ -1705,6 +1721,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.6.0"
+    state.appversion = "2.6.1"
 }
 
