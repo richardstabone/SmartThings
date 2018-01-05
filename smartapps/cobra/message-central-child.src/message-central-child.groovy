@@ -1017,10 +1017,6 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
-state.actVar = evt.value
-state.devVar = switch1
-log.trace "$state.devVar = $state.actVar"
-
 state.talkswitch = evt.value
 state.msg1 = message1
 state.msg2 = message2
@@ -1417,6 +1413,7 @@ LOGDEBUG("Calling.. CheckDay")
 checkDay()
 LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
+
 def mydelay = triggerDelay
 LOGDEBUG("Waiting $mydelay seconds before sending")
 runIn(mydelay, pushNow)
@@ -1498,6 +1495,8 @@ if (daycheckNow == null){
  state.dayCheck = true 
 } 
 }
+
+
  // Delay between messages...
 
 def startTimer1(){
