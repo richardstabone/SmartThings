@@ -34,7 +34,7 @@
  *
  *  Changes:
  *
- *
+ *  V2.7.0 - Added 'Button' as a trigger - either pushed or held
  *  V2.6.1 - Added delay between messages to SMS/Push
  *  V2.6.0 - Added 'Temperature' trigger ability for above or below configured temperature
  *  V2.5.0 - Added 'Motion' trigger ability for motion 'active' or 'inactive'
@@ -116,6 +116,9 @@ def initialize() {
 
 subscribe(enableSwitch, "switch", switchEnable)
 
+
+
+
 if(trigger == 'Time'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow)
@@ -124,7 +127,12 @@ if(trigger == 'Time if Contact Open'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow1)
    subscribe(contact1, "contact", contact1Handler)
-    }    
+    }   
+    
+else if(trigger == 'Button'){
+     LOGDEBUG( "Trigger is $trigger")
+subscribe(button1, "button", buttonEvent)
+    }
     
 else if(trigger == 'Switch'){
      LOGDEBUG( "Trigger is $trigger")
@@ -268,7 +276,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Switch", "Presence", "Water", "Contact", "Power", "Motion", "Temperature", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Button", "Switch", "Presence", "Water", "Contact", "Power", "Motion", "Temperature", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
   
 }
 
@@ -319,6 +327,33 @@ def restrictionInputs(){
 def actionInputs() {
     if (trigger) {
     state.selection = trigger
+    
+if(state.selection == 'Button'){
+   input "button1", "capability.button", title: "Button", multiple: false, required: false
+
+    
+    if(state.msgType == "Voice Message"){
+	input "message1", "text", title: "Message to play when button pressed",  required: false
+	input "message2", "text", title: "Message to play when button held",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    
+    }
+    if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send when button pressed",  required: false
+	 input "message2", "text", title: "Message to send when button held",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+     input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    
+    }
+    }
+	
+    
+
+}     
     
     
 if(state.selection == 'Switch'){
@@ -605,6 +640,54 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 // Handlers
+
+// Button
+def buttonEvent(evt){
+state.buttonStatus1 = evt.value
+LOGDEBUG("Button is $state.buttonStatus1")
+state.msg1 = message1
+state.msg2 = message2
+def mydelay = triggerDelay
+
+if(state.msgType == "Voice Message"){
+LOGDEBUG("Button - Voice Message")
+
+	if(state.buttonStatus1 == 'pushed'){
+state.msgNow = 'oneNow'
+    }
+
+	else if (state.buttonStatus1 == 'held'){
+state.msgNow = 'twoNow'
+	}
+
+LOGDEBUG( "$button1 is $state.buttonStatus1")
+
+checkVolume()
+LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
+
+runIn(mydelay, talkSwitch)
+}
+
+if(state.msgType == "SMS/Push Message"){
+LOGDEBUG("Button - SMS/Push Message")
+
+	if(state.buttonStatus1 == 'pushed' && state.msg1 != null){
+def msg = message1
+LOGDEBUG("Button - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+    }
+    
+    
+    if(state.buttonStatus1 == 'held' && state.msg2 != null){
+def msg = message2
+LOGDEBUG("Button - SMS/Push Message - Sending Message: $msg")
+  sendMessage(msg)
+    }
+
+}
+
+}
+
 
 // Temperature
 def tempTalkNow(evt){
@@ -1754,6 +1837,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.6.1"
+    state.appversion = "2.7.0"
 }
 
