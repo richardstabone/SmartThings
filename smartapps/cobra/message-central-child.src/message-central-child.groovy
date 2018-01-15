@@ -350,15 +350,15 @@ if(state.selection == 'Button'){
 
     
     if(state.msgType == "Voice Message"){
-	input "message1", "text", title: "Message to play when button pressed",  required: false
-	input "message2", "text", title: "Message to play when button held",  required: false
+	input "message1", "text", title: "Message to play when button pressed",  required: false, submitOnChange: true
+	input "message2", "text", title: "Message to play when button held",  required: false, submitOnChange: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     
     }
     if(state.msgType == "SMS/Push Message"){
-     input "message1", "text", title: "Message to send when button pressed",  required: false
-	 input "message2", "text", title: "Message to send when button held",  required: false
+     input "message1", "text", title: "Message to send when button pressed",  required: false, submitOnChange: true
+	 input "message2", "text", title: "Message to send when button held",  required: false, submitOnChange: true
      input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
 	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
@@ -378,15 +378,15 @@ if(state.selection == 'Switch'){
 
     
     if(state.msgType == "Voice Message"){
-	input "message1", "text", title: "Message to play when switched on",  required: false
-	input "message2", "text", title: "Message to play when switched off",  required: false
+	input "message1", "text", title: "Message to play when switched on",  required: false, submitOnChange: true
+	input "message2", "text", title: "Message to play when switched off",  required: false, submitOnChange: true
     input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
     input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
     
     }
     if(state.msgType == "SMS/Push Message"){
-     input "message1", "text", title: "Message to send when switched On",  required: false
-	 input "message2", "text", title: "Message to send when switched Off",  required: false
+     input "message1", "text", title: "Message to send when switched On",  required: false, submitOnChange: true
+	 input "message2", "text", title: "Message to send when switched Off",  required: false, submitOnChange: true
      input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
 	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
      input("recipients", "contact", title: "Send notifications to") {
