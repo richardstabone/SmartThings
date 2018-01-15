@@ -71,7 +71,7 @@ preferences {
            paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                          "Parent Version: 1.0.2 -  Copyright © 2017 Cobra"
     }
-        section {
+    section {
             app(name: "switchMessageAutomation", appName: "Message_Central_Child", namespace: "Cobra", title: "Create New Triggered Message", multiple: true)
            
             }
@@ -97,13 +97,13 @@ def initialize() {
     childApps.each {child ->
         log.debug "child app: ${child.label}"
     }
+    
+   
+    
 }
  
  
  
- 
- 
- 
- 
+
  
  

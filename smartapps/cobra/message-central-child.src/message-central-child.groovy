@@ -30,10 +30,13 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 04/01/2018
+ *  Last Update: 13/01/2018
  *
  *  Changes:
  *
+ *
+ *
+ *  V2.8.0 - Added %opencontact% variable to check any open windows/door
  *  V2.7.0 - Added 'Button' as a trigger - either pushed or held
  *  V2.6.1 - Added delay between messages to SMS/Push
  *  V2.6.0 - Added 'Temperature' trigger ability for above or below configured temperature
@@ -85,7 +88,8 @@ parent: "Cobra:Message Central",
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "restrictionsPage"
-    page name: "restrictionsPage", title: "", install: false, uninstall: true, nextPage: "namePage"
+    page name: "restrictionsPage", title: "", install: false, uninstall: true, nextPage: "variablesPage"
+    page name: "variablesPage", title: "", install: false, uninstall: true, nextPage: "namePage"
     page name: "namePage", title: "", install: true, uninstall: true
 }
 
@@ -210,7 +214,8 @@ def mainPage() {
                          " %day%			- Replaced with current day of the week\r\n" +
                          " %date%			- Replaced with current day number & month\r\n" +
                          " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast"
+                         " %weather%		- Replaced with the current weather forcast" +
+                         " %opencontact%	- Replaced with a list of configured contacts if they are open"
                          
          // Look at possibly adding additional variables:                
                   //       +
@@ -229,9 +234,23 @@ def mainPage() {
 }
 
 
+def variablesPage() {
+       dynamicPage(name: "variablesPage") {
+      restrictionInputs()            
+      }  
+    }
+
 def restrictionsPage() {
        dynamicPage(name: "restrictionsPage") {
-      restrictionInputs()            
+       
+         section("Time Format") { 
+      input "hour24", "bool", title: "If using the %time% variable, On = 24hr format - Off = 12Hr format", required: true, defaultValue: false
+       }
+       section("Check Open Contacts") { 
+       input "sensors", "capability.contactSensor", title: "If using the %opencontact% variable, choose window/door contact", required: false, multiple: true, submitOnChange: true
+       
+       } 
+       
       }  
     }
 
@@ -239,9 +258,7 @@ def restrictionsPage() {
 def namePage() {
        dynamicPage(name: "namePage") {
        
-      section("Time Format") { 
-      input "hour24", "bool", title: "If using the %time% variable, On = 24hr format - Off = 12Hr format", required: true, defaultValue: false
-       }
+     
             section("Automation name") {
                 label title: "Enter a name for this message automation", required: false
             }
@@ -641,19 +658,26 @@ if(state.selection == 'Contact - Open Too Long'){
 
 // Handlers
 
+
+
+
+
 // Button
 def buttonEvent(evt){
 state.buttonStatus1 = evt.value
-LOGDEBUG("Button is $state.buttonStatus1")
+LOGDEBUG("Button is $state.buttonStatus1 state.presenceRestriction = $state.presenceRestriction")
 state.msg1 = message1
 state.msg2 = message2
 def mydelay = triggerDelay
+
+
 
 if(state.msgType == "Voice Message"){
 LOGDEBUG("Button - Voice Message")
 
 	if(state.buttonStatus1 == 'pushed'){
 state.msgNow = 'oneNow'
+
     }
 
 	else if (state.buttonStatus1 == 'held'){
@@ -903,6 +927,7 @@ LOGDEBUG("Routine running - SMS/Push Message - Sending Message: $msg")
 // Define restrictPresenceSensor actions
 def restrictPresenceSensorHandler(evt){
 state.presencestatus1 = evt.value
+LOGDEBUG("state.presencestatus1 = $evt.value")
 checkPresence()
 
 
@@ -910,7 +935,9 @@ checkPresence()
 
 
 def checkPresence(){
-if(restrictPresenceSensor == true){
+LOGDEBUG("running checkPresence - restrictPresenceSensor = $restrictPresenceSensor")
+
+if(restrictPresenceSensor){
 LOGDEBUG("Presence = $state.presencestatus1")
 def actionPresenceRestrict = restrictPresenceAction
 
@@ -933,8 +960,9 @@ LOGDEBUG("Presence not ok")
 state.presenceRestriction = false
 }
 }
-else if(restrictPresenceSensor == false){
+else if(!restrictPresenceSensor){
 state.presenceRestriction = true
+LOGDEBUG("Presence sensor restriction not used")
 }
 }
 
@@ -1412,7 +1440,7 @@ checkDay()
 LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
 
-LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume")
+LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
 
 LOGDEBUG( " Continue... Check delay...")
@@ -1554,6 +1582,7 @@ state.timeOK = true
   }
 }
 
+
 // check days allowed to run
 def checkDay(){
 def daycheckNow = days
@@ -1644,11 +1673,23 @@ private compileMsg(msg) {
 	if (msgComp.contains("%DATE%")) {msgComp = msgComp.toUpperCase().replace('%DATE%', getdate() )}  
     if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
-  
-    
+	if (msgComp.contains("%OPENCONTACT%")) {msgComp = msgComp.toUpperCase().replace('%OPENCONTACT%', getContactReport() )}  
+
     convertWeatherMessage(msgComp)
   
     
+}
+
+private getContactReport(){
+LOGDEBUG("Calling getContactReport")
+
+def open = sensors.findAll { it?.latestValue("contact") == 'open' }
+		if (open) { 
+LOGDEBUG("Open windows or doors: ${open.join(',,, ')}")
+           def anyOpen = "${open.join(',,, ')}"
+            
+return anyOpen
+	}
 }
 
 
@@ -1837,6 +1878,6 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.7.0"
+    state.appversion = "2.8.0"
 }
 
