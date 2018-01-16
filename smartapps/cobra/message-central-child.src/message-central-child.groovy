@@ -1,5 +1,5 @@
 /**
- *  ****************  Message_Central_Child  ****************
+ *  ****************  Message_Central_Child  *****************
  *
  *  Design Usage:
  *  This is the 'Child' app for message automation
@@ -1880,4 +1880,3 @@ private getyear() {
 def setAppVersion(){
     state.appversion = "2.8.0"
 }
-
