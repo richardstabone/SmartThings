@@ -557,7 +557,7 @@ else if(state.selection == 'Time'){
    if(missedMessageAction == true){
     input "missedPresenceSensor1", "capability.presenceSensor", title: "Select presence sensor", required: true, multiple: false
     input "missedMessage", "text", title: "Message reminder to play when presence sensor arrives if original message missed",  required: true
-    input "missedMsgDelay", "number", title: "Delay after arriving before reminder message", defaultValue: '0', description: "Minutes", required: true
+    input "missedMsgDelay", "number", title: "Delay after arriving before reminder message", defaultValue: '0', description: "Seconds", required: true
    }
     
    		}
@@ -675,11 +675,11 @@ def missedPresenceCheckNow(evt){
 	state.missedPresencestatus1 = evt.value
 LOGDEBUG("state.missedPresencestatus1 = $evt.value")
 
-	def	myMissedDelay = 60 * missedMsgDelay
+	def	myMissedDelay = missedMsgDelay
 
 	if(state.missedPresencestatus1 == "present" && state.missedEvent == true){
    
-LOGDEBUG("Telling you about missed events in $missedMsgDelay minute(s) (If there are any and I haven't already told you about them)")
+LOGDEBUG("Telling you about missed events in $missedMsgDelay seconds (If there are any, and I haven't already told you about them)")
     
     runIn(myMissedDelay, speakMissedNow, [overwrite: false])
     
