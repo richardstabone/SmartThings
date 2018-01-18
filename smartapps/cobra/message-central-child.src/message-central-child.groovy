@@ -30,12 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 13/01/2018
+ *  Last Update: 18/01/2018
  *
  *  Changes:
  *
  *
- *
+ *  V2.9.0 - Added Missed message config to 'Time' trigger
  *  V2.8.0 - Added %opencontact% variable to check any open windows/door
  *  V2.7.0 - Added 'Button' as a trigger - either pushed or held
  *  V2.6.1 - Added delay between messages to SMS/Push
@@ -126,7 +126,9 @@ subscribe(enableSwitch, "switch", switchEnable)
 if(trigger == 'Time'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow)
+  if (missedPresenceSensor1){subscribe(missedPresenceSensor1, "presence", missedPresenceCheckNow)}
     }
+    
 if(trigger == 'Time if Contact Open'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow1)
@@ -546,9 +548,18 @@ else if(state.selection == 'Temperature'){
 
 else if(state.selection == 'Time'){
 	input (name: "runTime", title: "Time to run", type: "time",  required: true) 
-  if(state.msgType == "Voice Message"){
-	input "messageTime", "text", title: "Message to play",  required: true
    
+    
+   if(state.msgType == "Voice Message"){
+	input "messageTime", "text", title: "Message to play",  required: true
+    input "missedMessageAction", "bool", title: "Let me know if I miss this message while away ", required: true, defaultValue: false, submitOnChange: true 
+   
+   if(missedMessageAction == true){
+    input "missedPresenceSensor1", "capability.presenceSensor", title: "Select presence sensor", required: true, multiple: false
+    input "missedMessage", "text", title: "Message reminder to play when presence sensor arrives if original message missed",  required: true
+    input "missedMsgDelay", "number", title: "Delay after arriving before reminder message", defaultValue: '0', description: "Minutes", required: true
+   }
+    
    		}
   if(state.msgType == "SMS/Push Message"){
      input "messageTime", "text", title: "Message to send...",  required: false
@@ -657,6 +668,62 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 // Handlers
+
+
+// Missed message presence handler
+def missedPresenceCheckNow(evt){
+	state.missedPresencestatus1 = evt.value
+LOGDEBUG("state.missedPresencestatus1 = $evt.value")
+
+	def	myMissedDelay = 60 * missedMsgDelay
+
+	if(state.missedPresencestatus1 == "present" && state.missedEvent == true){
+   
+LOGDEBUG("Telling you about missed events in $missedMsgDelay minute(s) (If there are any and I haven't already told you about them)")
+    
+    runIn(myMissedDelay, speakMissedNow, [overwrite: false])
+    
+    }
+if(state.missedPresencestatus1 == "present" && state.missedEvent == false){
+LOGDEBUG("No missed messages yet")
+	}
+}
+
+
+// check if any timed messages have been missed
+def checkTimeMissedNow(){
+LOGDEBUG("Checking missed events now...")
+	if(state.missedPresencestatus1 == 'not present'){
+    state.missedEvent = true
+    state.alreadyDone = false
+LOGDEBUG("Missed a time event")
+	}
+
+	if(state.missedPresencestatus1 == 'present'){
+	state.missedEvent = false
+LOGDEBUG("No missed timed events")
+	}
+}
+
+// speak any missed message
+def speakMissedNow(){
+
+LOGDEBUG("SpeakMissedNow called...")
+	state.myMsg = missedMessage
+	    
+  if (state.alreadyDone == false){  
+LOGDEBUG("Message = $state.myMsg")
+	
+	speaker.speak(state.myMsg)
+	state.alreadyDone = true
+	}
+
+  if (state.alreadyDone == true){ 
+LOGDEBUG("Already told you, so won't tell you again!")
+	}
+}
+
+
 
 
 
@@ -1030,6 +1097,7 @@ LOGDEBUG("AppGo = $state.appgo")
 
 // Time
 def timeTalkNow(evt){
+checkTimeMissedNow()
 checkPresence()
 checkDay()
 state.timeOK = true
@@ -1878,5 +1946,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.8.0"
+    state.appversion = "2.9.0"
 }
