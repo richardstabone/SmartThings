@@ -30,11 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 18/01/2018
+ *  Last Update: 26/01/2018
  *
  *  Changes:
  *
  *
+ *  V3.0.0 - Added a new trigger setup 'Appliance Power Monitor' - This uses a second power threshold which must be exceeded before monitoring starts
  *  V2.9.0 - Added Missed message config to 'Time' trigger
  *  V2.8.0 - Added %opencontact% variable to check any open windows/door
  *  V2.7.0 - Added 'Button' as a trigger - either pushed or held
@@ -163,6 +164,13 @@ else if(trigger == 'Power'){
 subscribe(powerSensor, "power", powerTalkNow) 
      
 	}
+    
+else if(trigger == 'Appliance Power Monitor'){
+    LOGDEBUG("trigger is $trigger")
+subscribe(powerSensor, "power", powerApplianceNow) 
+     
+	}    
+    
 else if(trigger == 'Motion'){
     LOGDEBUG("trigger is $trigger")
 subscribe(motionSensor, "motion" , motionTalkNow) 
@@ -295,7 +303,7 @@ def speakerInputs(){
 
 // inputs
 def triggerInput() {
-   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Button", "Switch", "Presence", "Water", "Contact", "Power", "Motion", "Temperature", "Mode Change", "Routine", "Time", "Time if Contact Open", "Contact - Open Too Long"]
+   input "trigger", "enum", title: "How to trigger message?",required: true, submitOnChange: true, options: ["Appliance Power Monitor", "Button", "Contact", "Contact - Open Too Long", "Switch", "Mode Change", "Motion", "Power", "Presence", "Routine", "Temperature", "Time", "Time if Contact Open", "Water"]
   
 }
 
@@ -502,6 +510,31 @@ else if(state.selection == 'Power'){
 } 
 
 
+else if(state.selection == 'Appliance Power Monitor'){
+	input "powerSensor", "capability.powerMeter", title: "Select power sensor to trigger message", required: true, multiple: false 
+    input(name: "belowThreshold", type: "number", title: "Below Power Threshold (Watts)", required: true, description: "Trigger below this number of watts", defaultValue: '0')
+    input(name: "delay2", type: "number", title: "Only if it stays that way for this number of minutes...", required: true, description: "this number of minutes", defaultValue: '0')
+    input(name: "aboveThreshold", type: "number", title: "Activate Power Threshold (Watts)", required: true, description: "Start monitoring above this number of watts", defaultValue: '0')
+	
+    
+    
+  if(state.msgType == "Voice Message"){
+    input "message1", "text", title: "Message to play ...",  required: false
+    input "triggerDelay", "number", title: "Delay after trigger before speaking (Enter 0 for no delay - Seconds)", description: "Seconds", required: true, defaultValue: '0'
+    input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+    }
+  if(state.msgType == "SMS/Push Message"){
+     input "message1", "text", title: "Message to send...",  required: false
+     input "triggerDelay", "number", title: "Delay after trigger before sending (Enter 0 for no delay)", defaultValue: '0', description: "Seconds", required: true
+	 input "msgDelay", "number", title: "Delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	 input("recipients", "contact", title: "Send notifications to") {
+     input(name: "sms", type: "phone", title: "Send A Text To", description: null, required: false)
+     input(name: "pushNotification", type: "bool", title: "Send a push notification to", description: null, defaultValue: true)
+    
+    	}
+    }    
+} 
+
 else if(state.selection == 'Motion'){
 	input "motionSensor",  "capability.motionSensor", title: "Select Motion Sensor", required: false, multiple: false 
     input "motionActionType", "bool", title: "Select Motion Sensor action type: \r\n \r\n On = Alert when motion 'Active'  \r\n Off = Alert when motion 'Inactive'", required: true, defaultValue: false
@@ -668,6 +701,62 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 // Handlers
+
+
+// Appliance Power Monitor
+def powerApplianceNow(evt){
+state.meterValue = evt.value as double
+state.activateThreshold = aboveThreshold
+LOGDEBUG( "Power reported $state.meterValue watts")
+if(state.meterValue > state.activateThreshold){
+state.activate = true
+LOGDEBUG( "Activate threshold reached or exceeded setting state.activate to: $state.activate")
+
+}
+
+
+
+ if(state.appgo == true && state.activate == true){
+LOGDEBUG( "powerApplianceNow -  Power is: $state.meterValue")
+    state.belowValue = belowThreshold as int
+    if (state.meterValue < state.belowValue) {
+   def mydelay = 60 * delay2 
+   LOGDEBUG( "Checking again after delay: $delay2 minutes... Power is: $state.meterValue")
+       runIn(mydelay, checkApplianceAgain1, [overwrite: false])     
+       
+      }
+}
+
+	 if(state.activate == false){
+     LOGDEBUG( "Not reached threshold yet to activate monitoring")
+     
+     }
+     
+     
+ if(state.appgo == false){
+    LOGDEBUG("App disabled by $enableswitch being off")
+
+}
+
+}
+
+
+def checkApplianceAgain1() {
+   
+     if (state.meterValue < state.belowValue) {
+      LOGDEBUG( " checkApplianceAgain1 - Checking again now... Power is: $state.meterValue")
+    
+      speakNow()
+      state.activate = false  
+			}
+     else  if (state.meterValue > state.belowValue) {
+     LOGDEBUG( "checkApplianceAgain1 -  Power is: $state.meterValue so cannot run yet...")
+	}	
+}	
+
+
+
+
 
 
 // Missed message presence handler
@@ -1946,5 +2035,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "2.9.0"
+    state.appversion = "3.0.0"
 }

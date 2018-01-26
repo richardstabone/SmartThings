@@ -182,7 +182,7 @@ def LOGINFO(txt){
     try {
     	if (settings.debugmode) { log.info("${app.label.replace(" ","_").toUpperCase()}  (Version ${state.appversion}) - ${txt}") }
     } catch(ex) {
-    	log.error("LOGTINFO unable to output requested data!")
+    	log.error("LOGINFO unable to output requested data!")
     }
 }
 
