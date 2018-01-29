@@ -1,5 +1,5 @@
 /**
- *  ****************  Temperature Controlled Switch  ****************
+ *  ****************  Temperature Controlled Switch.  ****************
  *
  *	Credits: 
  *	Parts of 'allOk()' code come from an app by: TIM SLAGLE
