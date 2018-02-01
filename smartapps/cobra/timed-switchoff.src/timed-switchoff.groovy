@@ -33,8 +33,8 @@ preferences {
         required: false, 
     	"Turn off an outlet/light/switch a number of seconds after turning on"
     
-		  input(name: "switch1", type: "capability.switch", title: "When you turn this switch on", required: true, multiple: false)
-          input(name: "delay1", type: "number", title: "Turn it back off after this number of seconds", required: true)
+		  input "switch1", "capability.switch", title: "When you turn this switch on", required: true, multiple: false
+          input "delay1", "number", title: "Turn it back off after this number of seconds"
 	}
 }
 
@@ -65,7 +65,7 @@ log.info "$switch1 is $state.switchNow - Turning off in $myDelay seconds"
 runIn(myDelay, turnOff)
 	}
     
-    if (state.switchNow == 'on'){
+else if (state.switchNow == 'off'){
   log.info "$switch1 is $state.switchNow"  
     }
 }
@@ -74,7 +74,7 @@ runIn(myDelay, turnOff)
 
 
 def turnOff(){
-log.info " switching $switch1 off"
+log.info " Switching $switch1 off"
 switch1.off()
 
 }
