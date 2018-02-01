@@ -1,8 +1,24 @@
 /**
- *  Timed SwitchOff
+ *  ****************  Timed SwitchOff  ****************
+ *
+ *  Design Usage:
+ *  This was designed to turn off an outlet/light/switch a number of seconds after turning on
+ *  Originally created to work a garage door momentary switch
  *
  *  Copyright 2018 Andrew Parker
+ *  
+ *  This SmartApp is free!
+ *  Donations to support development efforts are accepted via: 
  *
+ *  Paypal at: https://www.paypal.me/smartcobra
+ *  
+ *
+ *  I'm very happy for you to use this app without a donation, but if you find it useful then it would be nice to get a 'shout out' on the forum! -  @Cobra
+ *  Have an idea to make this app better?  - Please let me know :)
+ *
+ *  Website: http://securendpoint.com/smartthings
+ *
+ *-------------------------------------------------------------------------------------------------------------------
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
  *
@@ -11,8 +27,23 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
+ *-------------------------------------------------------------------------------------------------------------------
+ *
+ *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
+ *
+ *-------------------------------------------------------------------------------------------------------------------
+ *
+ *  Last Update: 01/02/2018
+ *
+ *  Changes:
+ *
+ *
+ *  V1.0.1 - Debug for Android issue not showing selectable devices
+ *  V1.0.0 - POC
  *
  */
+ 
+ 
 definition(
     name: "Timed SwitchOff",
     namespace: "Cobra",
@@ -27,14 +58,17 @@ definition(
 preferences {
 	section("") {
     
-    paragraph "V1.0.0"
+    paragraph "V1.0.1"
      paragraph image:  "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
        	title: "Timed SwitchOff",
         required: false, 
     	"Turn off an outlet/light/switch a number of seconds after turning on"
-    
-		  input "switch1", "capability.switch", title: "When you turn this switch on", required: true, multiple: false
-          input "delay1", "number", title: "Turn it back off after this number of seconds"
+    }
+    section("When you turn this switch on") {
+		  input "switch1", "capability.switch", multiple: false
+          }
+       section(" Turn it back off after this number of seconds"){   
+          input "delay1", "number"
 	}
 }
 
@@ -76,5 +110,9 @@ else if (state.switchNow == 'off'){
 def turnOff(){
 log.info " Switching $switch1 off"
 switch1.off()
+}
 
+
+def setAppVersion(){
+    state.appversion = "1.0.1"
 }
