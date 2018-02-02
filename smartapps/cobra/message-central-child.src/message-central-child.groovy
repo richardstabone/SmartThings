@@ -119,8 +119,12 @@ def initialize() {
       
 // Subscriptions    
 
-subscribe(enableSwitch, "switch", switchEnable)
+	subscribe(enableSwitch, "switch", switchEnable)
 
+	if(followMotion1){subscribe(followMotion1, "motion", followMotion1Handler)}
+	if(followMotion2){subscribe(followMotion2, "motion", followMotion2Handler)}
+	if(followMotion3){subscribe(followMotion3, "motion", followMotion3Handler)}
+	if(followMotion4){subscribe(followMotion4, "motion", followMotion4Handler)}
 
 
 
@@ -288,12 +292,28 @@ def speakerInputs(){
  if (messageAction){
  state.msgType = messageAction
     if(state.msgType == "Voice Message"){
+    	input "speakerMode", "bool", title: "Speaker Mode\r\n  On = 'Follow Me' \r\n  Off = 'Normal' ", required: true, submitOnChange: true, defaultValue: false
+    	
+        if(speakerMode == true){
+        input "followSpeaker1", "capability.musicPlayer", title: "Choose speaker(s) for Area 1", required: false, multiple: true
+        input "followMotion1",  "capability.motionSensor", title: "Select Motion Sensor for Area 1", required: false, multiple: false 
+        input "followSpeaker2", "capability.musicPlayer", title: "Choose speaker(s) for Area 2", required: false, multiple: true
+        input "followMotion2",  "capability.motionSensor", title: "Select Motion Sensor for Area 2", required: false, multiple: false 
+        input "followSpeaker3", "capability.musicPlayer", title: "Choose speaker(s) for Area 3", required: false, multiple: true
+        input "followMotion3",  "capability.motionSensor", title: "Select Motion Sensor for Area 3", required: false, multiple: false 
+        input "followSpeaker4", "capability.musicPlayer", title: "Choose speaker(s) for Area 4", required: false, multiple: true
+        input "followMotion4",  "capability.motionSensor", title: "Select Motion Sensor for Area 4", required: false, multiple: false 
+        input "motionDelay1", "number", title: "Delay after motion stops before turning off each area's speaker", defaultValue: '0', description: "Minutes", required: true
+        // 
+        }
+        
+    else{
 	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
-	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
+	
     
- 
+ }
 	}
-
+input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
 	
  }
 }
@@ -702,6 +722,132 @@ if(state.selection == 'Contact - Open Too Long'){
 
 // Handlers
 
+// Follow Speakers
+
+//Area 1
+def followMotion1Handler(evt){
+	def action1 = evt.value
+    
+LOGDEBUG("followMotion1 = $action1")
+		if(action1 == "active"){
+LOGDEBUG("Motion is active - turning on speaker for Area 1")
+		state.skpr1 = true
+    }
+    	if(action1 == "inactive"){
+		motionNow1 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow1 minutes before disabling local speaker")
+		runIn(motionNow1, turnOffMotion1)  
+    }
+
+}
+def turnOffMotion1(){
+LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 1")
+state.spkr1 = false
+}
+
+//Area 2
+def followMotion2Handler(evt){
+	def action2 = evt.value
+    
+LOGDEBUG("followMotion2 = $action2")
+		if(action2 == "active"){
+LOGDEBUG("Motion is active - turning on speaker for Area 2")
+		state.skpr2 = true
+    }
+    	if(action2 == "inactive"){
+		motionNow2 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow1 minutes before disabling local speaker")
+		runIn(motionNow2, turnOffMotion2)  
+    }
+
+}
+def turnOffMotion2(){
+LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 2")
+state.spkr2 = false
+}
+
+//Area 3
+def followMotion3Handler(evt){
+	def action3 = evt.value
+    
+LOGDEBUG("followMotion3 = $action3")
+		if(action3 == "active"){
+LOGDEBUG("Motion is active - turning on speaker for Area 3")
+		state.skpr3 = true
+    }
+    	if(action3 == "inactive"){
+		motionNow3 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow3 minutes before disabling local speaker")
+		runIn(motionNow3, turnOffMotion3)  
+    }
+
+}
+def turnOffMotion3(){
+LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 3")
+state.spkr3 = false
+}
+
+//Area 4
+def followMotion4Handler(evt){
+	def action4 = evt.value
+    
+LOGDEBUG("followMotion4 = $action4")
+		if(action4 == "active"){
+LOGDEBUG("Motion is active - turning on speaker for Area 4")
+		state.skpr4 = true
+    }
+    	if(action4 == "inactive"){
+		motionNow4 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow4 minutes before disabling local speaker")
+		runIn(motionNow4, turnOffMotion4)  
+    }
+
+}
+def turnOffMotion4(){
+LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 4")
+state.spkr4 = false
+}
+
+
+
+def chooseSpeaker(){
+LOGDEBUG("Running: chooseSpeaker")
+	 if(speakerMode == true){
+     state.finalSpeaker = ""
+          
+     if(followMotion1){state.motionFollow1 = followMotion1}
+     if(followMotion2){state.motionFollow2 = followMotion2}
+     if(followMotion3){state.motionFollow3 = followMotion3}
+     if(followMotion4){state.motionFollow4 = followMotion4}
+     if (followSpeaker1) {state.speakerFollow1 = followSpeaker1}
+     if (followSpeaker2) {state.speakerFollow2 = followSpeaker2}
+     if (followSpeaker3) {state.speakerFollow3 = followSpeaker3}
+     if (followSpeaker4) {state.speakerFollow1 = followSpeaker4}
+         
+		if(state.skpr1 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow1}
+		if(state.skpr2 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow2}
+        if(state.skpr3 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow3}
+        if(state.skpr4 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow4}
+          
+LOGDEBUG("Follow Speaker(s)in use =  state.finalSpeaker")      
+     }
+
+	if(speakerMode == false){
+		state.finalSpeaker = speaker
+LOGDEBUG("Standard Speaker(s) selected =  state.finalSpeaker") 
+     }
+
+
+
+
+
+}
+
+
+
+
+
+
 
 // Appliance Power Monitor
 def powerApplianceNow(evt){
@@ -796,7 +942,7 @@ LOGDEBUG("No missed timed events")
 
 // speak any missed message
 def speakMissedNow(){
-
+chooseSpeaker()
 LOGDEBUG("SpeakMissedNow called...")
 	state.myMsg = missedMessage
 	    
@@ -1189,6 +1335,7 @@ def timeTalkNow(evt){
 checkTimeMissedNow()
 checkPresence()
 checkDay()
+chooseSpeaker()
 state.timeOK = true
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
@@ -1239,7 +1386,7 @@ LOGDEBUG( "$contact1 = $evt.value")
 def timeTalkNow1(evt){
 checkDay()
 checkPresence()
-
+chooseSpeaker()
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' ){
 LOGDEBUG("Time trigger -  Activating now! ")
@@ -1539,6 +1686,7 @@ def checkAgain2() {
 def speakNow(){
 LOGDEBUG("Power - speakNow...")
 checkPresence()
+chooseSpeaker()
 state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true){
   if(state.msgType == "Voice Message"){
@@ -1588,14 +1736,16 @@ LOGDEBUG( "Timer reset - Messages allowed")
 // Talk now....
 
 def talkSwitch(){
-LOGDEBUG("Calling.. talkSwitch")
+LOGDEBUG("talkSwitch - Calling.. talkSwitch")
 if(state.appgo == true){
-LOGDEBUG("Calling.. CheckTime")
+LOGDEBUG("talkSwitch - Calling.. CheckTime")
 checkTime()
-LOGDEBUG("Calling.. CheckDay")
+LOGDEBUG("talkSwitch - Calling.. CheckDay")
 checkDay()
-LOGDEBUG("Calling.. CheckPresence")
+LOGDEBUG("talkSwitch - Calling.. CheckPresence")
 checkPresence()
+LOGDEBUG("talkSwitch - Calling.. ChooseSpeaker")
+chooseSpeaker()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
