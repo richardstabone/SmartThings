@@ -30,11 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 28/01/2018
+ *  Last Update: 02/02/2018
  *
  *  Changes:
  *
  *
+ *  V3.1.0 - Added 'Follow Me' speaker settings - Allows you to set motion sensors to control which speakers are used.
  *  V3.0.0 - Added a new trigger setup 'Appliance Power Monitor' - This uses a second power threshold which must be exceeded before monitoring starts
  *  V2.9.0 - Added Missed message config to 'Time' trigger
  *  V2.8.0 - Added %opencontact% variable to check any open windows/door
@@ -292,7 +293,8 @@ def speakerInputs(){
  if (messageAction){
  state.msgType = messageAction
     if(state.msgType == "Voice Message"){
-    	input "speakerMode", "bool", title: "Speaker Mode\r\n  On = 'Follow Me' \r\n  Off = 'Normal' ", required: true, submitOnChange: true, defaultValue: false
+    	
+    	input "speakerMode", "bool", title: "Speaker Mode:\r\nOn = 'Follow Me'  Off = 'Normal' ", required: true, submitOnChange: true, defaultValue: false
     	
         if(speakerMode == true){
         input "followSpeaker1", "capability.musicPlayer", title: "Choose speaker(s) for Area 1", required: false, multiple: true
@@ -734,11 +736,11 @@ LOGDEBUG("Motion is active - turning on speaker for Area 1")
 		state.skpr1 = true
     }
     	if(action1 == "inactive"){
-		motionNow1 = 60 * motionDelay1
-LOGDEBUG("Motion is inactive - waiting $motionNow1 minutes before disabling local speaker")
+		def motionNow1 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow1 seconds before disabling local speaker")
 		runIn(motionNow1, turnOffMotion1)  
     }
-
+chooseSpeaker() //***********************************************************************************************************
 }
 def turnOffMotion1(){
 LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 1")
@@ -755,11 +757,11 @@ LOGDEBUG("Motion is active - turning on speaker for Area 2")
 		state.skpr2 = true
     }
     	if(action2 == "inactive"){
-		motionNow2 = 60 * motionDelay1
-LOGDEBUG("Motion is inactive - waiting $motionNow1 minutes before disabling local speaker")
+		def motionNow2 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow1 seconds before disabling local speaker")
 		runIn(motionNow2, turnOffMotion2)  
     }
-
+chooseSpeaker() //***********************************************************************************************************
 }
 def turnOffMotion2(){
 LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 2")
@@ -776,11 +778,11 @@ LOGDEBUG("Motion is active - turning on speaker for Area 3")
 		state.skpr3 = true
     }
     	if(action3 == "inactive"){
-		motionNow3 = 60 * motionDelay1
-LOGDEBUG("Motion is inactive - waiting $motionNow3 minutes before disabling local speaker")
+		def motionNow3 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow3 seconds before disabling local speaker")
 		runIn(motionNow3, turnOffMotion3)  
     }
-
+chooseSpeaker() //***********************************************************************************************************
 }
 def turnOffMotion3(){
 LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 3")
@@ -797,11 +799,11 @@ LOGDEBUG("Motion is active - turning on speaker for Area 4")
 		state.skpr4 = true
     }
     	if(action4 == "inactive"){
-		motionNow4 = 60 * motionDelay1
-LOGDEBUG("Motion is inactive - waiting $motionNow4 minutes before disabling local speaker")
+		def motionNow4 = 60 * motionDelay1
+LOGDEBUG("Motion is inactive - waiting $motionNow4 seconds before disabling local speaker")
 		runIn(motionNow4, turnOffMotion4)  
     }
-
+chooseSpeaker() //***********************************************************************************************************
 }
 def turnOffMotion4(){
 LOGDEBUG("Motion has ceased and delay has expired - turning off speaker for Area 4")
@@ -829,12 +831,12 @@ LOGDEBUG("Running: chooseSpeaker")
         if(state.skpr3 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow3}
         if(state.skpr4 == true){state.finalSpeaker = state.finalSpeaker + state.speakerFollow4}
           
-LOGDEBUG("Follow Speaker(s)in use =  state.finalSpeaker")      
+LOGDEBUG("Follow Speaker(s)in use = $state.finalSpeaker")      
      }
 
 	if(speakerMode == false){
 		state.finalSpeaker = speaker
-LOGDEBUG("Standard Speaker(s) selected =  state.finalSpeaker") 
+LOGDEBUG("Standard Speaker(s) selected =  $state.finalSpeaker") 
      }
 
 
@@ -949,7 +951,7 @@ LOGDEBUG("SpeakMissedNow called...")
   if (state.alreadyDone == false){  
 LOGDEBUG("Message = $state.myMsg")
 	
-	speaker.speak(state.myMsg)
+	state.finalSpeaker.speak(state.myMsg)
 	state.alreadyDone = true
 	}
 
@@ -1349,7 +1351,7 @@ LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play:
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(msg)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+state.finalSpeaker.speak(state.fullPhrase)
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -1398,7 +1400,7 @@ LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play:
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(msg)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+state.finalSpeaker.speak(state.fullPhrase)
 
 }
 
@@ -1694,7 +1696,7 @@ state.msg1 = message1
 	LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg1)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-speaker.speak(state.fullPhrase)
+state.finalSpeaker.speak(state.fullPhrase)
    	startTimerPower()  
     }
    if(state.msgType == "SMS/Push Message" && state.msg1 != null){
@@ -1789,6 +1791,8 @@ LOGDEBUG("$enableSwitch is off so cannot continue")
 
 }
 
+
+// Check the volume of speakers
 def checkVolume(){
 def timecheck = fromTime2
 if (timecheck != null){
@@ -1796,8 +1800,9 @@ def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZ
     if (between2) {
     
     state.volume = volume2
-   speaker.setLevel(state.volume)
-    
+    if(state.finalSpeaker != null){ // ***********************************************************************************
+   state.finalSpeaker.setLevel(state.volume)
+   }
    LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
     
 }
@@ -1805,14 +1810,19 @@ else if (!between2) {
 state.volume = volume1
 LOGDEBUG("Quiet Time = No - Setting Normal time volume")
 
-speaker.setLevel(state.volume)
+if(state.finalSpeaker != null){ // ***********************************************************************************
+   state.finalSpeaker.setLevel(state.volume)
+   }
  
 	}
 }
 else if (timecheck == null){
 
 state.volume = volume1
-speaker.setLevel(state.volume)
+
+if(state.finalSpeaker != null){ // ***********************************************************************************
+   state.finalSpeaker.setLevel(state.volume)
+   }
 
 	}
  
@@ -2185,5 +2195,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "3.0.0"
+    state.appversion = "3.1.0"
 }
