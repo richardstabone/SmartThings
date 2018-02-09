@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /**
  *  ****************  Temperature Controlled Switch.  ****************
 =======
+=======
+>>>>>>> parent of e962dad... Updated 28/01/2018
 =======
 >>>>>>> parent of e962dad... Updated 28/01/2018
 =======
