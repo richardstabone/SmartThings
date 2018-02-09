@@ -31,10 +31,14 @@
  *
  *
 <<<<<<< HEAD
+<<<<<<< HEAD
  *  Last Update: 26/01/2018
 =======
  *  Last Update: 02/02/2018
 >>>>>>> origin/master
+=======
+ *  Last Update: 26/01/2018
+>>>>>>> parent of e962dad... Updated 28/01/2018
  *
  *  Changes:
  *
