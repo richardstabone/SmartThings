@@ -30,19 +30,7 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- *  Last Update: 26/01/2018
-=======
  *  Last Update: 02/02/2018
->>>>>>> origin/master
-=======
- *  Last Update: 26/01/2018
->>>>>>> parent of e962dad... Updated 28/01/2018
-=======
- *  Last Update: 26/01/2018
->>>>>>> parent of e962dad... Updated 28/01/2018
  *
  *  Changes:
  *
@@ -236,7 +224,7 @@ def mainPage() {
                          " %day%			- Replaced with current day of the week\r\n" +
                          " %date%			- Replaced with current day number & month\r\n" +
                          " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast" +
+                         " %weather%		- Replaced with the current weather forcast\r\n" +
                          " %opencontact%	- Replaced with a list of configured contacts if they are open"
                          
          // Look at possibly adding additional variables:                
@@ -718,6 +706,8 @@ if(state.selection == 'Contact - Open Too Long'){
 
 
 def chooseSpeaker(){
+// This section ready for 'follow me' speaker config...
+
 LOGDEBUG("Running: chooseSpeaker")
 		state.finalSpeaker = speaker
 LOGDEBUG("Standard Speaker(s) selected =  $state.finalSpeaker") 
@@ -1340,6 +1330,7 @@ checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 
 runIn(mydelay, talkSwitch)
+
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -1358,7 +1349,7 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
     }
 
 }
-
+state.allowAll = false
 }
 
 
@@ -1637,7 +1628,7 @@ LOGDEBUG("talkSwitch - Calling.. ChooseSpeaker")
 chooseSpeaker()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.allowAll == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
@@ -1646,6 +1637,7 @@ LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg1)
 LOGDEBUG("All OK! - Playing message 1: '$state.fullPhrase'")
 state.finalSpeaker.speak(state.fullPhrase)
+state.allowAll = false
 startTimer1()
 }
 else if(state.msgNow == 'twoNow'  && state.msg2 != null && state.timer2 == true){
@@ -1653,6 +1645,7 @@ LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg2)
 LOGDEBUG("All OK! - Playing message 2: '$state.fullPhrase'")
 state.finalSpeaker.speak(state.fullPhrase)
+state.allowAll = false
 startTimer2()
 }
 
