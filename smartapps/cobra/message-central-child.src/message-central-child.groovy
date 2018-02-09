@@ -30,7 +30,7 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 28/01/2018
+ *  Last Update: 26/01/2018
  *
  *  Changes:
  *
@@ -228,7 +228,7 @@ def mainPage() {
                          " %day%			- Replaced with current day of the week\r\n" +
                          " %date%			- Replaced with current day number & month\r\n" +
                          " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast\r\n" +
+                         " %weather%		- Replaced with the current weather forcast" +
                          " %opencontact%	- Replaced with a list of configured contacts if they are open"
                          
          // Look at possibly adding additional variables:                

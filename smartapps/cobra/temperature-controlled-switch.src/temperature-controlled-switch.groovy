@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /**
  *  ****************  Temperature Controlled Switch.  ****************
+=======
+﻿/**
+ *  ****************  Temperature Controlled Switch  ****************
+>>>>>>> parent of e962dad... Updated 28/01/2018
  *
  *	Credits: 
  *	Parts of 'allOk()' code come from an app by: TIM SLAGLE
@@ -37,8 +42,8 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  
- *  Last Update: 28/01/2018
+ *  Created: 28/01/2018
+ *  Last Update:
  *
  *  Changes:
  *
@@ -176,7 +181,7 @@ def inputPage(){
     
 	section("Desired Temperature") {
     
-    input "tempMode", "bool", title: " Select mode of operation\r\n Off = Fixed Temperature - On = External Temperature Control", required: true, submitOnChange: true, defaultValue: false  
+    input "tempMode", "bool", title: " Select mode of operation\r\n Off = Fixed Temperature - On = Variable Temperature", required: true, submitOnChange: true, defaultValue: false  
     if(tempMode == true){
     input "temperatureControl1", "capability.temperatureMeasurement" , title: "Select Controller", required: true
     
