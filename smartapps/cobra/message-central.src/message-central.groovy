@@ -5,7 +5,7 @@
  *  This is the 'Parent' app for message automation..
  *
  *
- *  Copyright 2017 Andrew Parker
+ *  Copyright 2017 Andrew Parker.
  *  
  *  This SmartApp is free!
  *  Donations to support development efforts are accepted via: 
