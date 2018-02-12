@@ -1,8 +1,8 @@
-﻿/**
- *  ****************  Message_Central_Child..  ****************
+/**
+ *  ****************  Message_Central_Child  ****************
  *
  *  Design Usage:
- *  This is the 'Child' app for message automation.
+ *  This is the 'Child' app for message automation...
  *
  *
  *  Copyright 2017 Andrew Parker
