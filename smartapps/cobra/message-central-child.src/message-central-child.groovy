@@ -30,11 +30,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 26/01/2018
+ *  Last Update: 12/02/2018
  *
  *  Changes:
  *
  *
+ *  V3.0.1 - Added additional variables: %device% & %event%
  *  V3.0.0 - Added a new trigger setup 'Appliance Power Monitor' - This uses a second power threshold which must be exceeded before monitoring starts
  *  V2.9.0 - Added Missed message config to 'Time' trigger
  *  V2.8.0 - Added %opencontact% variable to check any open windows/door
@@ -224,13 +225,10 @@ def mainPage() {
                          " %day%			- Replaced with current day of the week\r\n" +
                          " %date%			- Replaced with current day number & month\r\n" +
                          " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast" +
-                         " %opencontact%	- Replaced with a list of configured contacts if they are open"
-                         
-         // Look at possibly adding additional variables:                
-                  //       +
-                  //       " %device%  - Replaced with the name of the triggering device\r\n" +
-                 //        " %action%  - Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
+                         " %weather%		- Replaced with the current weather forcast\r\n" +
+                         " %opencontact%	- Replaced with a list of configured contacts if they are open\r\n" +
+                         " %device%  		- Replaced with the name of the triggering device\r\n" +
+                         " %event%  		- Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
                     
     }     
     
@@ -1229,8 +1227,9 @@ LOGDEBUG( "Cannot continue - Presence failed")
 
 // Time if Contact Open
 def contact1Handler (evt) {
-// deviceVar = contact1
- state.contact1SW = evt.value 
+state.contact1SW = evt.value 
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 LOGDEBUG( "$contact1 = $evt.value")
 						 }
 
@@ -1286,12 +1285,14 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 // Switch
 def switchTalkNow(evt){
 state.talkswitch = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 state.msg1 = message1
 state.msg2 = message2
 def mydelay = triggerDelay
 
 if(state.msgType == "Voice Message"){
-LOGDEBUG("Switch - Voice Message")
+LOGDEBUG("Switch - Voice Message - $state.nameOfDevice")
 
 	if(state.talkswitch == 'on'){
 state.msgNow = 'oneNow'
@@ -1313,7 +1314,7 @@ if(state.msgType == "SMS/Push Message"){
 LOGDEBUG("Switch - SMS/Push Message")
 	if(state.talkswitch == 'on' && state.msg1 != null){
 def msg = message1
-LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
+LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg - $state.nameOfDevice")
   sendMessage(msg)
     }
     
@@ -1333,6 +1334,8 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
 // Contact
 def contactTalkNow(evt){
 state.talkcontact = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1378,9 +1381,9 @@ LOGDEBUG("Contact - SMS/Push Message - Sending Message: $msg")
 
 // Water
 def waterTalkNow(evt){
-// state.deviceVar = water1
-// state.actionVar = evt.value
 state.talkwater = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1422,9 +1425,9 @@ LOGDEBUG("Water - SMS/Push Message - Sending Message: $msg")
 
 // Presence
 def presenceTalkNow(evt){
-// state.deviceVar = presenceSensor1
-// state.actionVar = evt.value
 state.talkpresence = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1471,10 +1474,9 @@ LOGDEBUG("Presence - SMS/Push Message - Sending Message: $msg")
 
 // Power 
 def powerTalkNow (evt){
-// state.deviceVar = powerSensor
-// state.actionVar = evt.value as double
 state.meterValue = evt.value as double
-
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value as double
 	LOGDEBUG("$powerSensor shows $state.meterValue Watts")
     if(state.appgo == true){
 	checkNow1()  
@@ -1831,10 +1833,26 @@ private compileMsg(msg) {
     if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
 	if (msgComp.contains("%OPENCONTACT%")) {msgComp = msgComp.toUpperCase().replace('%OPENCONTACT%', getContactReport() )}  
-
+	if (msgComp.contains("%DEVICE%")) {msgComp = msgComp.toUpperCase().replace('%DEVICE%', getNameofDevice() )}  
+	if (msgComp.contains("%EVENT%")) {msgComp = msgComp.toUpperCase().replace('%EVENT%', getWhatHappened() )}  
+        
+    
+    
     convertWeatherMessage(msgComp)
   
     
+}
+
+private getWhatHappened(){
+LOGDEBUG("Event = $state.actionEvent")
+return state.actionEvent
+
+}
+
+private getNameofDevice(){
+LOGDEBUG("Device = $state.nameOfDevice")
+return state.nameOfDevice
+
 }
 
 private getContactReport(){
@@ -2035,5 +2053,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "3.0.0"
+    state.appversion = "3.0.1"
 }
