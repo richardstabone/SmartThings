@@ -1,19 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 /**
  *  ****************  Temperature Controlled Switch.  ****************
-=======
-=======
->>>>>>> parent of e962dad... Updated 28/01/2018
-=======
->>>>>>> parent of e962dad... Updated 28/01/2018
-=======
->>>>>>> parent of e962dad... Updated 28/01/2018
-﻿/**
- *  ****************  Temperature Controlled Switch  ****************
->>>>>>> parent of e962dad... Updated 28/01/2018
  *
  *	Credits: 
  *	Parts of 'allOk()' code come from an app by: TIM SLAGLE
@@ -51,8 +37,8 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Created: 28/01/2018
- *  Last Update:
+ *  
+ *  Last Update: 28/01/2018
  *
  *  Changes:
  *
@@ -190,7 +176,7 @@ def inputPage(){
     
 	section("Desired Temperature") {
     
-    input "tempMode", "bool", title: " Select mode of operation\r\n Off = Fixed Temperature - On = Variable Temperature", required: true, submitOnChange: true, defaultValue: false  
+    input "tempMode", "bool", title: " Select mode of operation\r\n Off = Fixed Temperature - On = External Temperature Control", required: true, submitOnChange: true, defaultValue: false  
     if(tempMode == true){
     input "temperatureControl1", "capability.temperatureMeasurement" , title: "Select Controller", required: true
     
@@ -344,7 +330,7 @@ LOGDEBUG("modeOk = $modeOk - daysOk = $daysOk - timeOk = $timeOk - enableOk = $e
 // disable/enable switch
 def switchEnableNow(evt){
 	state.enable = evt.value
-	LOGDEBUG( "Enable/Disable switch $switch1 is $state.currS1")
+	LOGDEBUG( "Enable/Disable switch $switch1 is $state.enable")
 	if (state.enable == "off" ) {
 		switch2.off()
    }
