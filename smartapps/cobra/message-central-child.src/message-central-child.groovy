@@ -705,6 +705,8 @@ if(state.selection == 'Contact - Open Too Long'){
 def powerApplianceNow(evt){
 state.meterValue = evt.value as double
 state.activateThreshold = aboveThreshold
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value as double
 LOGDEBUG( "Power reported $state.meterValue watts")
 if(state.meterValue > state.activateThreshold){
 state.activate = true
@@ -819,6 +821,8 @@ LOGDEBUG("Already told you, so won't tell you again!")
 // Button
 def buttonEvent(evt){
 state.buttonStatus1 = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 LOGDEBUG("Button is $state.buttonStatus1 state.presenceRestriction = $state.presenceRestriction")
 state.msg1 = message1
 state.msg2 = message2
@@ -870,6 +874,8 @@ LOGDEBUG("Button - SMS/Push Message - Sending Message: $msg")
 // Temperature
 def tempTalkNow(evt){
 state.tempStatus1 = evt.doubleValue
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.doubleValue
 state.msg1 = message1
 state.msgNow = 'oneNow'
 def myTemp = temperature1
@@ -914,6 +920,8 @@ LOGDEBUG("TempTalkNow - SMS/Push Message - Sending Message: $msg")
 
 def motionTalkNow(evt){
 state.motionStatus1 = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 state.msg1 = message1
 state.msgNow = 'oneNow'
 
@@ -956,7 +964,8 @@ LOGDEBUG("MotionTalkNow - SMS/Push Message - Sending Message: $msg")
 def tooLongOpen(evt){
 state.deviceVar = openSensor
 state.openContact = evt.value
-state.actionVar = evt.value
+state.nameOfDevice = evt.displayName
+state.actionEvent = evt.value
 if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true){
 LOGDEBUG("tooLongOpen - Contact is open")
 openContactTimer1()
@@ -1008,9 +1017,8 @@ LOGDEBUG("tooLongOpen - SMS/Push Message - Sending Message: $msg")
 // Mode Change
 
 def modeChangeHandler(evt){
-//state.deviceVar = newMode1
 state.modeNow = evt.value
-//state.actionVar = evt.value
+state.actionEvent = evt.value
 LOGDEBUG("state.modeNow = $state.modeNow")
  state.msg1 = message1
  LOGDEBUG("state.msg1 = $state.msg1")
@@ -1045,9 +1053,8 @@ LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
 
 // Routines
 def routineChanged(evt) {
-//state.deviceVar = routine1
 state.newRoutine = evt.displayName
-//state.actionVar = evt.value
+state.nameOfDevice = evt.displayName
 state.msg1 = message1
 state.msgNow = 'oneNow'
 def routineToCheckRun = routine1
