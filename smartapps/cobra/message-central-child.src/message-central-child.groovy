@@ -2,7 +2,7 @@
  *  ****************  Message_Central_Child  ****************
  *
  *  Design Usage:
- *  This is the 'Child' app for message automation
+ *  This is the 'Child' app for message automation..
  *
  *
  *  Copyright 2017 Andrew Parker
@@ -30,12 +30,11 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 02/02/2018
+ *  Last Update: 26/01/2018
  *
  *  Changes:
  *
  *
- *  
  *  V3.0.0 - Added a new trigger setup 'Appliance Power Monitor' - This uses a second power threshold which must be exceeded before monitoring starts
  *  V2.9.0 - Added Missed message config to 'Time' trigger
  *  V2.8.0 - Added %opencontact% variable to check any open windows/door
@@ -116,14 +115,15 @@ def initialize() {
       state.contact1SW = 'closed' 
      if(state.msgType == "Voice Message"){ 
      checkVolume()
-    
      }
       
 // Subscriptions    
 
-	subscribe(enableSwitch, "switch", switchEnable)
+subscribe(enableSwitch, "switch", switchEnable)
 
-	
+
+
+
 if(trigger == 'Time'){
    LOGDEBUG("Trigger is $trigger")
    schedule(runTime,timeTalkNow)
@@ -224,7 +224,7 @@ def mainPage() {
                          " %day%			- Replaced with current day of the week\r\n" +
                          " %date%			- Replaced with current day number & month\r\n" +
                          " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast\r\n" +
+                         " %weather%		- Replaced with the current weather forcast" +
                          " %opencontact%	- Replaced with a list of configured contacts if they are open"
                          
          // Look at possibly adding additional variables:                
@@ -288,14 +288,13 @@ def speakerInputs(){
  if (messageAction){
  state.msgType = messageAction
     if(state.msgType == "Voice Message"){
-    	
-        input "speaker", "capability.musicPlayer", title: "Choose Speaker(s)", required: false, multiple: true
-        input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
-	
-        
-   
+	input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
+	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "85",  required: true
+    
+ 
 	}
 
+	
  }
 }
 
@@ -704,23 +703,10 @@ if(state.selection == 'Contact - Open Too Long'){
 // Handlers
 
 
-
-def chooseSpeaker(){
-// This section ready for 'follow me' speaker config...
-
-LOGDEBUG("Running: chooseSpeaker")
-		state.finalSpeaker = speaker
-LOGDEBUG("Standard Speaker(s) selected =  $state.finalSpeaker") 
-     }
-
-
-
-
 // Appliance Power Monitor
 def powerApplianceNow(evt){
 state.meterValue = evt.value as double
 state.activateThreshold = aboveThreshold
-state.allowAll = true
 LOGDEBUG( "Power reported $state.meterValue watts")
 if(state.meterValue > state.activateThreshold){
 state.activate = true
@@ -810,14 +796,14 @@ LOGDEBUG("No missed timed events")
 
 // speak any missed message
 def speakMissedNow(){
-chooseSpeaker()
+
 LOGDEBUG("SpeakMissedNow called...")
 	state.myMsg = missedMessage
 	    
   if (state.alreadyDone == false){  
 LOGDEBUG("Message = $state.myMsg")
 	
-	state.finalSpeaker.speak(state.myMsg)
+	speaker.speak(state.myMsg)
 	state.alreadyDone = true
 	}
 
@@ -835,7 +821,6 @@ LOGDEBUG("Already told you, so won't tell you again!")
 // Button
 def buttonEvent(evt){
 state.buttonStatus1 = evt.value
-state.allowAll = true
 LOGDEBUG("Button is $state.buttonStatus1 state.presenceRestriction = $state.presenceRestriction")
 state.msg1 = message1
 state.msg2 = message2
@@ -887,7 +872,6 @@ LOGDEBUG("Button - SMS/Push Message - Sending Message: $msg")
 // Temperature
 def tempTalkNow(evt){
 state.tempStatus1 = evt.doubleValue
-state.allowAll = true
 state.msg1 = message1
 state.msgNow = 'oneNow'
 def myTemp = temperature1
@@ -932,7 +916,6 @@ LOGDEBUG("TempTalkNow - SMS/Push Message - Sending Message: $msg")
 
 def motionTalkNow(evt){
 state.motionStatus1 = evt.value
-state.allowAll = true
 state.msg1 = message1
 state.msgNow = 'oneNow'
 
@@ -976,7 +959,6 @@ def tooLongOpen(evt){
 state.deviceVar = openSensor
 state.openContact = evt.value
 state.actionVar = evt.value
-state.allowAll = true
 if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true){
 LOGDEBUG("tooLongOpen - Contact is open")
 openContactTimer1()
@@ -993,7 +975,7 @@ LOGDEBUG("tooLongOpen - Contact is closed")
 
 
 def openContactTimer1(){
-state.allowAll = true
+
 LOGDEBUG( "tooLongOpen - openContactTimer1 -  Contact is: $state.openContact")
    def mydelayOpen = 60 * opendelay1
    LOGDEBUG( "openContactTimer1 - Checking again after delay: $opendelay1 minute(s)... ")
@@ -1030,7 +1012,6 @@ LOGDEBUG("tooLongOpen - SMS/Push Message - Sending Message: $msg")
 def modeChangeHandler(evt){
 //state.deviceVar = newMode1
 state.modeNow = evt.value
-state.allowAll = true
 //state.actionVar = evt.value
 LOGDEBUG("state.modeNow = $state.modeNow")
  state.msg1 = message1
@@ -1068,7 +1049,6 @@ LOGDEBUG("Mode Change - SMS/Push Message - Sending Message: $msg")
 def routineChanged(evt) {
 //state.deviceVar = routine1
 state.newRoutine = evt.displayName
-state.allowAll = true
 //state.actionVar = evt.value
 state.msg1 = message1
 state.msgNow = 'oneNow'
@@ -1209,7 +1189,6 @@ def timeTalkNow(evt){
 checkTimeMissedNow()
 checkPresence()
 checkDay()
-chooseSpeaker()
 state.timeOK = true
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
@@ -1223,7 +1202,7 @@ LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play:
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(msg)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-state.finalSpeaker.speak(state.fullPhrase)
+speaker.speak(state.fullPhrase)
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -1252,7 +1231,6 @@ LOGDEBUG( "Cannot continue - Presence failed")
 def contact1Handler (evt) {
 // deviceVar = contact1
  state.contact1SW = evt.value 
-
 LOGDEBUG( "$contact1 = $evt.value")
 						 }
 
@@ -1261,9 +1239,9 @@ LOGDEBUG( "$contact1 = $evt.value")
 def timeTalkNow1(evt){
 checkDay()
 checkPresence()
-chooseSpeaker()
+
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
-if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' && state.allowAll == true ){
+if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' ){
 LOGDEBUG("Time trigger -  Activating now! ")
 
 if(state.msgType == "Voice Message"){ 
@@ -1273,8 +1251,8 @@ LOGDEBUG( "Speaker(s) in use: $speaker set at: $state.volume% - Message to play:
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(msg)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-state.finalSpeaker.speak(state.fullPhrase)
-state.allowAll = false
+speaker.speak(state.fullPhrase)
+
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -1308,7 +1286,6 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 // Switch
 def switchTalkNow(evt){
 state.talkswitch = evt.value
-state.allowAll = true
 state.msg1 = message1
 state.msg2 = message2
 def mydelay = triggerDelay
@@ -1330,7 +1307,6 @@ checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
 
 runIn(mydelay, talkSwitch)
-
 }
 
 if(state.msgType == "SMS/Push Message"){
@@ -1349,7 +1325,7 @@ LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
     }
 
 }
-state.allowAll = false
+
 }
 
 
@@ -1357,7 +1333,6 @@ state.allowAll = false
 // Contact
 def contactTalkNow(evt){
 state.talkcontact = evt.value
-state.allowAll = true
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1406,7 +1381,6 @@ def waterTalkNow(evt){
 // state.deviceVar = water1
 // state.actionVar = evt.value
 state.talkwater = evt.value
-state.allowAll = true
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1451,7 +1425,6 @@ def presenceTalkNow(evt){
 // state.deviceVar = presenceSensor1
 // state.actionVar = evt.value
 state.talkpresence = evt.value
-state.allowAll = true
 state.msg1 = message1
 state.msg2 = message2
 
@@ -1566,7 +1539,6 @@ def checkAgain2() {
 def speakNow(){
 LOGDEBUG("Power - speakNow...")
 checkPresence()
-chooseSpeaker()
 state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true){
   if(state.msgType == "Voice Message"){
@@ -1574,7 +1546,7 @@ state.msg1 = message1
 	LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg1)
 LOGDEBUG("All OK! - Playing message: '$state.fullPhrase'")
-state.finalSpeaker.speak(state.fullPhrase)
+speaker.speak(state.fullPhrase)
    	startTimerPower()  
     }
    if(state.msgType == "SMS/Push Message" && state.msg1 != null){
@@ -1616,19 +1588,17 @@ LOGDEBUG( "Timer reset - Messages allowed")
 // Talk now....
 
 def talkSwitch(){
-LOGDEBUG("talkSwitch - Calling.. talkSwitch")
+LOGDEBUG("Calling.. talkSwitch")
 if(state.appgo == true){
-LOGDEBUG("talkSwitch - Calling.. CheckTime")
+LOGDEBUG("Calling.. CheckTime")
 checkTime()
-LOGDEBUG("talkSwitch - Calling.. CheckDay")
+LOGDEBUG("Calling.. CheckDay")
 checkDay()
-LOGDEBUG("talkSwitch - Calling.. CheckPresence")
+LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
-LOGDEBUG("talkSwitch - Calling.. ChooseSpeaker")
-chooseSpeaker()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.allowAll == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
@@ -1636,16 +1606,14 @@ if(state.msgNow == 'oneNow' && state.timer1 == true && state.msg1 != null){
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg1)
 LOGDEBUG("All OK! - Playing message 1: '$state.fullPhrase'")
-state.finalSpeaker.speak(state.fullPhrase)
-state.allowAll = false
+speaker.speak(state.fullPhrase)
 startTimer1()
 }
 else if(state.msgNow == 'twoNow'  && state.msg2 != null && state.timer2 == true){
 LOGDEBUG("Calling.. CompileMsg")
 compileMsg(state.msg2)
 LOGDEBUG("All OK! - Playing message 2: '$state.fullPhrase'")
-state.finalSpeaker.speak(state.fullPhrase)
-state.allowAll = false
+speaker.speak(state.fullPhrase)
 startTimer2()
 }
 
@@ -1671,8 +1639,6 @@ LOGDEBUG("$enableSwitch is off so cannot continue")
 
 }
 
-
-// Check the volume of speakers
 def checkVolume(){
 def timecheck = fromTime2
 if (timecheck != null){
@@ -1680,9 +1646,8 @@ def between2 = timeOfDayIsBetween(fromTime2, toTime2, new Date(), location.timeZ
     if (between2) {
     
     state.volume = volume2
-    if(state.finalSpeaker != null){ // ***********************************************************************************
-   state.finalSpeaker.setLevel(state.volume)
-   }
+   speaker.setLevel(state.volume)
+    
    LOGDEBUG("Quiet Time = Yes - Setting Quiet time volume")
     
 }
@@ -1690,19 +1655,14 @@ else if (!between2) {
 state.volume = volume1
 LOGDEBUG("Quiet Time = No - Setting Normal time volume")
 
-if(state.finalSpeaker != null){ // ***********************************************************************************
-   state.finalSpeaker.setLevel(state.volume)
-   }
+speaker.setLevel(state.volume)
  
 	}
 }
 else if (timecheck == null){
 
 state.volume = volume1
-
-if(state.finalSpeaker != null){ // ***********************************************************************************
-   state.finalSpeaker.setLevel(state.volume)
-   }
+speaker.setLevel(state.volume)
 
 	}
  
@@ -1731,7 +1691,7 @@ runIn(mydelay, pushNow)
 def pushNow(){
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.timer1 == true && state.allowAll == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.timer1 == true){
 
 log.trace "SendMessage - $state.fullPhrase"
     if (location.contactBookEnabled) {
@@ -1741,12 +1701,10 @@ log.trace "SendMessage - $state.fullPhrase"
     else {
         if (sms) {
             sendSms(sms, state.fullPhrase)
-            state.allowAll = false
             startTimer1()
         }
         if (pushNotification) {
             sendPush(state.fullPhrase)
-            state.allowAll = false
             startTimer1()
         }
     }
