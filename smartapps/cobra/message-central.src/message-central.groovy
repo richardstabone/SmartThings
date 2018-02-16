@@ -38,7 +38,7 @@
  *  Changes:
  *
  * 
- *
+ *  V1.1.0 - Added second child to remind of missed alerts
  *  V1.0.2 - Added icons
  *  V1.0.1 - Header & Debug
  *  V1.0.0 - POC
@@ -69,11 +69,11 @@ preferences {
     }
     section() {
            paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-                         "Parent Version: 1.0.2 -  Copyright © 2017 Cobra"
+                         "Parent Version: 1.1.0 -  Copyright © 2017 Cobra"
     }
     section {
             app(name: "switchMessageAutomation", appName: "Message_Central_Child", namespace: "Cobra", title: "Create New Triggered Message", multiple: true)
-           
+            app(name: "switchMessageAutomation1", appName: "Missed_Voice_Alerts", namespace: "Cobra", title: "Create New Missed Time Alert Message", multiple: true)
             }
             
            

@@ -5,7 +5,7 @@
  *  This is the 'Child' app for message automation...
  *
  *
- *  Copyright 2017 Andrew Parker
+ *  Copyright 2018 Andrew Parker
  *  
  *  This SmartApp is free!
  *  Donations to support development efforts are accepted via: 
@@ -30,11 +30,13 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 12/02/2018
+ *  Last Update: 15/02/2018
  *
  *  Changes:
  *
  *
+ *  V3.1.1 - UI slight revamp
+ *  V3.1.0 - Added a second presence restriction - Useful if you want something to happen when one person is home but NOT another
  *  V3.0.1 - Added additional variables: %device% & %event%
  *  V3.0.0 - Added a new trigger setup 'Appliance Power Monitor' - This uses a second power threshold which must be exceeded before monitoring starts
  *  V2.9.0 - Added Missed message config to 'Time' trigger
@@ -90,9 +92,11 @@ parent: "Cobra:Message Central",
 
 preferences {
     page name: "mainPage", title: "", install: false, uninstall: true, nextPage: "restrictionsPage"
+    page(name: "pageHelpVariables")
     page name: "restrictionsPage", title: "", install: false, uninstall: true, nextPage: "variablesPage"
     page name: "variablesPage", title: "", install: false, uninstall: true, nextPage: "namePage"
     page name: "namePage", title: "", install: true, uninstall: true
+    
 }
 
 def installed() {
@@ -112,7 +116,12 @@ def initialize() {
       switchRunCheck()
       state.timer1 = true
       state.timer2 = true
+      if (!restrictPresenceSensor){
       state.presenceRestriction = true
+      }
+      if (!restrictPresenceSensor1){
+      state.presenceRestriction1 = true
+      }
       state.contact1SW = 'closed' 
      if(state.msgType == "Voice Message"){ 
      checkVolume()
@@ -121,6 +130,7 @@ def initialize() {
 // Subscriptions    
 
 subscribe(enableSwitch, "switch", switchEnable)
+
 
 
 
@@ -203,6 +213,13 @@ subscribe(openSensor, "contact", tooLongOpen)
 if (restrictPresenceSensor){
 subscribe(restrictPresenceSensor, "presence", restrictPresenceSensorHandler)
 }    
+
+if (restrictPresenceSensor1){
+subscribe(restrictPresenceSensor1, "presence", restrictPresence1SensorHandler)
+}    
+
+
+
 }
 
 
@@ -212,26 +229,19 @@ def mainPage() {
       
         section {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/voice.png",
-                  title: "Message Control Child",
+                  title: "Message Central Child",
                   required: false,
                   "This child app allows you use different triggers to create different voice or text messages"
                   }
      section() {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-                         " Child Version: $state.appversion - Copyright © 2017 Cobra\r\n\r\n" +
-                      	 " Optional 'Variables' you can use in messages:\r\n\r\n" +
-                         " %time%			- Replaced with current time in 12 or 24 hour format (Switchable)\r\n" +
-                         " %day%			- Replaced with current day of the week\r\n" +
-                         " %date%			- Replaced with current day number & month\r\n" +
-                         " %year%			- Replaced with the current year\r\n" +
-                         " %weather%		- Replaced with the current weather forcast\r\n" +
-                         " %opencontact%	- Replaced with a list of configured contacts if they are open\r\n" +
-                         " %device%  		- Replaced with the name of the triggering device\r\n" +
-                         " %event%  		- Replaced with what triggered the action (e.g. On/Off, Wet/Dry)"
-                    
-    }     
-    
+                         " Child Version: $state.appversion - Copyright © 2017 - 2018 Cobra" 
+                      	
+   
+            href "pageHelpVariables", title:"Message Variables", description:"Tap here for a list of 'variables' you can use in your messages (and what they do)"
+        }
+
     
       section() {
         	speakerInputs()
@@ -247,6 +257,34 @@ def variablesPage() {
       restrictionInputs()            
       }  
     }
+    
+    
+def pageHelpVariables(){
+	
+
+    dynamicPage(name: "pageHelpVariables", title: "Message Variables", install: false, uninstall:false){
+
+       section("The following variables can be used in your event messages and will be replaced with the details listed below"){
+
+	def AvailableVariables = ""
+
+	AvailableVariables += " %time% 			-		Replaced with current time in 12 or 24 hour format (Switchable)\n\n"
+	AvailableVariables += " %day% 			- 		Replaced with current day of the week\n\n"
+	AvailableVariables += " %date% 			- 		Replaced with current day number & month\n\n"
+	AvailableVariables += " %year% 			- 		Replaced with the current year\n\n"
+	AvailableVariables += " %weather% 		- 		Replaced with the current weather forcast\n\n"
+	AvailableVariables += " %opencontact% 	- 		Replaced with a list of configured contacts if they are open\n\n"
+	AvailableVariables += " %device% 		- 		Replaced with the name of the triggering device\n\n"
+	AvailableVariables +=  " %event% 			- 		Replaced with what triggered the action (e.g. On/Off, Wet/Dry)" 	
+
+	paragraph(AvailableVariables)
+
+
+           
+       }
+   }
+}    
+    
 
 def restrictionsPage() {
        dynamicPage(name: "restrictionsPage") {
@@ -338,11 +376,16 @@ def restrictionInputs(){
     	}
     }
     if(restrictions3){
-    section("This is to restrict on presence sensor") {
-    input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor to restrict action", required: false, multiple: false, submitOnChange: true
+    section("This is to restrict on 1 or 2 presence sensor(s)") {
+    input "restrictPresenceSensor", "capability.presenceSensor", title: "Select presence sensor 1 to restrict action", required: false, multiple: false, submitOnChange: true
     if(restrictPresenceSensor){
    	input "restrictPresenceAction", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
 	}
+     input "restrictPresenceSensor1", "capability.presenceSensor", title: "Select presence sensor 2 to restrict action", required: false, multiple: false, submitOnChange: true
+    if(restrictPresenceSensor1){
+   	input "restrictPresenceAction1", "bool", title: "   On = Action only when someone is 'Present'  \r\n   Off = Action only when someone is 'NOT Present'  ", required: true, defaultValue: false    
+	}
+    
     }
             }
 		
@@ -701,6 +744,8 @@ if(state.selection == 'Contact - Open Too Long'){
 // Handlers
 
 
+
+
 // Appliance Power Monitor
 def powerApplianceNow(evt){
 state.meterValue = evt.value as double
@@ -966,7 +1011,7 @@ state.deviceVar = openSensor
 state.openContact = evt.value
 state.nameOfDevice = evt.displayName
 state.actionEvent = evt.value
-if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true){
+if (state.openContact == 'open' && state.appgo == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
 LOGDEBUG("tooLongOpen - Contact is open")
 openContactTimer1()
 }
@@ -1128,6 +1173,50 @@ LOGDEBUG("Presence sensor restriction not used")
 }
 
 
+def restrictPresence1SensorHandler(evt){
+state.presencestatus2 = evt.value
+LOGDEBUG("state.presencestatus2 = $evt.value")
+checkPresence1()
+
+
+}
+
+
+def checkPresence1(){
+LOGDEBUG("running checkPresence1 - restrictPresenceSensor1 = $restrictPresenceSensor1")
+
+if(restrictPresenceSensor1){
+LOGDEBUG("Presence = $state.presencestatus1")
+def actionPresenceRestrict1 = restrictPresenceAction1
+
+
+if (state.presencestatus2 == "present" && actionPresenceRestrict1 == true){
+LOGDEBUG("Presence 2 ok")
+state.presenceRestriction1 = true
+}
+else if (state.presencestatus2 == "not present" && actionPresenceRestrict1 == true){
+LOGDEBUG("Presence 2 not ok")
+state.presenceRestriction1 = false
+}
+
+if (state.presencestatus2 == "not present" && actionPresenceRestrict1 == false){
+LOGDEBUG("Presence 2 ok")
+state.presenceRestriction1 = true
+}
+else if (state.presencestatus2 == "present" && actionPresenceRestrict1 == false){
+LOGDEBUG("Presence 2 not ok")
+state.presenceRestriction1 = false
+}
+}
+else if(!restrictPresenceSensor1){
+state.presenceRestriction1 = true
+LOGDEBUG("Presence sensor 2 restriction not used")
+}
+}
+
+
+
+
 
 // define debug action
 def logCheck(){
@@ -1197,7 +1286,7 @@ checkDay()
 state.timeOK = true
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
-if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true){
+if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
 LOGDEBUG("Time trigger -  Activating now! ")
 
 if(state.msgType == "Voice Message"){ 
@@ -1247,7 +1336,7 @@ checkDay()
 checkPresence()
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
-if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.contact1SW == 'open' ){
+if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true && state.contact1SW == 'open' ){
 LOGDEBUG("Time trigger -  Activating now! ")
 
 if(state.msgType == "Voice Message"){ 
@@ -1549,7 +1638,7 @@ def speakNow(){
 LOGDEBUG("Power - speakNow...")
 checkPresence()
 state.msg1 = message1
-    if ( state.timer1 == true && state.presenceRestriction == true){
+    if ( state.timer1 == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
   if(state.msgType == "Voice Message"){
   checkVolume()
 	LOGDEBUG("Calling.. CompileMsg")
@@ -1607,7 +1696,7 @@ LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
 
 LOGDEBUG( " Continue... Check delay...")
 
@@ -1700,7 +1789,7 @@ runIn(mydelay, pushNow)
 def pushNow(){
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1")
-if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.timer1 == true){
+if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true && state.timer1 == true){
 
 log.trace "SendMessage - $state.fullPhrase"
     if (location.contactBookEnabled) {
@@ -2060,5 +2149,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "3.0.1"
+    state.appversion = "3.1.1"
 }
