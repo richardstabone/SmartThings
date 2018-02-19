@@ -1135,7 +1135,7 @@ def restrictPresenceSensorHandler(evt){
 state.presencestatus1 = evt.value
 LOGDEBUG("state.presencestatus1 = $evt.value")
 checkPresence()
-
+checkPresence1()
 
 }
 
@@ -1282,6 +1282,7 @@ LOGDEBUG("AppGo = $state.appgo")
 def timeTalkNow(evt){
 checkTimeMissedNow()
 checkPresence()
+checkPresence1()
 checkDay()
 state.timeOK = true
 
@@ -1334,6 +1335,7 @@ LOGDEBUG( "$contact1 = $evt.value")
 def timeTalkNow1(evt){
 checkDay()
 checkPresence()
+checkPresence1()
 
 LOGDEBUG("state.appgo = $state.appgo - state.dayCheck = $state.dayCheck - state.volume = $state.volume - runTime = $runTime")
 if(state.appgo == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true && state.contact1SW == 'open' ){
@@ -1380,7 +1382,7 @@ LOGDEBUG( "Cannot continue - $contact1 is Closed")
 
 // Switch
 def switchTalkNow(evt){
-state.talkswitch = evt.value
+state.talkswitch1 = evt.value
 state.nameOfDevice = evt.displayName
 state.actionEvent = evt.value
 state.msg1 = message1
@@ -1390,11 +1392,11 @@ def mydelay = triggerDelay
 if(state.msgType == "Voice Message"){
 LOGDEBUG("Switch - Voice Message - $state.nameOfDevice")
 
-	if(state.talkswitch == 'on'){
+	if(state.talkswitch1 == 'on'){
 state.msgNow = 'oneNow'
     }
 
-	else if (state.talkswitch == 'off'){
+	else if (state.talkswitch1 == 'off'){
 state.msgNow = 'twoNow'
 	}
 
@@ -1408,14 +1410,14 @@ runIn(mydelay, talkSwitch)
 
 if(state.msgType == "SMS/Push Message"){
 LOGDEBUG("Switch - SMS/Push Message")
-	if(state.talkswitch == 'on' && state.msg1 != null){
+	if(state.talkswitch1 == 'on' && state.msg1 != null){
 def msg = message1
 LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg - $state.nameOfDevice")
   sendMessage(msg)
     }
     
     
-    if(state.talkswitch == 'off' && state.msg2 != null){
+    if(state.talkswitch1 == 'off' && state.msg2 != null){
 def msg = message2
 LOGDEBUG("Switch - SMS/Push Message - Sending Message: $msg")
   sendMessage(msg)
@@ -1637,6 +1639,7 @@ def checkAgain2() {
 def speakNow(){
 LOGDEBUG("Power - speakNow...")
 checkPresence()
+checkPresence1()
 state.msg1 = message1
     if ( state.timer1 == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
   if(state.msgType == "Voice Message"){
@@ -1655,7 +1658,7 @@ startTimerPower()
  
 } 
 }    
-  if(state.presenceRestriction ==  false){
+  if(state.presenceRestriction ==  false || state.presenceRestriction1 ==  false){
 LOGDEBUG( "Cannot continue - Presence failed")
 }
 }
@@ -1694,6 +1697,8 @@ LOGDEBUG("Calling.. CheckDay")
 checkDay()
 LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
+LOGDEBUG("Calling.. CheckPresence1")
+checkPresence1()
 
 LOGDEBUG("state.appgo = $state.appgo - state.timeOK = $state.timeOK - state.dayCheck = $state.dayCheck - state.timer1 = $state.timer1 - state.timer2 = $state.timer2 - state.volume = $state.volume state.presenceRestriction = $state.presenceRestriction")
 if(state.timeOK == true && state.dayCheck == true && state.presenceRestriction == true && state.presenceRestriction1 == true){
@@ -1719,7 +1724,7 @@ startTimer2()
 else if(state.timeOK == false){
 LOGDEBUG("Not enabled for this time so cannot continue")
 }
-else if(state.presenceRestriction ==  false){
+else if(state.presenceRestriction ==  false || state.presenceRestriction1 ==  false){
 LOGDEBUG( "Cannot continue - Presence failed")
 }
 
@@ -1779,6 +1784,8 @@ LOGDEBUG("Calling.. CheckDay")
 checkDay()
 LOGDEBUG("Calling.. CheckPresence")
 checkPresence()
+LOGDEBUG("Calling.. CheckPresence1")
+checkPresence1()
 
 def mydelay = triggerDelay
 LOGDEBUG("Waiting $mydelay seconds before sending")
