@@ -34,7 +34,8 @@
  *
  *  Changes:
  *
- *
+ *  V3.2.0 - added random 'pre' & 'post' message variables - also 'wakeup' variable messages
+ *  V3.1.2 - added variable: %greeting% - to say 'good morning' , 'good afternoon' ... etc...
  *  V3.1.1 - UI slight revamp
  *  V3.1.0 - Added a second presence restriction - Useful if you want something to happen when one person is home but NOT another
  *  V3.0.1 - Added additional variables: %device% & %event%
@@ -272,6 +273,10 @@ def pageHelpVariables(){
 	AvailableVariables += " %day% 			- 		Replaced with current day of the week\n\n"
 	AvailableVariables += " %date% 			- 		Replaced with current day number & month\n\n"
 	AvailableVariables += " %year% 			- 		Replaced with the current year\n\n"
+    AvailableVariables += " %greeting% 		- 		Replaced with 'Good Morning', 'Good Afternoon' or 'Good Evening' (evening starts at 6pm)\n\n"
+    AvailableVariables += " %pre%			- 		Replaced with the a random 'prefix' message\n\n"
+    AvailableVariables += " %post%			- 		Replaced with the a random 'post' message\n\n"
+    AvailableVariables += " %wakeup%		- 		Replaced with the a random 'wake up' message\n\n"
 	AvailableVariables += " %weather% 		- 		Replaced with the current weather forcast\n\n"
 	AvailableVariables += " %opencontact% 	- 		Replaced with a list of configured contacts if they are open\n\n"
 	AvailableVariables += " %device% 		- 		Replaced with the name of the triggering device\n\n"
@@ -1400,7 +1405,7 @@ state.msgNow = 'oneNow'
 state.msgNow = 'twoNow'
 	}
 
-LOGDEBUG( "$switch1 is $state.talkswitch")
+LOGDEBUG( "$switch1 is $state.talkswitch1")
 
 checkVolume()
 LOGDEBUG("Speaker(s) in use: $speaker set at: $state.volume% - waiting $mydelay seconds before continuing..."  )
@@ -1914,6 +1919,7 @@ private getWeatherReport() {
 		def msgWeather = sb.toString()
         msgWeather = msgWeather.replaceAll(/([0-9]+)C/,'$1 degrees')
         msgWeather = msgWeather.replaceAll(/([0-9]+)F/,'$1 degrees')
+        
     return msgWeather
    
    
@@ -1934,17 +1940,127 @@ private compileMsg(msg) {
     if (msgComp.contains("%DAY%")) {msgComp = msgComp.toUpperCase().replace('%DAY%', getDay() )}  
 	if (msgComp.contains("%DATE%")) {msgComp = msgComp.toUpperCase().replace('%DATE%', getdate() )}  
     if (msgComp.contains("%YEAR%")) {msgComp = msgComp.toUpperCase().replace('%YEAR%', getyear() )}  
+    if (msgComp.contains("%WAKEUP%")) {msgComp = msgComp.toUpperCase().replace('%WAKEUP%', getWakeUp() )}
     if (msgComp.contains("%WEATHER%")) {msgComp = msgComp.toUpperCase().replace('%WEATHER%', getWeatherReport() )}  
 	if (msgComp.contains("%OPENCONTACT%")) {msgComp = msgComp.toUpperCase().replace('%OPENCONTACT%', getContactReport() )}  
 	if (msgComp.contains("%DEVICE%")) {msgComp = msgComp.toUpperCase().replace('%DEVICE%', getNameofDevice() )}  
 	if (msgComp.contains("%EVENT%")) {msgComp = msgComp.toUpperCase().replace('%EVENT%', getWhatHappened() )}  
-        
-    
+    if (msgComp.contains("%GREETING%")) {msgComp = msgComp.toUpperCase().replace('%GREETING%', getGreeting() )}      
+    if (msgComp.contains("%PRE%")) {msgComp = msgComp.toUpperCase().replace('%PRE%', getPre() )}
+    if (msgComp.contains("%POST%")) {msgComp = msgComp.toUpperCase().replace('%POST%', getPost() )}
+
+
     
     convertWeatherMessage(msgComp)
   
     
 }
+
+
+// Message variables ***************************************************
+
+
+
+
+
+// Random message processing ************************************
+
+
+// 'Pre' random message processing
+private getPre(){
+
+def preAnswer = [ 
+'1': "Hey!",
+'2': "I thought you might like to know ,,, ",
+'3': "I'm sorry to disturb you. ,,, but ,,, ",
+'4': "Please excuse me! ,,, but ,,, I thought you might like to know ,,, ",
+'5': " I'm sorry to disturb you. ,,, but ,,,  I thought you might like to know ,,, ",
+'6': "Hey! ,,, I thought you might like to know ,,, ",
+'7': "Information ,,, "
+]
+
+def random1 = new Random()
+def randomKey1 = (preAnswer.keySet() as List)[random1.nextInt(preAnswer.size())]
+ 
+def msgPre =  "${preAnswer[randomKey1]}"
+LOGDEBUG("msgPre = $msgPre")
+
+return msgPre
+}
+
+// 'Post' random message processing
+private getPost(){
+def postAnswer = [
+'1': "I'm telling you this ,,, because I just thought you might like to know!",
+'2': "I just thought you might like to know this",
+'3': "I just thought you might like to know this, that's all!"
+]
+
+def random2 = new Random()
+def randomKey2 = (postAnswer.keySet() as List)[random2.nextInt(postAnswer.size())]
+ 
+def msgPost =  "${postAnswer[randomKey2]}"
+LOGDEBUG("msgPost = $msgPost")
+
+return msgPost
+}
+
+// 'WakeUp' random message processing
+private getWakeUp(){
+def wakeAnswer = [
+'1': "It's time to wake up! ,,, ",
+'2': "Wake Up! Sleepyhead! ,,,",
+'3': "You don't want to waste the day. ,,, do you? ,,, ",
+'4': "You don't want to sleep all day. ,,, do you? ,,, ",
+'5': "Get out of bed! ,,, NOW! ,,, ",
+'6': "come on! it's time to get up! ,,, "
+]
+
+def random3 = new Random()
+def randomKey3 = (wakeAnswer.keySet() as List)[random3.nextInt(wakeAnswer.size())]
+ 
+def msgWake =  "${wakeAnswer[randomKey3]}"
+LOGDEBUG("msgWake = $msgWake")
+
+return msgWake
+
+
+}
+
+// End random message processing ************************************
+
+
+
+// 'Greeting' message processing
+private getGreeting(){
+    def calendar = Calendar.getInstance()
+	calendar.setTimeZone(location.timeZone)
+	def timeHH = calendar.get(Calendar.HOUR) toString()
+    def timeampm = calendar.get(Calendar.AM_PM) ? "pm" : "am" 
+    
+LOGDEBUG("timeHH = $timeHH")
+if(timeampm == 'am'){
+state.greeting = "GOOD MORNING"
+}
+
+else if(timeampm == 'pm' && timeHH < "06"){
+state.greeting = "GOOD AFTERNOON"
+LOGDEBUG("timeampm = $timeampm - timehh = $timeHH")
+}
+
+else if(timeampm == 'pm' && timeHH > "06"){
+LOGDEBUG("timehh = $timeHH - timeampm = $timeampm")
+
+state.greeting = "GOOD EVENING"
+} 
+
+LOGDEBUG("Greeting = $state.greeting")
+return state.greeting
+}
+
+
+
+
 
 private getWhatHappened(){
 LOGDEBUG("Event = $state.actionEvent")
@@ -2156,5 +2272,5 @@ private getyear() {
 
 // App Version   *********************************************************************************
 def setAppVersion(){
-    state.appversion = "3.1.1"
+    state.appversion = "3.2.0"
 }
