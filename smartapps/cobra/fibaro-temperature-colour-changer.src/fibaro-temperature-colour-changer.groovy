@@ -33,11 +33,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 28/02/2018
+ *  Last Update: 01/03/2018
  *
  *  Changes:
  *
- * 
+ *  V1.0.1 - Debug
  *  V1.0.0 - POC
  *
  */
@@ -222,7 +222,7 @@ if (state.switchOver == 'on'){
 state.override = true
 setBrightColour()
 }
-else {
+if (state.switchOver == 'off'){
 state.override = false
 setDimColour()
 	}
@@ -264,7 +264,7 @@ if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == tr
 def setBrightColour(){
 checkTime()
 if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true){
-LOGDEBUG( " Setting 'Bright' colour on now!")
+LOGDEBUG( "Setting 'Bright' colour on now!")
 fibaro1.setLevelRed(redDimB)
 fibaro1.setLevelBlue(blueDimB)
 fibaro1.setLevelGreen(greenDimB)
@@ -428,6 +428,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.0.0"
+    state.appversion = "1.0.1"
 }
 // end app version *********************************************
