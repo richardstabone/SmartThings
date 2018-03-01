@@ -204,11 +204,7 @@ def finalPage() {
 
 // startup
  def startUp(){  // ************************* Initialising defaults ***************************************
- LOGDEBUG( "Setting startup default for $fibaro1 (until temp change)")
-	state.redDim =  "2"
-	state.blueDim = "2"
-	state.greenDim = "2"
-	state.whiteDim = "2"
+
     
  LOGDEBUG( "Setting other startup defaults")
  
@@ -229,11 +225,36 @@ def finalPage() {
 
 def switchEnableNow(evt){
 state.enableSwitch = evt.value
+
+ LOGDEBUG( "state.enableSwitch = $evt.value")
+
 if (state.enableSwitch == 'off') {switchoff()}
-else if (state.enableSwitch == 'on') {setDimColour()}
+else if (state.enableSwitch == 'on') {
+ LOGDEBUG( "Setting  $fibaro1 to 100% all")
+   fibaro1.on()
+   
+    LOGDEBUG( "Setting startup default for $fibaro1 (until temp change)")
+   runIn(10, coldStart)
+	
+        }
 }
 
 //
+
+def coldStart(){
+	state.redDim = 30
+	state.blueDim = 0
+	state.greenDim = 0
+	state.whiteDim = 30
+		fibaro1.setLevelRed(state.redDim)
+		fibaro1.setLevelBlue(state.blueDim)
+		fibaro1.setLevelGreen(state.greenDim)
+        fibaro1.setLevelWhite(state.whiteDim)
+    
+
+
+}
+
 
 def switchOverNow(evt){
 state.switchOver = evt.value
@@ -260,7 +281,7 @@ state.blueDim = blueDim1
 state.greenDim = greenDim1
 state.whiteDim = whiteDim1
 
-if (state.enableSwitch == 'off'){ switchoff()}
+// if (state.enableSwitch == 'off'){ switchoff()}
 if(state.override == false){setDimColour()}
 
 }
@@ -268,7 +289,7 @@ if(state.override == false){setDimColour()}
  // DIM
 def setDimColour(){
 checkTime()
-if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true && state.dayCheck == true){
+if (state.enableSwitch == 'on' && state.riseSetGo == true && state.timeOK == true && state.dayCheck == true){
 	LOGDEBUG( "Temperature is $state.tempLevel degrees - Turning $fibaro1 to 'Dim' custom colour' as prescribed by child app ")
 		fibaro1.setLevelRed(state.redDim)
 		fibaro1.setLevelBlue(state.blueDim)
