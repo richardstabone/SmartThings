@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1.0.2 - Added 'Days' restriction
  *  V1.0.1 - Debug
  *  V1.0.0 - POC
  *
@@ -89,15 +90,10 @@ def initialize() {
     childApps.each {child ->
         log.debug "child app: ${child.label}"
     }
-    state.override = false
-    state.enableSwitch = 'on'
-   
+    
 	startUp()
-    setAppVersion()
-    
-    checkTime()
-    
-    if(!setRise){state.riseSetGo = true}
+  
+   
     
   // subscriptions  
     if(switch1){ subscribe(switch1, "switch", switchEnableNow) } 
@@ -117,7 +113,7 @@ def mainPage() {
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
                   title: "Fibaro Bright/Dim SwitchOver - Temperature Controlled",
                   required: false,
-                  " Control a Fibaro RGBW Controller's colours Dependant upton temperature\r\n" +
+                  " Control a Fibaro RGBW Controller's colours Dependant upon temperature\r\n" +
                   " This is the Parent"
                   
     }
@@ -188,13 +184,13 @@ def finalPage() {
 				input "sunsetOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
         }
       }
-        section("Time Restrictions") {  
-      input "restrictions1", "bool", title: "Restrict by Time", required: false, defaultValue: false, submitOnChange: true
+        section("Day/Time Restrictions") {  
+      input "restrictions1", "bool", title: "Restrict by Day/Time", required: false, defaultValue: false, submitOnChange: true
       
            	if(restrictions1){       		
    				 input "fromTime", "time", title: "Allow actions from", required: false
    				 input "toTime", "time", title: "Allow actions until", required: false
-  //  			 input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+    			 input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     	}
       }
       		section("Logging"){
@@ -203,6 +199,29 @@ def finalPage() {
         
     }
 }
+
+
+
+// startup
+ def startUp(){  // ************************* Initialising defaults ***************************************
+ LOGDEBUG( "Setting startup default for $fibaro1 (until temp change)")
+	state.redDim =  "2"
+	state.blueDim = "2"
+	state.greenDim = "2"
+	state.whiteDim = "2"
+    
+ LOGDEBUG( "Setting other startup defaults")
+ 
+    setAppVersion()
+    checkTime()
+	checkDay()
+ 	state.override = false
+    state.enableSwitch = 'on'
+   	if(!setRise){state.riseSetGo = true}    
+ 
+    
+        }
+
 
 
 //  Handlers
@@ -249,7 +268,7 @@ if(state.override == false){setDimColour()}
  // DIM
 def setDimColour(){
 checkTime()
-if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true){
+if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true && state.dayCheck == true){
 	LOGDEBUG( "Temperature is $state.tempLevel degrees - Turning $fibaro1 to 'Dim' custom colour' as prescribed by child app ")
 		fibaro1.setLevelRed(state.redDim)
 		fibaro1.setLevelBlue(state.blueDim)
@@ -263,7 +282,7 @@ if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == tr
 // BRIGHT
 def setBrightColour(){
 checkTime()
-if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true){
+if (state.enableSwitch != 'off' && state.riseSetGo == true && state.timeOK == true && state.dayCheck == true){
 LOGDEBUG( "Setting 'Bright' colour on now!")
 fibaro1.setLevelRed(redDimB)
 fibaro1.setLevelBlue(blueDimB)
@@ -284,14 +303,35 @@ LOGDEBUG( "Turning off $fibaro1")
  }
  
  
- def startUp(){
- LOGDEBUG( "setting start default for $fibaro1 (until temp change)")
-	state.redDim =  "2"
-	state.blueDim = "2"
-	state.greenDim = "2"
-	state.whiteDim = "2"
-        }
-        
+
+
+
+// check days allowed to run
+def checkDay(){
+def daycheckNow = days
+if (daycheckNow != null){
+ def df = new java.text.SimpleDateFormat("EEEE")
+    
+    df.setTimeZone(location.timeZone)
+    def day = df.format(new Date())
+    def dayCheck1 = days.contains(day)
+    if (dayCheck1) {
+
+  state.dayCheck = true
+LOGDEBUG( " Day ok so can continue...")
+ }       
+ else {
+LOGDEBUG( " Not today!")
+ state.dayCheck = false
+ }
+ }
+if (daycheckNow == null){ 
+ LOGDEBUG("Day restrictions have not been configured -  Continue...")
+ state.dayCheck = true 
+} 
+}
+
+
         
 // Check time allowed to run...
 
@@ -365,7 +405,7 @@ if (astroGo == true){
 	    schedule(setTime, sunsetHandler)
 	}
   }
-   LOGDEBUG("astroCheck - state.riseSetGo = $state.riseSetGo")
+   LOGDEBUG("AstroCheck - state.riseSetGo = $state.riseSetGo")
 }
 
 
@@ -428,6 +468,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.0.1"
+    state.appversion = "1.0.2"
 }
 // end app version *********************************************
