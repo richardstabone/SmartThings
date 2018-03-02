@@ -37,6 +37,7 @@
  *
  *  Changes:
  *
+ *  V1/0.3 - Debug - coldstart
  *  V1.0.2 - Added 'Days' restriction
  *  V1.0.1 - Debug
  *  V1.0.0 - POC
@@ -233,7 +234,7 @@ else if (state.enableSwitch == 'on') {
  LOGDEBUG( "Setting  $fibaro1 to 100% all")
    fibaro1.on()
    
-    LOGDEBUG( "Setting startup default for $fibaro1 (until temp change)")
+   LOGDEBUG( "Setting startup default for $fibaro1 (until temp change)")
    runIn(10, coldStart)
 	
         }
@@ -242,10 +243,10 @@ else if (state.enableSwitch == 'on') {
 //
 
 def coldStart(){
-	state.redDim = 30
-	state.blueDim = 0
-	state.greenDim = 0
-	state.whiteDim = 30
+//	state.redDim = 30
+//	state.blueDim = 0
+//	state.greenDim = 0
+//	state.whiteDim = 30
 		fibaro1.setLevelRed(state.redDim)
 		fibaro1.setLevelBlue(state.blueDim)
 		fibaro1.setLevelGreen(state.greenDim)
@@ -489,6 +490,6 @@ def LOGDEBUG(txt){
 
 // App Version   ***********************************************
 def setAppVersion(){
-    state.appversion = "1.0.2"
+    state.appversion = "1.0.3"
 }
 // end app version *********************************************
