@@ -1972,9 +1972,9 @@ private getPre(){
 def preAnswer = [ 
 '1': "Hey!",
 '2': "I thought you might like to know ,,, ",
-'3': "I'm sorry to disturb you. ,,, but ,,, ",
-'4': "Please excuse me! ,,, but ,,, I thought you might like to know ,,, ",
-'5': " I'm sorry to disturb you. ,,, but ,,,  I thought you might like to know ,,, ",
+'3': "I'm sorry to disturb you. ,,, but  ",
+'4': "Please excuse me! ,,, but I thought you might like to know ,,, ",
+'5': " I'm sorry to disturb you. ,,, but I thought you might like to know ,,, ",
 '6': "Hey! ,,, I thought you might like to know ,,, ",
 '7': "Information ,,, "
 ]
@@ -2009,11 +2009,11 @@ return msgPost
 private getWakeUp(){
 def wakeAnswer = [
 '1': "It's time to wake up! ,,, ",
-'2': "Wake Up! Sleepyhead! ,,,",
+'2': "Please Wake Up! ,,,",
 '3': "You don't want to waste the day. ,,, do you? ,,, ",
 '4': "You don't want to sleep all day. ,,, do you? ,,, ",
 '5': "Get out of bed! ,,, NOW! ,,, ",
-'6': "come on! it's time to get up! ,,, "
+'6': "Come on! it's time to get up! ,,, "
 ]
 
 def random3 = new Random()
@@ -2035,7 +2035,7 @@ return msgWake
 private getGreeting(){
     def calendar = Calendar.getInstance()
 	calendar.setTimeZone(location.timeZone)
-	def timeHH = calendar.get(Calendar.HOUR) toString()
+	def timeHH = calendar.get(Calendar.HOUR) toInteger() // changed from toString() to toInteger()  ***********************************
     def timeampm = calendar.get(Calendar.AM_PM) ? "pm" : "am" 
     
 LOGDEBUG("timeHH = $timeHH")
@@ -2043,12 +2043,12 @@ if(timeampm == 'am'){
 state.greeting = "GOOD MORNING"
 }
 
-else if(timeampm == 'pm' && timeHH < "06"){
+else if(timeampm == 'pm' && timeHH < 6){
 state.greeting = "GOOD AFTERNOON"
 LOGDEBUG("timeampm = $timeampm - timehh = $timeHH")
 }
 
-else if(timeampm == 'pm' && timeHH > "06"){
+else if(timeampm == 'pm' && timeHH >= 6){
 LOGDEBUG("timehh = $timeHH - timeampm = $timeampm")
 
 state.greeting = "GOOD EVENING"

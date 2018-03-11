@@ -138,7 +138,7 @@ def allInputs(){
         input "missedMsgDelay", "number", title: "Delay after arriving home before reminder message (minutes)", defaultValue: '0', description: "Minutes", required: true
         input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: true, multiple: true
 		input "volume1", "number", title: "Speaker volume", description: "0-100%", defaultValue: "80",  required: true  
-        input "preMsg", "text", title: "Message to speak before list of missed messages", required: false, defaultValue: "Welcome home! ,,, I know that you've just arrived ,,, but ,,,  while you were away ,,, you missed the following messages ,,,"
+        input "preMsg", "text", title: "Message to speak before list of missed messages", required: false, defaultValue: "Welcome home! ,,, I know that you've just arrived ,,, but while you were away ,,, you missed the following messages ,,,"
 	
 
 
