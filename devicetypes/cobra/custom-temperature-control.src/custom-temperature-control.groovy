@@ -71,7 +71,7 @@ metadata {
 	tiles {
 		multiAttributeTile(name:"temperature", type: "generic", width: 4, height: 4){
 			tileAttribute ("device.temperature", key: "PRIMARY_CONTROL") {
-				attributeState("temperature", label:'${currentValue}°', unit:"C", action:"wait",  // change 'unit' setting to F for fahrenheit
+				attributeState("temperature", label:'${currentValue}°', unit:"C", // change 'unit' setting to F for fahrenheit   action:"wait", 
                 backgroundColors:[
                     // Celsius Color Range
                 [value:  0, color: "#153591"],
