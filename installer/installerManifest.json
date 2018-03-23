@@ -1,0 +1,54 @@
+{
+  "namespace": "Cobra",
+  "repoOwner": "CobraVmax",
+  "repoName": "SmartThings",
+  "repoBranch": "master",
+  "name": "Presence Central",
+  "author": "Andrew Parker",
+  "description": "Control Switches, Lights, Doors, Modes, Routines, Speak or send messages. All based upon 'group' or single Presence actions/status",
+  "category": "My Apps",
+  "bannerUrl": "https://raw.githubusercontent.com/cobravmax/SmartThings/master/installer/presencecentral_banner.png",
+  "forumUrl": "https://community.smartthings.com/t/updated-presence-central/103543?u=cobra,
+  "docUrl": "",
+  "releaseType": "production",
+  "keywords": [
+    "presence",
+    "arrived",
+    "departed",
+    "lights",
+    "switches",
+    "modes",
+    "sms",
+    "routine",
+    "speak",
+    "talk",
+    "push"
+
+  ],
+  "notes": " ",
+  "smartApps": {
+    "parent": {
+      "name": "Presence Central",
+      "iconUrl": "https://raw.githubusercontent.com/cobravmax/SmartThings/master/installer/presencecentral.png",
+      "published": true,
+      "oAuth": false,
+      "version": "1.0.0",
+      "appSettings": {},
+      "appUrl": "smartapps/cobra/presence-central.src/presence-central.groovy"
+    },
+    "children": [
+      {
+        "name": "Presence_Central_Child",
+        "iconUrl": "https://raw.githubusercontent.com/cobravmax/SmartThings/master/installer/presencecentral.png",
+        "published": false,
+        "oAuth": false,
+        "version": "1.4.0",
+        "appSettings": {},
+        "appUrl": "smartapps/cobra/message-central-child.src/presence-central-child.groovy",
+        "optional": false
+      }
+    ]
+  },
+  "deviceHandlers": []
+    
+}
