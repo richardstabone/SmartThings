@@ -1,11 +1,11 @@
-/**
+﻿/**
  *  ****************  Presence Central  ****************
  *
  *  Design Usage:
  *  This is the 'Parent' app for presence automation
  *
  *
- *  Copyright 2017 Andrew Parker
+ *  Copyright 2018 Andrew Parker
  *  
  *  This SmartApp is free!
  *  Donations to support development efforts are accepted via: 
@@ -33,7 +33,7 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 03/09/2017
+ *  Last Update: 23/03/2018
  *
  *  Changes:
  *
@@ -69,7 +69,7 @@ preferences {
     }
     section() {
            paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-                         "Parent Version: 1.0.0 -  Copyright © 2017 Cobra"
+                         "Parent Version: 1.0.0 -  Copyright © 2018 Cobra"
     }
         section {
             app(name: "switchPresenceAutomation", appName: "Presence_Central_Child", namespace: "Cobra", title: "Create New Presence Automation", multiple: true)

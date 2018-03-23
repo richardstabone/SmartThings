@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  ****************  Presence Central.  ****************
  *
  *  Credits: I have to credit Brian Gudauskas (@bridaus -Reliable Presence) & Eric Roberts (@baldeagle072 - Everyones Presence) for stealing some of their code for multiple presence sensor determinations
@@ -8,7 +8,7 @@
  *  This is the 'Child' app for presence automation
  *
  *
- *  Copyright 2017 Andrew Parker
+ *  Copyright 2018 Andrew Parker
  *  
  *  This SmartApp is free!
  *  If you feel it's worth it then, donations to support development efforts are accepted via: 
@@ -36,7 +36,7 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 02/12/2017
+ *  Last Update: 23/03/2018
  *
  *  Changes:
  *
@@ -163,7 +163,7 @@ def mainPage() {
      section() {
    
         paragraph image: "https://raw.githubusercontent.com/cobravmax/SmartThings/master/icons/cobra3.png",
-                         "Child Version: $state.appversion - Copyright © 2017 Cobra"
+                         "Child Version: $state.appversion - Copyright © 2018 Cobra"
     }             
       section() {
         	basicInputs()
