@@ -59,19 +59,19 @@ preferences {
 
 
 	section("Which switch to cycle...") {
-        input(name:"theSwitch", type: "capability.switch", required: true, multiple: true)
+        input(name:"theSwitch", type: "capability.switch", required: false, multiple: true)
 	}
 	section("Power Cycle at...") {
-		input (name: "rebootTime", title: "At what time?", type: "time",  required: true)
+		input (name: "rebootTime", title: "At what time?", type: "time",  required: false)
 	}
     section("Or ...") {
-		input (name: "rebootSwitch", title: "When this switch is turned on (Optional)", type: "capability.switch",  required: true)
+		input (name: "rebootSwitch", title: "When this switch is turned on (Optional)", type: "capability.switch",  required: false)
 	}
     
     
     
     section("On Which Days") {
-        input "days", "enum", title: "Select Days of the Week", required: true, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
+        input "days", "enum", title: "Select Days of the Week", required: false, multiple: true, options: ["Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday", "Sunday": "Sunday"]
     }
     section("How long to stay off") {
 		input(name:"secondsdelay", type:"number", title: "Seconds", required: true)
