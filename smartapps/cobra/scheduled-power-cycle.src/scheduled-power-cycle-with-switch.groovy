@@ -80,8 +80,10 @@ preferences {
 
 def installed() {
 	log.debug "Installed with settings: ${settings}"
-	schedule(rebootTime, rebootNow)
-     if(rebootSwitch){subscribe(rebootSwitch, "switch", switchHandler)}
+
+
+	if(rebootTime){schedule(rebootTime, rebootNow)}
+        if(rebootSwitch){subscribe(rebootSwitch, "switch", switchHandler)}
     
          
 }
